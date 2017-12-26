@@ -10,7 +10,6 @@
 #define reg_p1  rdi
 #define reg_p2  rsi
 #define reg_p3  rdx
-#define reg_p4  rcx
 
 #define p751_0     0xFFFFFFFFFFFFFFFF
 #define p751_5     0xEEAFFFFFFFFFFFFF
@@ -183,8 +182,8 @@ cswap751_asm:
 
 //***********************************************************************
 //  Conditional assign
-//  Operation: If choice [reg_p4] = 0, set z [reg_p3] = x [reg_p1]. 
-//             If choice [reg_p4] = 1, set z [reg_p3] = y [reg_p2].
+//  Operation: If choice [reg_p3] = 0, leave x [reg_p1] unchanged. 
+//             If choice [reg_p3] = 1, set x [reg_p1] = y [reg_p2].
 //*********************************************************************** 
 .global cassign751_asm
 cassign751_asm:
@@ -193,7 +192,7 @@ cassign751_asm:
   push   r14
   push   r15
 
-  movzx  rax, cl // Get the lower 8 bits of rcx (reg_p4)
+  movzx  rax, dl // Get the lower 8 bits of rdx (reg_p3)
   neg    rax
 
   mov    rbx, [reg_p1] // rbx = x[0]
@@ -201,84 +200,84 @@ cassign751_asm:
   xor    rcx, rbx      // rcx = y[0] ^ x[0]
   and    rcx, rax      // rcx = (y[0] ^ x[0]) & mask
   xor    rcx, rbx      // rcx = (y[0] ^ x[0]) & mask) ^ x[0]
-  mov    [reg_p3], rcx //     = x[0] or y[0]
+  mov    [reg_p1], rcx //     = x[0] or y[0]
 
   mov    rbx, [reg_p1+8]
   mov    rcx, [reg_p2+8]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+8], rcx
+  mov    [reg_p1+8], rcx
 
   mov    rbx, [reg_p1+16]
   mov    rcx, [reg_p2+16]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+16], rcx
+  mov    [reg_p1+16], rcx
 
   mov    rbx, [reg_p1+24]
   mov    rcx, [reg_p2+24]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+24], rcx
+  mov    [reg_p1+24], rcx
 
   mov    rbx, [reg_p1+32]
   mov    rcx, [reg_p2+32]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+32], rcx
+  mov    [reg_p1+32], rcx
 
   mov    rbx, [reg_p1+40]
   mov    rcx, [reg_p2+40]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+40], rcx
+  mov    [reg_p1+40], rcx
 
   mov    rbx, [reg_p1+48]
   mov    rcx, [reg_p2+48]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+48], rcx
+  mov    [reg_p1+48], rcx
 
   mov    rbx, [reg_p1+56]
   mov    rcx, [reg_p2+56]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+56], rcx
+  mov    [reg_p1+56], rcx
 
   mov    rbx, [reg_p1+64]
   mov    rcx, [reg_p2+64]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+64], rcx
+  mov    [reg_p1+64], rcx
 
   mov    rbx, [reg_p1+72]
   mov    rcx, [reg_p2+72]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+72], rcx
+  mov    [reg_p1+72], rcx
 
   mov    rbx, [reg_p1+80]
   mov    rcx, [reg_p2+80]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+80], rcx
+  mov    [reg_p1+80], rcx
 
   mov    rbx, [reg_p1+88]
   mov    rcx, [reg_p2+88]
   xor    rcx, rbx
   and    rcx, rax
   xor    rcx, rbx
-  mov    [reg_p3+88], rcx
+  mov    [reg_p1+88], rcx
 
   pop    r15
   pop    r14
