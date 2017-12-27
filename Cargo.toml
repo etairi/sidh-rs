@@ -7,8 +7,8 @@ authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 cc = "1.0.3"
 subtle = "^0.3"
 
-[dependencies.subtle]
-version = "^0.3"
+[dependencies.byteorder]
+version = "1"
 default-features = false
 
 [dependencies.quickcheck]
@@ -16,3 +16,7 @@ version = "0.5"
 
 [dependencies.rand]
 version = "0.3"
+
+[dependencies.subtle]
+version = "^0.3"
+default-features = false

@@ -18,9 +18,12 @@ extern crate subtle;
 extern crate test;
 
 #[cfg(test)]
+extern crate byteorder;
+#[cfg(test)]
 extern crate quickcheck;
 #[cfg(test)]
 extern crate rand;
 
 mod consts;
 mod field;
+mod curve;

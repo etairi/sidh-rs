@@ -155,27 +155,36 @@ impl Arbitrary for ExtensionFieldElement {
     fn arbitrary<G: Gen>(g: &mut G) -> ExtensionFieldElement {
         let a = g.gen::<Fp751Element>();
         let b = g.gen::<Fp751Element>();
-        ExtensionFieldElement { A: a, B: b }
+        ExtensionFieldElement{ A: a, B: b }
+    }
+}
+
+#[cfg(test)]
+impl Rand for ExtensionFieldElement {
+    fn rand<R: Rng>(rng: &mut R) -> ExtensionFieldElement {
+        let a = rng.gen::<Fp751Element>();
+        let b = rng.gen::<Fp751Element>();
+        ExtensionFieldElement{ A: a, B: b }
     }
 }
 
 impl ExtensionFieldElement {
     // Construct zero.
-    fn zero() -> ExtensionFieldElement {
+    pub fn zero() -> ExtensionFieldElement {
         ExtensionFieldElement {
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     // Construct one.
-    fn one() -> ExtensionFieldElement {
+    pub fn one() -> ExtensionFieldElement {
         ExtensionFieldElement {
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     // Set output to 1/x.
-    fn inv(&self) -> ExtensionFieldElement {
+    pub fn inv(&self) -> ExtensionFieldElement {
         let a = &self.A;
         let b = &self.B;
 
@@ -216,7 +225,7 @@ impl ExtensionFieldElement {
     //
     // All xi, yi must be distinct.
     fn batch3_inv(x1: &ExtensionFieldElement, x2: &ExtensionFieldElement, x3: &ExtensionFieldElement) -> 
-                                 (ExtensionFieldElement, ExtensionFieldElement, ExtensionFieldElement)
+                 (ExtensionFieldElement, ExtensionFieldElement, ExtensionFieldElement)
     {
         let x1x2 = x1 * x2;     // x1*x2
         let mut t = &x1x2 * x3;
@@ -230,7 +239,7 @@ impl ExtensionFieldElement {
         (_y1, _y2, _y3)
     }
     // Set the output to x^2.
-    fn square(&self) -> ExtensionFieldElement {
+    pub fn square(&self) -> ExtensionFieldElement {
         let a = &self.A;
         let b = &self.B;
 
@@ -254,7 +263,7 @@ impl ExtensionFieldElement {
         }
     }
     // Returns true if both sides are equal. Takes variable time.
-    fn vartime_eq(&self, _rhs: &ExtensionFieldElement) -> bool {
+    pub fn vartime_eq(&self, _rhs: &ExtensionFieldElement) -> bool {
         (&self.A == &_rhs.A) && (&self.B == &_rhs.B)
     }
     // Convert the input to wire format.
@@ -365,19 +374,27 @@ impl Debug for PrimeFieldElement {
 impl Arbitrary for PrimeFieldElement {
     fn arbitrary<G: Gen>(g: &mut G) -> PrimeFieldElement {
         let a = g.gen::<Fp751Element>();
-        PrimeFieldElement { A: a }
+        PrimeFieldElement{ A: a }
+    }
+}
+
+#[cfg(test)]
+impl Rand for PrimeFieldElement {
+    fn rand<R: Rng>(rng: &mut R) -> PrimeFieldElement {
+        let a = rng.gen::<Fp751Element>();
+        PrimeFieldElement{ A: a }
     }
 }
 
 impl PrimeFieldElement {
     // Construct zero.
-    fn zero() -> PrimeFieldElement {
+    pub fn zero() -> PrimeFieldElement {
         PrimeFieldElement {
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     // Construct one.
-    fn one() -> PrimeFieldElement {
+    pub fn one() -> PrimeFieldElement {
         PrimeFieldElement {
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
         }
@@ -392,7 +409,7 @@ impl PrimeFieldElement {
         output
     }
     // Set the output to x^2.
-    fn square(&self) -> PrimeFieldElement {
+    pub fn square(&self) -> PrimeFieldElement {
         let a = &self.A;      // = a*R
         let b = &self.A;      // = b*R
         let ab = a * b;       // = a*b*R*R
@@ -448,7 +465,7 @@ impl PrimeFieldElement {
         result
     }
     // Set output to 1/x.
-    fn inv(&self) -> PrimeFieldElement {
+    pub fn inv(&self) -> PrimeFieldElement {
         //let tmp_x = *self;
         let mut result = self.square(); // result = x^2
         result = result.p34();          // result = (x^2)^((p-3)/4) = x^((p-3)/2)
@@ -457,7 +474,7 @@ impl PrimeFieldElement {
         result
     }
     // Returns true if both sides are equal. Takes variable time.
-    fn vartime_eq(&self, _rhs: &PrimeFieldElement) -> bool {
+    pub fn vartime_eq(&self, _rhs: &PrimeFieldElement) -> bool {
         &self.A == &_rhs.A
     }
 }
@@ -614,7 +631,7 @@ impl Rand for Fp751Element {
 
 impl Fp751Element {
     // Construct a new zero Fp751Element.
-    fn zero() -> Fp751Element {
+    pub fn zero() -> Fp751Element {
         Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
     }
     // Reduce a field element in [0, 2*p) to one in [0,p).
@@ -756,7 +773,7 @@ mod test {
     use super::*;
 
     const SCALE_FACTOR: u8 = 3;
-    const MAX_TESTS: u64 = 1 << (8 + SCALE_FACTOR);
+    const MAX_TESTS: u64 = 1 << (10 + SCALE_FACTOR);
 
     #[test]
     fn one_extension_field_to_byte() {
