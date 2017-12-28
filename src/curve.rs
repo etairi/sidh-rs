@@ -5,8 +5,6 @@ use core::fmt::Debug;
 use subtle::ConditionallySwappable;
 
 #[cfg(test)]
-use byteorder::{ByteOrder, LittleEndian};
-#[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
 #[cfg(test)]
 use rand::{Rand, Rng};
@@ -123,9 +121,9 @@ impl ProjectiveCurveParameters {
 // This represents a point on the (Kummer line) of a Montgomery curve.  The
 // curve is specified by a ProjectiveCurveParameters struct.
 #[derive(Copy, Clone, PartialEq)]
-struct ProjectivePoint {
-    X: ExtensionFieldElement,
-    Z: ExtensionFieldElement,
+pub struct ProjectivePoint {
+    pub X: ExtensionFieldElement,
+    pub Z: ExtensionFieldElement,
 }
 
 impl ConditionallySwappable for ProjectivePoint {
@@ -164,16 +162,22 @@ impl ProjectivePoint {
         }
     }
 
-    fn from_affine(x: &ExtensionFieldElement) -> ProjectivePoint {
+    pub fn from_affine(x: &ExtensionFieldElement) -> ProjectivePoint {
         ProjectivePoint {
             X: *x,
             Z: ExtensionFieldElement::one()
         }
     }
 
-    fn to_affine(&self) -> ExtensionFieldElement {
+    pub fn to_affine(&self) -> ExtensionFieldElement {
         let affine_x = &self.Z.inv() * &self.X;
         affine_x
+    }
+    // Returns true if both sides are equal. Takes variable time.
+    pub fn vartime_eq(&self, _rhs: &ProjectivePoint) -> bool {
+        let t0 = &self.X * &_rhs.Z;
+        let t1 = &self.Z * &_rhs.X;
+        t0.vartime_eq(&t1)
     }
     // Given xP = x(P), xQ = x(Q), and xPmQ = x(P-Q), compute xR = x(P+Q).
     fn add(&self, xQ: &ProjectivePoint, xPmQ: &ProjectivePoint) -> ProjectivePoint {
@@ -245,7 +249,6 @@ impl ProjectivePoint {
         z = &z * &t2;               // z4 = E*((4C)*BB+(A+2C)*E)
         let x2P = ProjectivePoint { X: x, Z: z };
 
-        // TODO: Check whether end result is correct?!
         (x2P, xPaddQ)
     }
     // Given the curve parameters, xP = x(P), and k >= 0, compute xQ = x([2^k]P).
@@ -308,12 +311,12 @@ impl ProjectivePoint {
 
         // Iterate over the bits of the scalar, top to bottom.
         let mut prev_bit: u8 = 0;
-        for i in (0..scalar.len()).rev() { // TODO: Fix this!
+        for i in (0..scalar.len()).rev() {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
-                tmp = x0.double(&cached_params); // TODO: Can declare tmp here (let tmp)?
+                tmp = x0.double(&cached_params);
                 x1 = x0.add(&x1, &xP);
                 x0 = tmp;
                 prev_bit = bit;
@@ -348,7 +351,7 @@ impl ProjectivePoint {
         v2 = &v2 * &xR.Z;               // = (x_P*X_Q + Z_Q)*(X_Q + x_P*Z_Q)*Z_R
         let Y_Q = &v2 - &v3;            // = (x_P*X_Q + Z_Q)*(X_Q + x_P*Z_Q)*Z_R - X_R*(X_Q - x_P*Z_Q)^2
         v1 = affine_yP + affine_yP;     // = 2b*y_P
-        v1 = &(&v1 * &xQ.Z) * &xR.Z;    // = 2b*y_P*Z_Q*Z_R // TODO: Check!!
+        v1 = &(&v1 * &xQ.Z) * &xR.Z;    // = 2b*y_P*Z_Q*Z_R
         let X_Q = &v1 * &xQ.X;          // = 2b*y_P*Z_Q*Z_R*X_Q
         let Z_Q = &v1 * &xQ.Z;          // = 2b*y_P*Z_Q^2*Z_R
 
@@ -411,13 +414,13 @@ impl ProjectivePoint {
 
         // Iterate over the bits of the scalar, top to bottom.
         let mut prev_bit: u8 = 0;
-        for i in (0..scalar.len()).rev() { // TODO: Fix this
+        for i in (0..scalar.len()).rev() {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
                 (&mut y0).conditional_swap(&mut y1, (bit ^ prev_bit));
-                let (tmp, _x2) = x0.dbl_add(&x2, &y0, &cached_params); // NOTE: Cannot assign to a tuple in Rust (yet).
+                let (tmp, _x2) = x0.dbl_add(&x2, &y0, &cached_params); // NOTE: Cannot re-assign to a tuple in Rust (yet).
                 x2 = _x2;
                 x1 = x1.add(&x0, xQ); // = xADD(x1, x0, x(Q))
                 x0 = tmp;
@@ -440,12 +443,12 @@ impl ProjectivePoint {
 
         // Iterate over the bits of the scalar, bottom to top.
         let mut prev_bit: u8 = 0;
-        for i in 0..scalar.len() { // TODO: Fix this
+        for i in 0..scalar.len() {
             let scalar_byte = scalar[i];
             for j in 0..8 {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut R1).conditional_swap(&mut R2, (bit ^ prev_bit));
-                let (_R0, _R2) = R0.dbl_add(&R2, &R1, &cached_params); // NOTE: Cannot assign to a tuple in Rust (yet).
+                let (_R0, _R2) = R0.dbl_add(&R2, &R1, &cached_params); // NOTE: Cannot re-assign to a tuple in Rust (yet).
                 R0 = _R0;
                 R2 = _R2;
                 prev_bit = bit;
@@ -621,12 +624,6 @@ impl ProjectivePoint {
 
         xR
     }
-    
-    fn vartime_eq(&self, _rhs: &ProjectivePoint) -> bool {
-        let t0 = &self.X * &_rhs.Z;
-        let t1 = &self.Z * &_rhs.X;
-        t0.vartime_eq(&t1)
-    }
 }
 
 // A point on the projective line P^1(F_p).
@@ -662,7 +659,7 @@ impl Arbitrary for ProjectivePrimeFieldPoint {
 }
 
 impl ProjectivePrimeFieldPoint {
-    // Creates a new empty ProjectivePrimeFieldPoint.
+    // Creates a new zero ProjectivePrimeFieldPoint.
     fn new() -> ProjectivePrimeFieldPoint {
         ProjectivePrimeFieldPoint{ X: PrimeFieldElement::zero(), Z: PrimeFieldElement::zero() }
     }
@@ -677,6 +674,12 @@ impl ProjectivePrimeFieldPoint {
     fn to_affine(&self) -> PrimeFieldElement {
         let affine_x = &self.Z.inv() * &self.X;
         affine_x
+    }
+    // Returns true if both sides are equal. Takes variable time.
+    pub fn vartime_eq(&self, _rhs: &ProjectivePrimeFieldPoint) -> bool {
+        let t0 = &self.X * &_rhs.Z;
+        let t1 = &self.Z * &_rhs.X;
+        t0.vartime_eq(&t1)
     }
     // Given xP = x(P), xQ = x(Q), and xPmQ = x(P-Q), compute xR = x(P+Q).
     fn add(&self, xQ: &ProjectivePrimeFieldPoint, xPmQ: &ProjectivePrimeFieldPoint) -> 
@@ -750,7 +753,6 @@ impl ProjectivePrimeFieldPoint {
         z = &z * &t0;              // z4 = E*(BB+((A+2C)/4)*E)
         let x2P = ProjectivePrimeFieldPoint { X: x, Z: z };
 
-        // TODO: Check whether end result is correct?!
         (x2P, xPaddQ)
     }
     // Given x(P) and a scalar m in little-endian bytes, compute x([m]P), x([m+1]P) 
@@ -765,18 +767,18 @@ impl ProjectivePrimeFieldPoint {
     fn scalar_mul_prime_field(xP: &ProjectivePrimeFieldPoint, aPlus2Over4: &PrimeFieldElement, scalar: &[u8]) -> 
                              (ProjectivePrimeFieldPoint, ProjectivePrimeFieldPoint)
     {
-        //let xP = *self; // NOTE: Remove!
+        //let xP = *self;
         let mut x0 = ProjectivePrimeFieldPoint{ X: PrimeFieldElement::one(), Z: PrimeFieldElement::zero() };
         let mut x1 = *xP; // If we use self, changei it back to xP, removing *.
 
         // Iterate over the bits of the scalar, top to bottom.
         let mut prev_bit: u8 = 0;
-        for i in (0..scalar.len()).rev() { // TODO: Fix this!
+        for i in (0..scalar.len()).rev() {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
-                let (_x0, _x1) = x0.dbl_add(&x1, &xP, aPlus2Over4); // NOTE: Cannot assign to a tuple in Rust (yet).
+                let (_x0, _x1) = x0.dbl_add(&x1, &xP, aPlus2Over4); // NOTE: Cannot re-assign to a tuple in Rust (yet).
                 x0 = _x0;
                 x1 = _x1;
                 prev_bit = bit;
@@ -785,11 +787,6 @@ impl ProjectivePrimeFieldPoint {
         // Now prev_bit is the lowest bit of the scalar.
         (&mut x0).conditional_swap(&mut x1, prev_bit);
         (x0, x1)
-    }
-    fn vartime_eq(&self, _rhs: &ProjectivePrimeFieldPoint) -> bool {
-        let t0 = &self.X * &_rhs.Z;
-        let t1 = &self.Z * &_rhs.X;
-        t0.vartime_eq(&t1)
     }
 }
 
@@ -917,9 +914,7 @@ mod test {
 
     #[test]
     fn point_pow2k_versus_scalar_mul() {
-        let mut byte = [0u8; 1];
-        LittleEndian::write_uint(&mut byte, 32, 1);
-
+        let byte = [32u8; 1];
         let xP = ProjectivePoint{ X: AFFINE_XP, Z: EXTENSION_FIELD_ELEMENT_ONE };
         let xQ = xP.pow2k(&CURVE, 5);              // = x([32]P)
         let affine_xQ = xQ.to_affine();
@@ -1039,16 +1034,6 @@ mod test {
         X_B = &X_B * &invZ_B; // = X_B / Z_B
         assert!(AFFINE_Y_PB.vartime_eq(&Y_B), "Recovered y(P_B) incorrectly: found\n{:?}\nexpected{:?}\n", Y_B, AFFINE_Y_PB);
         assert!(AFFINE_X_PB.vartime_eq(&X_B), "Recovered x(P_B) incorrectly: found\n{:?}\nexpected{:?}\n", X_B, AFFINE_X_PB);
-   }
-
-   #[test]
-   fn tester() {
-        let xR = ProjectivePrimeFieldPoint::new();
-        let a24 = PrimeFieldElement::zero();
-        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
-        
-        let res = ProjectivePrimeFieldPoint::scalar_mul_prime_field(&xR, &a24, &m_scalar_bytes[..]);
-        println!("{:?}", res);
    }
 }
 
