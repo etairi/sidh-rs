@@ -806,7 +806,7 @@ impl ProjectivePrimeFieldPoint {
 // sage: X2, Y2, Z2 = 2*P
 // sage: X3, Y3, Z3 = 3*P
 // sage: m = 96550223052359874398280314003345143371473380422728857598463622014420884224892
-
+//
 #[cfg(test)]
 mod test {
     use super::*;

@@ -267,7 +267,7 @@ impl ExtensionFieldElement {
         (&self.A == &_rhs.A) && (&self.B == &_rhs.B)
     }
     // Convert the input to wire format.
-    fn to_bytes(&self) -> [u8; 188] {
+    pub fn to_bytes(&self) -> [u8; 188] {
         let mut bytes = [0u8; 188];
         bytes[0..94].clone_from_slice(&self.A.to_bytes());
         bytes[94..188].clone_from_slice(&self.B.to_bytes());

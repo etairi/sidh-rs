@@ -6,10 +6,10 @@
 #![feature(iterator_step_by)]
 #![feature(test)]
 
-#![cfg_attr(not(feature = "std"), no_std)]
+//#![cfg_attr(not(feature = "std"), no_std)]
 //#![cfg_attr(feature = "bench", feature(test))]
 
-#[cfg(feature = "std")]
+//#[cfg(feature = "std")]
 extern crate core;
 
 // Used for traits related to constant-time code.
@@ -22,7 +22,7 @@ extern crate quickcheck;
 
 extern crate rand;
 
-mod consts;
+mod constants;
 mod field;
 mod curve;
 mod isogeny;
