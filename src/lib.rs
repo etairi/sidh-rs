@@ -3,6 +3,7 @@
 #![allow(unused_assignments)]
 #![allow(unused_imports)]
 
+#![feature(iterator_step_by)]
 #![feature(test)]
 
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -16,13 +17,13 @@ extern crate subtle;
 
 //#[cfg(all(test, feature = "bench"))]
 extern crate test;
-
 #[cfg(test)]
 extern crate quickcheck;
-#[cfg(test)]
+
 extern crate rand;
 
 mod consts;
 mod field;
 mod curve;
 mod isogeny;
+mod sidh;

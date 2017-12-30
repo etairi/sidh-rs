@@ -46,7 +46,7 @@ impl<'a, 'b> Add<&'b ExtensionFieldElement> for &'a ExtensionFieldElement {
         let a = &self.A + &_rhs.A;
         let b = &self.B + &_rhs.B;
 
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: a,
             B: b
         }
@@ -67,7 +67,7 @@ impl<'a, 'b> Sub<&'b ExtensionFieldElement> for &'a ExtensionFieldElement {
         let a = &self.A - &_rhs.A;
         let b = &self.B - &_rhs.B;
 
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: a,
             B: b
         }
@@ -171,14 +171,14 @@ impl Rand for ExtensionFieldElement {
 impl ExtensionFieldElement {
     // Construct zero.
     pub fn zero() -> ExtensionFieldElement {
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     // Construct one.
     pub fn one() -> ExtensionFieldElement {
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
@@ -216,7 +216,7 @@ impl ExtensionFieldElement {
         let minus_bc = &minus_b * &c;
         let _b = minus_bc.reduce();
 
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: _a,
             B: _b
         }
@@ -224,7 +224,7 @@ impl ExtensionFieldElement {
     // Set (y1, y2, y3)  = (1/x1, 1/x2, 1/x3).
     //
     // All xi, yi must be distinct.
-    fn batch3_inv(x1: &ExtensionFieldElement, x2: &ExtensionFieldElement, x3: &ExtensionFieldElement) -> 
+    pub fn batch3_inv(x1: &ExtensionFieldElement, x2: &ExtensionFieldElement, x3: &ExtensionFieldElement) -> 
                  (ExtensionFieldElement, ExtensionFieldElement, ExtensionFieldElement)
     {
         let x1x2 = x1 * x2;     // x1*x2
@@ -257,7 +257,7 @@ impl ExtensionFieldElement {
         let _a = asq_minus_bsq.reduce(); // = (a^2 - b^2)*R mod p
         let _b = ab2.reduce();           // = 2*a*b*R mod p
 
-        ExtensionFieldElement {
+        ExtensionFieldElement{
             A: _a,
             B: _b
         }
@@ -268,16 +268,17 @@ impl ExtensionFieldElement {
     }
     // Convert the input to wire format.
     fn to_bytes(&self) -> [u8; 188] {
-        let mut output = [0u8; 188];
-        output[0..94].clone_from_slice(&self.A.to_bytes());
-        output[94..188].clone_from_slice(&self.B.to_bytes());
-        output
+        let mut bytes = [0u8; 188];
+        bytes[0..94].clone_from_slice(&self.A.to_bytes());
+        bytes[94..188].clone_from_slice(&self.B.to_bytes());
+        bytes
     }
     // Read 188 bytes into the given ExtensionFieldElement.
-    fn from_bytes(bytes: &[u8; 188]) -> ExtensionFieldElement {
+    pub fn from_bytes(bytes: &[u8]) -> ExtensionFieldElement {
+        assert!(bytes.len() >= 188, "Too short input to ExtensionFieldElement from_bytes, expected 188 bytes");
         let a = Fp751Element::from_bytes(&bytes[0..94]);
         let b = Fp751Element::from_bytes(&bytes[94..188]);
-        ExtensionFieldElement { A: a, B: b }
+        ExtensionFieldElement{ A: a, B: b }
     }
 }
 
@@ -339,7 +340,7 @@ impl<'a, 'b> Mul<&'b PrimeFieldElement> for &'a PrimeFieldElement {
         let ab = a * b;       // = a*b*R*R
         let _a = ab.reduce(); // = a*b*R mod p
         
-        PrimeFieldElement { A: _a }
+        PrimeFieldElement{ A: _a }
     }
 }
 
@@ -389,13 +390,13 @@ impl Rand for PrimeFieldElement {
 impl PrimeFieldElement {
     // Construct zero.
     pub fn zero() -> PrimeFieldElement {
-        PrimeFieldElement {
+        PrimeFieldElement{
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     // Construct one.
     pub fn one() -> PrimeFieldElement {
-        PrimeFieldElement {
+        PrimeFieldElement{
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
         }
     }
@@ -415,7 +416,7 @@ impl PrimeFieldElement {
         let ab = a * b;       // = a*b*R*R
         let _a = ab.reduce(); // = a*b*R mod p
 
-        PrimeFieldElement { A: _a }
+        PrimeFieldElement{ A: _a }
     }
     // Raise self to 2^(2^k)-th power, for k >= 1, by repeated squarings.
     #[inline]
@@ -642,7 +643,7 @@ impl Fp751Element {
     }
     // Given an Fp751Element in Montgomery form, convert to little-endian bytes.
     fn to_bytes(&self) -> [u8; 94] {
-        let mut output = [0u8; 94];
+        let mut bytes = [0u8; 94];
         let mut a = Fp751Element::zero();
         let mut aR = Fp751X2::zero();
 
@@ -657,13 +658,13 @@ impl Fp751Element {
             j = i / 8;
             k = (i % 8) as u64;
             // Rust indexes are of type usize.
-            output[i as usize] = (a.0[j as usize] >> (8 * k)) as u8;
+            bytes[i as usize] = (a.0[j as usize] >> (8 * k)) as u8;
         }
-        output
+        bytes
     }
     // Read an Fp751Element from little-endian bytes and convert to Montgomery form.
     fn from_bytes(bytes: &[u8]) -> Fp751Element {
-        assert_eq!(bytes.len(), 94);
+        assert!(bytes.len() >= 94, "Too short input to Fp751Element from_bytes, expected 94 bytes");
 
         let mut a = Fp751Element::zero();
         let mut j;
@@ -746,25 +747,35 @@ const MONTGOMERY_RSQ : Fp751Element = Fp751Element([2535603850726686808, 1578089
 extern {
     // If choice = 1, set x,y = y,x. Otherwise, leave x,y unchanged.
     // This function executes in constant time.
+    #[no_mangle]
     pub fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: u8);
     // If choice = 1, assign y to x. Otherwise, leave x unchanged.
     // This function executes in constant time.
+    #[no_mangle]
     pub fn cassign751_asm(x: &mut Fp751Element, y: &Fp751Element, choice: u8);
     // Compute z = x + y (mod p).
+    #[no_mangle]
     pub fn fpadd751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x - y (mod p).
+    #[no_mangle]
     pub fn fpsub751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x * y.
+    #[no_mangle]
     pub fn mul751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751X2);
     // Perform Montgomery reduction: set z = x R^{-1} (mod p).
+    #[no_mangle]
     pub fn rdc751_asm(x: &Fp751X2, z: &mut Fp751Element);
     // Reduce a field element in [0, 2*p) to one in [0,p).
+    #[no_mangle]
     pub fn srdc751_asm(x: &mut Fp751Element);
     // Compute z = x + y, without reducing mod p.
+    #[no_mangle]
     pub fn mp_add751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x + y, without reducing mod p.
+    #[no_mangle]
     pub fn mp_add751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
     // Compute z = x - y, without reducing mod p.
+    #[no_mangle]
     pub fn mp_sub751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
 }
 

@@ -13,7 +13,7 @@ impl ThreeIsogeny {
     // three-isogeny phi : E_(A:C) -> E_(A:C)/<P_3> = E_(A':C').
     //
     // Returns a tuple (codomain, isogeny) = (E_(A':C'), phi).
-    fn compute_three_isogeny(x3: &ProjectivePoint) -> (ProjectiveCurveParameters, ThreeIsogeny) {
+    pub fn compute_three_isogeny(x3: &ProjectivePoint) -> (ProjectiveCurveParameters, ThreeIsogeny) {
         let isogeny = ThreeIsogeny{ X: x3.X, Z: x3.Z };
         // We want to compute
 	    // (A':C') = (Z^4 + 18X^2Z^2 - 27X^4 : 4XZ^3)
@@ -40,7 +40,7 @@ impl ThreeIsogeny {
     // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
     // parameters are returned by the compute_three_isogeny function used to construct
     // phi.
-    fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
+    pub fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
         let phi = *self;
         let mut t0 = &phi.X * &xP.X; // = X3*XP
         let mut t1 = &phi.Z * &xP.Z; // = Z3*XP
@@ -81,7 +81,7 @@ impl FourIsogeny {
     // four-isogenies. One set is for the case where (1,...) lies in the kernel of
     // the isogeny (this is the FirstFourIsogeny), and the other (this set) is for
     // the case that (1,...) is *not* in the kernel.
-    fn compute_four_isogeny(x4: &ProjectivePoint) -> (ProjectiveCurveParameters, FourIsogeny) {
+    pub fn compute_four_isogeny(x4: &ProjectivePoint) -> (ProjectiveCurveParameters, FourIsogeny) {
         let mut v0 = x4.X.square();    // = X4^2
         let v1 = x4.Z.square();        // = Z4^2
         let Xsq_plus_Zsq = &v0 + &v1;  // = X4^2 + Z4^2
@@ -113,7 +113,7 @@ impl FourIsogeny {
     // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
     // parameters are returned by the compute_four_isogeny function used to construct
     // phi.
-    fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
+    pub fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
         let phi = *self;
         // We want to compute formula (7) of Costello-Longa-Naehrig, namely
         //
@@ -156,7 +156,7 @@ pub struct FirstFourIsogeny {
 impl FirstFourIsogeny {
     // Compute the "first" four-isogeny from the given curve. See also
     // compute_four_isogeny and Costello-Longa-Naehrig for more details.
-    fn compute_first_four_isogeny(domain: &ProjectiveCurveParameters) -> (ProjectiveCurveParameters, FirstFourIsogeny) {
+    pub fn compute_first_four_isogeny(domain: &ProjectiveCurveParameters) -> (ProjectiveCurveParameters, FirstFourIsogeny) {
         let mut t0 = &domain.C + &domain.C; // = 2*C
         let c = &domain.A - &t0;            // = A - 2*C
         let mut t1 = &t0 + &t0;             // = 4*C
@@ -175,7 +175,7 @@ impl FirstFourIsogeny {
     // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
     // parameters are returned by the compute_first_four_isogeny function used to 
     // construct phi.
-        fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
+    pub fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
         let phi = *self;
         let mut t0 = (&xP.X + &xP.Z).square(); // = (X+Z)^2
         let t2 = &xP.X * &xP.Z;                // = X*Z
@@ -238,7 +238,8 @@ mod test {
         let (_, phi) = FirstFourIsogeny::compute_first_four_isogeny(&curve_params);
         let isogenized_xR = phi.eval(&xR);
 
-        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
+        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), 
+                "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
     }
 
     #[test]
@@ -289,7 +290,8 @@ mod test {
         let (_, phi) = FourIsogeny::compute_four_isogeny(&xP4);
         let isogenized_xR = phi.eval(&xR);
 
-        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
+        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), 
+                "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
     }
 
     #[test]
@@ -332,6 +334,7 @@ mod test {
         let (_, phi) = ThreeIsogeny::compute_three_isogeny(&xP3);
         let isogenized_xR = phi.eval(&xR);
 
-        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
+        assert!(sage_isogenized_xR.vartime_eq(&isogenized_xR), 
+                "\nExpected\n{:?}\nfound\n{:?}", sage_isogenized_xR.to_affine(), isogenized_xR.to_affine());
     }
 }

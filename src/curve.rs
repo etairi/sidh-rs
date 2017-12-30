@@ -1,13 +1,22 @@
 use ::field::{Fp751Element, PrimeFieldElement, ExtensionFieldElement};
-use ::consts::*;
+use ::constants::*;
 
 use core::fmt::Debug;
 use subtle::ConditionallySwappable;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
-#[cfg(test)]
-use rand::{Rand, Rng};
+
+macro_rules! assign{
+    {($v1:ident, $v2:ident) = $e:expr} =>
+    {
+        {
+            let (v1, v2) = $e;
+            $v1 = v1;
+            $v2 = v2;
+        }
+    };
+}
 
 // = 256
 const CONST_256: ExtensionFieldElement = ExtensionFieldElement {
@@ -50,14 +59,14 @@ impl Arbitrary for ProjectiveCurveParameters {
 }
 
 impl ProjectiveCurveParameters {
-    fn from_affine(a: &ExtensionFieldElement) -> ProjectiveCurveParameters {
+    pub fn from_affine(a: &ExtensionFieldElement) -> ProjectiveCurveParameters {
         ProjectiveCurveParameters {
             A: *a,
             C: ExtensionFieldElement::one()
         }
     }
     // Recover the curve parameters from three points on the curve.
-    fn recover_curve_parameters(affine_xP: &ExtensionFieldElement, affine_xQ: &ExtensionFieldElement, affine_xQmP: &ExtensionFieldElement) -> 
+    pub fn recover_curve_parameters(affine_xP: &ExtensionFieldElement, affine_xQ: &ExtensionFieldElement, affine_xQmP: &ExtensionFieldElement) -> 
                                 ProjectiveCurveParameters 
     {
         let mut t0 = ExtensionFieldElement::one(); // = 1
@@ -76,10 +85,10 @@ impl ProjectiveCurveParameters {
         t1 = &c * &t0;                             // = 4 * x_P * x_Q * x_{Q-P} * (x_P + x_Q + x_{Q-P})
         a = &a - &t1;                              // = (1 - x_P * x_Q - x_P * x_{Q-P} - x_Q * x_{Q-P})^2 - 4 * x_P * x_Q * x_{Q-P} * (x_P + x_Q + x_{Q-P})
         
-        ProjectiveCurveParameters { A: a, C: c }
+        ProjectiveCurveParameters{ A: a, C: c }
     }
     // Compute the j-invariant (not the J-invariant) of the given curve.
-    fn j_invariant(&self) -> ExtensionFieldElement {
+    pub fn j_invariant(&self) -> ExtensionFieldElement {
         let a = &self.A;
         let c = &self.C;
         let mut v0 = c.square();    // C^2
@@ -110,9 +119,9 @@ impl ProjectiveCurveParameters {
     // Compute cached parameters A - 2C, 2C.
     fn cached_triple_params(&self) -> CachedTripleCurveParameters {
         let _C2 = &self.C + &self.C;    // = 2*C
-        let _Aminus2C = &self.A - &_C2; // = A- 2*C
+        let _Aminus2C = &self.A - &_C2; // = A -2*C
 
-        CachedTripleCurveParameters { Aminus2C: _Aminus2C, C2: _C2 }
+        CachedTripleCurveParameters{ Aminus2C: _Aminus2C, C2: _C2 }
     }
 }
 
@@ -128,8 +137,8 @@ pub struct ProjectivePoint {
 
 impl ConditionallySwappable for ProjectivePoint {
     fn conditional_swap(&mut self, other: &mut ProjectivePoint, choice: u8) {
-        self.X.conditional_swap(&mut other.X, choice);
-        self.Z.conditional_swap(&mut other.Z, choice);
+        (&mut self.X).conditional_swap(&mut other.X, choice);
+        (&mut self.Z).conditional_swap(&mut other.Z, choice);
     }
 }
 
@@ -144,26 +153,26 @@ impl Arbitrary for ProjectivePoint {
     fn arbitrary<G: Gen>(g: &mut G) -> ProjectivePoint {
         let x = g.gen::<ExtensionFieldElement>();
         let z = g.gen::<ExtensionFieldElement>();
-        ProjectivePoint { X: x, Z: z }
+        ProjectivePoint{ X: x, Z: z }
     }
 }
 
 impl ProjectivePoint {
     // Creates a new empty ProejctivePoint.
-    fn new() -> ProjectivePoint {
+    pub fn new() -> ProjectivePoint {
         ProjectivePoint{ X: ExtensionFieldElement::zero(), Z: ExtensionFieldElement::zero() }
     }
 
-    fn from_affine_prime_field(x: &PrimeFieldElement) -> ProjectivePoint {
+    pub fn from_affine_prime_field(x: &PrimeFieldElement) -> ProjectivePoint {
         let _X = ExtensionFieldElement{ A: x.A, B: ExtensionFieldElement::zero().B };
-        ProjectivePoint {
+        ProjectivePoint{
             X: _X,
             Z: ExtensionFieldElement::one()
         }
     }
 
     pub fn from_affine(x: &ExtensionFieldElement) -> ProjectivePoint {
-        ProjectivePoint {
+        ProjectivePoint{
             X: *x,
             Z: ExtensionFieldElement::one()
         }
@@ -193,7 +202,7 @@ impl ProjectivePoint {
         let z = &xPmQ.X * &v4;              // 4Z_{P-Q}(X_Q Z_P - Z_Q X_P)^2
         let x = v0;
 
-        ProjectivePoint { X: x, Z: z }
+        ProjectivePoint{ X: x, Z: z }
     }
     // Given xP = x(P) and cached curve parameters Aplus2C = A + 2*C, C4 = 4*C, compute xQ = x([2]P).
     fn double(&self, curve: &CachedCurveParameters) -> ProjectivePoint {
@@ -211,7 +220,7 @@ impl ProjectivePoint {
         //   = (4C(X+Z)^2(X-Z)^2 : (4XZ(A + 2C) + 4C(X-Z)^2)4XZ )
         //   = ((X+Z)^2(X-Z)^2 : (4XZ((A + 2C)/4C) + (X-Z)^2)4XZ )
         //   = ((X+Z)^2(X-Z)^2 : (4XZ((a + 2)/4) + (X-Z)^2)4XZ )
-        ProjectivePoint { X: x, Z: z }
+        ProjectivePoint{ X: x, Z: z }
     }
     // dbl_add method calculates the x-coordinate of 2P and P+Q from the x-coordinate of P, Q and P-Q.
     // Params: C4 = 4*C and Aplus2C = (A+2C)
@@ -247,12 +256,12 @@ impl ProjectivePoint {
         z = &z + &t3;               // z4 = (4C)*BB+(A+2C)*E
         x = &t0 * &t3;              // x4 = AA*(4C)*BB
         z = &z * &t2;               // z4 = E*((4C)*BB+(A+2C)*E)
-        let x2P = ProjectivePoint { X: x, Z: z };
+        let x2P = ProjectivePoint{ X: x, Z: z };
 
         (x2P, xPaddQ)
     }
     // Given the curve parameters, xP = x(P), and k >= 0, compute xQ = x([2^k]P).
-    fn pow2k(&self, curve: &ProjectiveCurveParameters, k: u32) -> ProjectivePoint {
+    pub fn pow2k(&self, curve: &ProjectiveCurveParameters, k: u32) -> ProjectivePoint {
         let cached_params = curve.cached_params();
         let mut xQ = *self;
         for _ in 0..k { xQ = xQ.double(&cached_params); }
@@ -287,10 +296,10 @@ impl ProjectivePoint {
         let x = x1 * &t1;                   // x3 = x1*t1
         let z = z1 * &t0;                   // z3 = z1*t0
 
-        ProjectivePoint { X: x, Z: z }
+        ProjectivePoint{ X: x, Z: z }
     }
     // Given the curve parameters, xP = x(P), and k >= 0, compute xQ = x([3^k]P).
-    fn pow3k(&self, curve: &ProjectiveCurveParameters, k: u32) -> ProjectivePoint {
+    pub fn pow3k(&self, curve: &ProjectiveCurveParameters, k: u32) -> ProjectivePoint {
         let cached_params = curve.cached_triple_params();
         let mut xQ = *self;
         for _ in 0..k { xQ = xQ.triple(&cached_params); }
@@ -305,7 +314,7 @@ impl ProjectivePoint {
     fn scalar_mul(&self, curve: &ProjectiveCurveParameters, scalar: &[u8]) -> ProjectivePoint {
         let xP = *self;
         let cached_params = curve.cached_params();
-        let mut x0 = ProjectivePoint { X: ExtensionFieldElement::one(), Z: ExtensionFieldElement::zero() };
+        let mut x0 = ProjectivePoint{ X: ExtensionFieldElement::one(), Z: ExtensionFieldElement::zero() };
         let mut x1 = xP;
         let mut tmp: ProjectivePoint;
 
@@ -399,8 +408,8 @@ impl ProjectivePoint {
     //
     // return x2
     //
-    fn three_point_ladder(xP: &ProjectivePoint, xQ: &ProjectivePoint, xPmQ: &ProjectivePoint, 
-                          curve: &ProjectiveCurveParameters, scalar: &[u8]) -> ProjectivePoint
+    pub fn three_point_ladder(xP: &ProjectivePoint, xQ: &ProjectivePoint, xPmQ: &ProjectivePoint, 
+                              curve: &ProjectiveCurveParameters, scalar: &[u8]) -> ProjectivePoint
     {
         let cached_params = curve.cached_params();
 
@@ -420,10 +429,8 @@ impl ProjectivePoint {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
                 (&mut y0).conditional_swap(&mut y1, (bit ^ prev_bit));
-                let (tmp, _x2) = x0.dbl_add(&x2, &y0, &cached_params); // NOTE: Cannot re-assign to a tuple in Rust (yet).
-                x2 = _x2;
                 x1 = x1.add(&x0, xQ); // = xADD(x1, x0, x(Q))
-                x0 = tmp;
+                assign!{(x0, x2) = x0.dbl_add(&x2, &y0, &cached_params)};
                 prev_bit = bit;
             }
         }
@@ -433,13 +440,13 @@ impl ProjectivePoint {
     }
     // Right-to-left point multiplication, which given the x-coordinate
     // of P, Q and P-Q calculates the x-coordinate of R=P+[k]Q.
-    fn right_to_left_ladder(xP: &ProjectivePoint, xQ: &ProjectivePoint, xPmQ: &ProjectivePoint,
-                            curve: &ProjectiveCurveParameters, scalar: &[u8]) -> ProjectivePoint
+    pub fn right_to_left_ladder(xP: &ProjectivePoint, xQ: &ProjectivePoint, xPmQ: &ProjectivePoint,
+                                curve: &ProjectiveCurveParameters, scalar: &[u8]) -> ProjectivePoint
     {
         let cached_params = curve.cached_params();
         let mut R1 = *xP;
-        let mut R0 = *xQ;
         let mut R2 = *xPmQ;
+        let mut R0 = *xQ;
 
         // Iterate over the bits of the scalar, bottom to top.
         let mut prev_bit: u8 = 0;
@@ -448,9 +455,7 @@ impl ProjectivePoint {
             for j in 0..8 {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut R1).conditional_swap(&mut R2, (bit ^ prev_bit));
-                let (_R0, _R2) = R0.dbl_add(&R2, &R1, &cached_params); // NOTE: Cannot re-assign to a tuple in Rust (yet).
-                R0 = _R0;
-                R2 = _R2;
+                assign!{(R0, R2) = R0.dbl_add(&R2, &R1, &cached_params)};
                 prev_bit = bit;
             }
         }
@@ -460,7 +465,7 @@ impl ProjectivePoint {
     }
     // Given the affine x-coordinate affine_xP of P, compute the x-coordinate
     // x(\tau(P)-P) of \tau(P)-P.
-    fn distort_and_difference(affine_xP: &PrimeFieldElement) -> ProjectivePoint {
+    pub fn distort_and_difference(affine_xP: &PrimeFieldElement) -> ProjectivePoint {
         let mut t0 = affine_xP.square();            // = x_P^2
         let t1 = &PrimeFieldElement::one() + &t0;   // = x_P^2 + 1
         let b = t1.A;                               // = 0 + (x_P^2 + 1)*i
@@ -566,7 +571,7 @@ impl ProjectivePoint {
     // These formulas could probably be combined with the formulas for y-recover
     // and computed more efficiently, but efficiency isn't the biggest concern
     // here, since the bulk of the cost is already in the ladder.
-    fn secret_point(affine_xP: &PrimeFieldElement, affine_yP: &PrimeFieldElement, scalar: &[u8]) -> ProjectivePoint {
+    pub fn secret_point(affine_xP: &PrimeFieldElement, affine_yP: &PrimeFieldElement, scalar: &[u8]) -> ProjectivePoint {
         let mut xQ = ProjectivePrimeFieldPoint::from_affine(affine_xP);
         xQ.X = -(&xQ.X);
 
@@ -589,7 +594,7 @@ impl ProjectivePoint {
         YmQ = &YmQ - &t1;                   // = Y_{mQ}
 
         // Z_{mQ} = -2*(Z_{mQ}^2 * Z_{m1Q} * y_P)
-        t0 = &(&xmQ.Z * &xm1Q.Z) * affine_xP;   // = Z_{mQ} * Z_{m1Q} * y_P
+        t0 = &(&xmQ.Z * &xm1Q.Z) * affine_yP;   // = Z_{mQ} * Z_{m1Q} * y_P
         t0 = -(&t0);                            // = -1*(Z_{mQ} * Z_{m1Q} * y_P)
         t0 = &t0 + &t0;                         // = -2*(Z_{mQ} * Z_{m1Q} * y_P)
         let ZmQ = &xmQ.Z * &t0;                 // = -2*(Z_{mQ}^2 * Z_{m1Q} * y_P)
@@ -609,7 +614,7 @@ impl ProjectivePoint {
         let mut XRa = &t0 - &t1;            // = (y_P * Z_{mQ})^2 - Y_{mQ}^2
         XRa = &XRa * &ZmQ;                  // = Z_{mQ}*((y_P * Z_{mQ})^2 - Y_{mQ}^2)
         t0 = affine_xP * &ZmQ;              // = x_P * Z_{mQ}
-        t1 = &YmQ + &t0;                    // = X_{mQ} + x_P*Z_{mQ}
+        t1 = &XmQ + &t0;                    // = X_{mQ} + x_P*Z_{mQ}
         t0 = &XmQ - &t0;                    // = X_{mQ} - x_P*Z_{mQ}
         t0 = t0.square();                   // = (X_{mQ} - x_P*Z_{mQ})^2
         t1 = &t1 * &t0;                     // = (X_{mQ} + x_P*Z_{mQ})*(X_{mQ} - x_P*Z_{mQ})^2
@@ -617,7 +622,7 @@ impl ProjectivePoint {
 
         let ZR = &ZmQ * &t0;                // = Z_{mQ}*(X_{mQ} - x_P*Z_{mQ})^2
 
-        let mut xR = ProjectivePoint { X: ExtensionFieldElement::zero(), Z: ExtensionFieldElement::zero() };
+        let mut xR = ProjectivePoint{ X: ExtensionFieldElement::zero(), Z: ExtensionFieldElement::zero() };
         xR.X.A = XRa.A;
         xR.X.B = XRb.A;
         xR.Z.A = ZR.A;
@@ -638,8 +643,8 @@ struct ProjectivePrimeFieldPoint {
 
 impl ConditionallySwappable for ProjectivePrimeFieldPoint {
     fn conditional_swap(&mut self, other: &mut ProjectivePrimeFieldPoint, choice: u8) {
-        self.X.conditional_swap(&mut other.X, choice);
-        self.Z.conditional_swap(&mut other.Z, choice);
+        (&mut self.X).conditional_swap(&mut other.X, choice);
+        (&mut self.Z).conditional_swap(&mut other.Z, choice);
     }
 }
 
@@ -654,24 +659,24 @@ impl Arbitrary for ProjectivePrimeFieldPoint {
     fn arbitrary<G: Gen>(g: &mut G) -> ProjectivePrimeFieldPoint {
         let x = g.gen::<PrimeFieldElement>();
         let z = g.gen::<PrimeFieldElement>();
-        ProjectivePrimeFieldPoint { X: x, Z: z }
+        ProjectivePrimeFieldPoint{ X: x, Z: z }
     }
 }
 
 impl ProjectivePrimeFieldPoint {
     // Creates a new zero ProjectivePrimeFieldPoint.
-    fn new() -> ProjectivePrimeFieldPoint {
+    pub fn new() -> ProjectivePrimeFieldPoint {
         ProjectivePrimeFieldPoint{ X: PrimeFieldElement::zero(), Z: PrimeFieldElement::zero() }
     }
 
-    fn from_affine(x: &PrimeFieldElement) -> ProjectivePrimeFieldPoint {
-        ProjectivePrimeFieldPoint {
+    pub fn from_affine(x: &PrimeFieldElement) -> ProjectivePrimeFieldPoint {
+        ProjectivePrimeFieldPoint{
             X: *x,
             Z: PrimeFieldElement::one()
         }
     }
 
-    fn to_affine(&self) -> PrimeFieldElement {
+    pub fn to_affine(&self) -> PrimeFieldElement {
         let affine_x = &self.Z.inv() * &self.X;
         affine_x
     }
@@ -697,7 +702,7 @@ impl ProjectivePrimeFieldPoint {
         let z = &xPmQ.X * &v4;              // 4Z_{P-Q}(X_Q Z_P - Z_Q X_P)^2
         let x = v0;
 
-        ProjectivePrimeFieldPoint { X: x, Z: z }
+        ProjectivePrimeFieldPoint{ X: x, Z: z }
     }
     // Given xP = x(P) and cached curve parameter aPlus2Over4 = (a+2)/4, compute xQ = x([2]P).
     //
@@ -715,7 +720,7 @@ impl ProjectivePrimeFieldPoint {
         let z = &v3 * &xz4;                     // (4XZ((a+2)/4) + (X-Z)^2)4XZ
         // Now (xQ.x : xQ.z)
         //   = ((X+Z)^2(X-Z)^2 : (4XZ((a + 2)/4) + (X-Z)^2)4XZ )
-        ProjectivePrimeFieldPoint { X: x, Z: z }
+        ProjectivePrimeFieldPoint{ X: x, Z: z }
     }
     // dbl_add method calculates the x-coordinate of 2P and P+Q from the x-coordinate of P, Q and P-Q.
     // Assumptions:
@@ -742,7 +747,7 @@ impl ProjectivePrimeFieldPoint {
         x = x.square();         // x5 = (DA+CB)^2
         z = z.square();         // z5 = (DA-CB)^2
         z = &z * x1;            // z5 = x1*(DA-CB)^2
-        let xPaddQ = ProjectivePrimeFieldPoint { X: x, Z: z };
+        let xPaddQ = ProjectivePrimeFieldPoint{ X: x, Z: z };
 
         t0 = t0.square();          // t0 = AA = A^2
         t1 = t1.square();          // t1 = BB = B^2
@@ -751,7 +756,7 @@ impl ProjectivePrimeFieldPoint {
         z = &t0 * aPlus2Over4;     // z4 = ((A+2C)/4)*E
         z = &z + &t1;              // z4 = BB+((A+2C)/4)*E
         z = &z * &t0;              // z4 = E*(BB+((A+2C)/4)*E)
-        let x2P = ProjectivePrimeFieldPoint { X: x, Z: z };
+        let x2P = ProjectivePrimeFieldPoint{ X: x, Z: z };
 
         (x2P, xPaddQ)
     }
@@ -778,9 +783,7 @@ impl ProjectivePrimeFieldPoint {
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
                 (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
-                let (_x0, _x1) = x0.dbl_add(&x1, &xP, aPlus2Over4); // NOTE: Cannot re-assign to a tuple in Rust (yet).
-                x0 = _x0;
-                x1 = _x1;
+                assign!{(x0, x1) = x0.dbl_add(&x1, xP, aPlus2Over4)};
                 prev_bit = bit;
             }
         }
