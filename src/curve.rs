@@ -1109,36 +1109,36 @@ mod bench {
         b.iter(|| xP.triple(&cached_params));
     }
 
-    // #[bench]
-    // fn scalar_mul_379bit_scalar(b: &mut Bencher) {
-    //     //let xR = ProjectivePoint::new();
-    //     let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
+    #[bench]
+    fn scalar_mul_379bit_scalar(b: &mut Bencher) {
+        //let xR = ProjectivePoint::new();
+        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
         
-    //     b.iter(|| THREE_POINT_LADDER_INPUTS[0].scalar_mul(&CURVE, &m_scalar_bytes[..]));
-    // }
+        b.iter(|| THREE_POINT_LADDER_INPUTS[0].scalar_mul(&CURVE, &m_scalar_bytes[..]));
+    }
 
-    // #[bench]
-    // fn scalar_prime_field_mul_379bit_scalar(b: &mut Bencher) {
-    //     let xR = ProjectivePrimeFieldPoint::new();
-    //     let a24 = PrimeFieldElement::zero();
-    //     let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
+    #[bench]
+    fn scalar_prime_field_mul_379bit_scalar(b: &mut Bencher) {
+        let xR = ProjectivePrimeFieldPoint::new();
+        let a24 = PrimeFieldElement::zero();
+        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
         
-    //     b.iter(|| ProjectivePrimeFieldPoint::scalar_mul_prime_field(&xR, &a24, &m_scalar_bytes[..]));
-    // }
+        b.iter(|| ProjectivePrimeFieldPoint::scalar_mul_prime_field(&xR, &a24, &m_scalar_bytes[..]));
+    }
 
-    // #[bench]
-    // fn three_point_ladder_379bit_scalar(b: &mut Bencher) {
-    //     //let xR = ProjectivePoint::new();
-    //     let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
+    #[bench]
+    fn three_point_ladder_379bit_scalar(b: &mut Bencher) {
+        //let xR = ProjectivePoint::new();
+        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
         
-    //     b.iter(|| ProjectivePoint::three_point_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
-    // }
+        b.iter(|| ProjectivePoint::three_point_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
+    }
 
-    // #[bench]
-    // fn right_to_left_ladder_379bit_scalar(b: &mut Bencher) {
-    //     //let xR = ProjectivePoint::new();
-    //     let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
+    #[bench]
+    fn right_to_left_ladder_379bit_scalar(b: &mut Bencher) {
+        //let xR = ProjectivePoint::new();
+        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
         
-    //     b.iter(|| ProjectivePoint::right_to_left_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
-    // }
+        b.iter(|| ProjectivePoint::right_to_left_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
+    }
 }

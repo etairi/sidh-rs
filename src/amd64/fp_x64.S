@@ -48,9 +48,7 @@
 //*********************************************************************** 
 .global cswap751_asm
 cswap751_asm:
-  push   r12
-  push   r13
-  push   r14
+  push   rbx
 
   movzx  rax, dl // Get the lower 8 bits of rdx (reg_p3)
   neg    rax
@@ -175,9 +173,7 @@ cswap751_asm:
   mov    [reg_p1+88], rbx
   mov    [reg_p2+88], rcx
 
-  pop    r14
-  pop    r13
-  pop    r12
+  pop    rbx
   ret
 
 //***********************************************************************
@@ -187,10 +183,7 @@ cswap751_asm:
 //*********************************************************************** 
 .global cassign751_asm
 cassign751_asm:
-  push   r12
-  push   r13
-  push   r14
-  push   r15
+  push   rbx
 
   movzx  rax, dl // Get the lower 8 bits of rdx (reg_p3)
   neg    rax
@@ -279,10 +272,7 @@ cassign751_asm:
   xor    rcx, rbx
   mov    [reg_p1+88], rcx
 
-  pop    r15
-  pop    r14
-  pop    r13
-  pop    r12
+  pop    rbx
   ret
 
 //***********************************************************************
@@ -2107,6 +2097,8 @@ rdc751_asm:
 srdc751_asm:
   push   r12
   push   r13
+  push   r14
+  push   r15
 
   // Zero rax for later use.
   xor    rax, rax
@@ -2162,6 +2154,8 @@ srdc751_asm:
   adc    [reg_p1+80], r14
   adc    [reg_p1+88], r15
 
+  pop    r15
+  pop    r14
   pop    r13
   pop    r12
   ret

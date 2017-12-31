@@ -7,7 +7,8 @@ use core::ops::{Sub, SubAssign};
 use core::ops::{Mul, MulAssign};
 use core::ops::Neg;
 
-use subtle::ConditionallyAssignable;
+// NOTE: We do not use conditional assign (for now).
+//use subtle::ConditionallyAssignable;
 use subtle::ConditionallySwappable;
 use subtle::Equal;
 use subtle::slices_equal;
@@ -130,19 +131,19 @@ impl <'a> Neg for &'a ExtensionFieldElement {
     }
 }
 
-impl ConditionallyAssignable for ExtensionFieldElement {
-    fn conditional_assign(&mut self, other: &ExtensionFieldElement, choice: u8) {
-        self.A.conditional_assign(&other.A, choice);
-        self.B.conditional_assign(&other.B, choice);
-    }
-}
-
-// impl ConditionallySwappable for ExtensionFieldElement {
-//     fn conditional_swap(&mut self, other: &mut ExtensionFieldElement, choice: u8) {
-//         self.A.conditional_swap(&mut other.A, choice);
-//         self.B.conditional_swap(&mut other.B, choice);
+// impl ConditionallyAssignable for ExtensionFieldElement {
+//     fn conditional_assign(&mut self, other: &ExtensionFieldElement, choice: u8) {
+//         self.A.conditional_assign(&other.A, choice);
+//         self.B.conditional_assign(&other.B, choice);
 //     }
 // }
+
+impl ConditionallySwappable for ExtensionFieldElement {
+    fn conditional_swap(&mut self, other: &mut ExtensionFieldElement, choice: u8) {
+        (&mut self.A).conditional_swap(&mut other.A, choice);
+        (&mut self.B).conditional_swap(&mut other.B, choice);
+    }
+}
 
 impl Debug for ExtensionFieldElement {
     fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
@@ -353,17 +354,17 @@ impl <'a> Neg for &'a PrimeFieldElement {
     }
 }
 
-impl ConditionallyAssignable for PrimeFieldElement {
-    fn conditional_assign(&mut self, other: &PrimeFieldElement, choice: u8) {
-        self.A.conditional_assign(&other.A, choice);
-    }
-}
-
-// impl ConditionallySwappable for PrimeFieldElement {
-//     fn conditional_swap(&mut self, other: &mut PrimeFieldElement, choice: u8) {
-//         self.A.conditional_swap(&mut other.A, choice);
+// impl ConditionallyAssignable for PrimeFieldElement {
+//     fn conditional_assign(&mut self, other: &PrimeFieldElement, choice: u8) {
+//         self.A.conditional_assign(&other.A, choice);
 //     }
 // }
+
+impl ConditionallySwappable for PrimeFieldElement {
+    fn conditional_swap(&mut self, other: &mut PrimeFieldElement, choice: u8) {
+        (&mut self.A).conditional_swap(&mut other.A, choice);
+    }
+}
 
 impl Debug for PrimeFieldElement {
     fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
@@ -546,17 +547,17 @@ impl <'a> Neg for &'a Fp751Element {
     }
 }
 
-impl ConditionallyAssignable for Fp751Element {
-    fn conditional_assign(&mut self, other: &Fp751Element, choice: u8) {
-        unsafe { cassign751_asm(self, other, choice); }
-    }
-}
-
-// impl ConditionallySwappable for Fp751Element {
-//     fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
-//         unsafe { cswap751_asm(self, other, choice); }
+// impl ConditionallyAssignable for Fp751Element {
+//     fn conditional_assign(&mut self, other: &Fp751Element, choice: u8) {
+//         unsafe { cassign751_asm(self, other, choice); }
 //     }
 // }
+
+impl ConditionallySwappable for Fp751Element {
+    fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
+        unsafe { cswap751_asm(self, other, choice); }
+    }
+}
 
 impl Eq for Fp751Element {}
 impl PartialEq for Fp751Element {
