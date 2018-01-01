@@ -2207,7 +2207,7 @@ mp_add751_asm proc
   push   rdi
   push   rsi
   
-  mov    rsi, [reg_p1]
+  mov    r8, [reg_p1]
   mov    r9, [reg_p1+8]
   mov    r10, [reg_p1+16]
   mov    r11, [reg_p1+24]
@@ -2217,10 +2217,10 @@ mp_add751_asm proc
   mov    r15, [reg_p1+56] 
   mov    rax, [reg_p1+64]
   mov    rbx, [reg_p1+72] 
-  mov    rdi, [reg_p1+80]  
+  mov    rsi, [reg_p1+80]  
   mov    rdi, [reg_p1+88] 
 
-  add    rsi, [reg_p2] 
+  add    r8, [reg_p2] 
   adc    r9, [reg_p2+8] 
   adc    r10, [reg_p2+16] 
   adc    r11, [reg_p2+24] 
@@ -2230,10 +2230,10 @@ mp_add751_asm proc
   adc    r15, [reg_p2+56]
   adc    rax, [reg_p2+64] 
   adc    rbx, [reg_p2+72]
-  adc    rdi, [reg_p2+80]
+  adc    rsi, [reg_p2+80]
   adc    rdi, [reg_p2+88]
 
-  mov    [reg_p3], rsi
+  mov    [reg_p3], r8
   mov    [reg_p3+8], r9
   mov    [reg_p3+16], r10
   mov    [reg_p3+24], r11
@@ -2243,7 +2243,7 @@ mp_add751_asm proc
   mov    [reg_p3+56], r15
   mov    [reg_p3+64], rax
   mov    [reg_p3+72], rbx
-  mov    [reg_p3+80], rdi
+  mov    [reg_p3+80], rsi
   mov    [reg_p3+88], rdi
   
   pop    rsi
@@ -2269,7 +2269,7 @@ mp_add751x2_asm proc
   push   rdi
   push   rsi
   
-  mov    rsi, [reg_p1]
+  mov    rdi, [reg_p1]
   mov    r9, [reg_p1+8]
   mov    r10, [reg_p1+16]
   mov    r11, [reg_p1+24]
@@ -2279,9 +2279,9 @@ mp_add751x2_asm proc
   mov    r15, [reg_p1+56] 
   mov    rax, [reg_p1+64]
   mov    rbx, [reg_p1+72] 
-  mov    rdi, [reg_p1+80] 
+  mov    rsi, [reg_p1+80] 
 
-  add    rsi, [reg_p2] 
+  add    rdi, [reg_p2] 
   adc    r9, [reg_p2+8] 
   adc    r10, [reg_p2+16] 
   adc    r11, [reg_p2+24] 
@@ -2291,9 +2291,9 @@ mp_add751x2_asm proc
   adc    r15, [reg_p2+56]
   adc    rax, [reg_p2+64] 
   adc    rbx, [reg_p2+72]
-  adc    rdi, [reg_p2+80]
+  adc    rsi, [reg_p2+80]
 
-  mov    [reg_p3], rsi
+  mov    [reg_p3], rdi
   mov    [reg_p3+8], r9
   mov    [reg_p3+16], r10
   mov    [reg_p3+24], r11
@@ -2303,12 +2303,12 @@ mp_add751x2_asm proc
   mov    [reg_p3+56], r15
   mov    [reg_p3+64], rax
   mov    [reg_p3+72], rbx
-  mov    [reg_p3+80], rdi 
+  mov    [reg_p3+80], rsi 
   mov    rax, [reg_p1+88] 
   adc    rax, [reg_p2+88]
   mov    [reg_p3+88], rax
   
-  mov    rsi, [reg_p1+96]
+  mov    rdi, [reg_p1+96]
   mov    r9, [reg_p1+104]
   mov    r10, [reg_p1+112]
   mov    r11, [reg_p1+120]
@@ -2318,10 +2318,10 @@ mp_add751x2_asm proc
   mov    r15, [reg_p1+152] 
   mov    rax, [reg_p1+160]
   mov    rbx, [reg_p1+168] 
-  mov    rdi, [reg_p1+176]  
-  mov    rdi, [reg_p1+184] 
+  mov    rsi, [reg_p1+176]  
+  mov    rcx, [reg_p1+184] 
 
-  adc    rsi, [reg_p2+96] 
+  adc    rdi, [reg_p2+96] 
   adc    r9, [reg_p2+104] 
   adc    r10, [reg_p2+112] 
   adc    r11, [reg_p2+120] 
@@ -2331,10 +2331,10 @@ mp_add751x2_asm proc
   adc    r15, [reg_p2+152]
   adc    rax, [reg_p2+160] 
   adc    rbx, [reg_p2+168]
-  adc    rdi, [reg_p2+176]
-  adc    rdi, [reg_p2+184]
+  adc    rsi, [reg_p2+176]
+  adc    rcx, [reg_p2+184]
 
-  mov    [reg_p3+96], rsi
+  mov    [reg_p3+96], rdi
   mov    [reg_p3+104], r9
   mov    [reg_p3+112], r10
   mov    [reg_p3+120], r11
@@ -2344,8 +2344,8 @@ mp_add751x2_asm proc
   mov    [reg_p3+152], r15
   mov    [reg_p3+160], rax
   mov    [reg_p3+168], rbx
-  mov    [reg_p3+176], rdi
-  mov    [reg_p3+184], rdi
+  mov    [reg_p3+176], rsi
+  mov    [reg_p3+184], rcx
   
   pop    rsi
   pop    rdi
@@ -2370,7 +2370,7 @@ mp_sub751x2_asm proc
   push   rdi
   push   rsi
   
-  mov    rsi, [reg_p1]
+  mov    rdi, [reg_p1]
   mov    r9, [reg_p1+8]
   mov    r10, [reg_p1+16]
   mov    r11, [reg_p1+24]
@@ -2380,9 +2380,9 @@ mp_sub751x2_asm proc
   mov    r15, [reg_p1+56] 
   mov    rax, [reg_p1+64]
   mov    rbx, [reg_p1+72] 
-  mov    rdi, [reg_p1+80] 
+  mov    rsi, [reg_p1+80] 
 
-  sub    rsi, [reg_p2] 
+  sub    rdi, [reg_p2] 
   sbb    r9, [reg_p2+8] 
   sbb    r10, [reg_p2+16] 
   sbb    r11, [reg_p2+24] 
@@ -2392,9 +2392,9 @@ mp_sub751x2_asm proc
   sbb    r15, [reg_p2+56]
   sbb    rax, [reg_p2+64] 
   sbb    rbx, [reg_p2+72]
-  sbb    rdi, [reg_p2+80]
+  sbb    rsi, [reg_p2+80]
 
-  mov    [reg_p3], rsi
+  mov    [reg_p3], rdi
   mov    [reg_p3+8], r9
   mov    [reg_p3+16], r10
   mov    [reg_p3+24], r11
@@ -2404,12 +2404,12 @@ mp_sub751x2_asm proc
   mov    [reg_p3+56], r15
   mov    [reg_p3+64], rax
   mov    [reg_p3+72], rbx
-  mov    [reg_p3+80], rdi 
+  mov    [reg_p3+80], rsi 
   mov    rax, [reg_p1+88] 
   sbb    rax, [reg_p2+88]
   mov    [reg_p3+88], rax
   
-  mov    rsi, [reg_p1+96]
+  mov    rdi, [reg_p1+96]
   mov    r9, [reg_p1+104]
   mov    r10, [reg_p1+112]
   mov    r11, [reg_p1+120]
@@ -2419,10 +2419,10 @@ mp_sub751x2_asm proc
   mov    r15, [reg_p1+152] 
   mov    rax, [reg_p1+160]
   mov    rbx, [reg_p1+168] 
-  mov    rdi, [reg_p1+176]  
-  mov    rdi, [reg_p1+184] 
+  mov    rsi, [reg_p1+176]  
+  mov    rcx, [reg_p1+184] 
 
-  sbb    rsi, [reg_p2+96] 
+  sbb    rdi, [reg_p2+96] 
   sbb    r9, [reg_p2+104] 
   sbb    r10, [reg_p2+112] 
   sbb    r11, [reg_p2+120] 
@@ -2432,10 +2432,10 @@ mp_sub751x2_asm proc
   sbb    r15, [reg_p2+152]
   sbb    rax, [reg_p2+160]
   sbb    rbx, [reg_p2+168]
-  sbb    rdi, [reg_p2+176]
-  sbb    rdi, [reg_p2+184]
+  sbb    rsi, [reg_p2+176]
+  sbb    rcx, [reg_p2+184]
 
-  mov    [reg_p3+96], rsi
+  mov    [reg_p3+96], rdi
   mov    [reg_p3+104], r9
   mov    [reg_p3+112], r10
   mov    [reg_p3+120], r11
@@ -2447,8 +2447,8 @@ mp_sub751x2_asm proc
   mov    rax, 0
   sbb    rax, 0
   mov    [reg_p3+168], rbx
-  mov    [reg_p3+176], rdi
-  mov    [reg_p3+184], rdi
+  mov    [reg_p3+176], rsi
+  mov    [reg_p3+184], rcx
   
   pop    rsi
   pop    rdi

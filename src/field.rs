@@ -420,7 +420,6 @@ impl PrimeFieldElement {
         PrimeFieldElement{ A: _a }
     }
     // Raise self to 2^(2^k)-th power, for k >= 1, by repeated squarings.
-    #[inline]
     fn pow2k(&self, k: u8) -> PrimeFieldElement {
         let mut result = self.square();
         for _ in 1..k { result = result.square(); }

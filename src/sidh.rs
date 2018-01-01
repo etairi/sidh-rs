@@ -597,9 +597,6 @@ mod test {
             let alice_shared_secret = alice_secret.shared_secret(&bob_public);
             let bob_shared_secret = bob_secret.shared_secret(&alice_public);
 
-            println!("alice_shared_secret: {:?}", &alice_shared_secret[..]);
-            println!("bob_shared_secret: {:?}\n", &bob_shared_secret[..]);
-
             alice_shared_secret.iter().zip(bob_shared_secret.iter()).all(|(a, b)| a == b)
         }
         QuickCheck::new().quickcheck(shared_secrets_match as fn(SIDHSecretKeyAlice, SIDHSecretKeyBob) -> bool);
