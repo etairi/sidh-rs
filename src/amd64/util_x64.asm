@@ -27,6 +27,8 @@ three238m1_5 equ 0254C9C6B525EAF5h
 checklt238_asm proc
   push   r12
   push   r13
+  push   r14
+  push   r15
 
   ; Zero rax for later use.
   xor    rax, rax
@@ -51,6 +53,8 @@ checklt238_asm proc
   sbb    rax, 0
   mov    [reg_p2], rax
 
+  pop    r15
+  pop    r14
   pop    r13
   pop    r12
   ret
@@ -64,6 +68,8 @@ checklt238_asm endp
 mulby3_asm proc
   push   r12
   push   r13
+  push   r14
+  push   r15
 
   ; Set [R10,...,R15] = scalar
   mov    r10, [reg_p1]
@@ -87,6 +93,8 @@ mulby3_asm proc
   adc    [reg_p1+32], r14
   adc    [reg_p1+40], r15
 
+  pop    r15
+  pop    r14
   pop    r13
   pop    r12
   ret

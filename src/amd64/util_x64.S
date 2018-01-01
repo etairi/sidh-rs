@@ -11,12 +11,12 @@
 #define reg_p2  rsi
 
 // Digits of 3^238 - 1
-#define three238m1_0 0xedcd718a828384f8
-#define three238m1_1 0x733b35bfd4427a14
-#define three238m1_2 0xf88229cf94d7cf38
-#define three238m1_3 0x63c56c990c7c2ad6
-#define three238m1_4 0xb858a87e8f4222c7
-#define three238m1_5 0x254c9c6b525eaf5
+#define three238m1_0 0xEDCD718A828384F8
+#define three238m1_1 0x733B35BFD4427A14
+#define three238m1_2 0xF88229CF94D7CF38
+#define three238m1_3 0x63C56C990C7C2AD6
+#define three238m1_4 0xB858A87E8F4222C7
+#define three238m1_5 0x254C9C6B525EAF5
 
 .text
 //***********************************************************************

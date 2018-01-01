@@ -47,9 +47,9 @@ p751x2_11 equ 00000DFCBAA83EE38h
 ;  If choice [reg_p3] = 1, set x[reg_p1],y[reg_p2] = y[reg_p2],x[reg_p1].
 ;*********************************************************************** 
 cswap751_asm proc
-  push   r12
-  push   r13
-  push   r14
+  push   rbx
+  push   rdi
+  push   rsi
 
   movzx  rax, r8b ; Get the lower 8 bits of r8 (reg_p3)
   neg    rax
@@ -174,9 +174,9 @@ cswap751_asm proc
   mov    [reg_p1+88], rbx
   mov    [reg_p2+88], rdi
 
-  pop    r14
-  pop    r13
-  pop    r12
+  pop    rsi
+  pop    rdi
+  pop    rbx
   ret
 cswap751_asm endp
 
@@ -186,10 +186,9 @@ cswap751_asm endp
 ;             If choice [reg_p3] = 1, set x [reg_p1] = y [reg_p2].
 ;*********************************************************************** 
 cassign751_asm proc
-  push   r12
-  push   r13
-  push   r14
-  push   r15
+  push   rbx
+  push   rdi
+  push   rsi
 
   movzx  rax, r8b ; Get the lower 8 bits of r8 (reg_p3)
   neg    rax
@@ -278,10 +277,9 @@ cassign751_asm proc
   xor    rdi, rbx
   mov    [reg_p1+88], rdi
 
-  pop    r15
-  pop    r14
-  pop    r13
-  pop    r12
+  pop    rsi
+  pop    rdi
+  pop    rbx
   ret
 cassign751_asm endp
 
@@ -294,6 +292,9 @@ fpadd751_asm proc
   push   r13
   push   r14
   push   r15
+  push   rbx
+  push   rdi
+  push   rsi
   
   mov    rbx, [reg_p1]
   mov    r9, [reg_p1+8]
@@ -418,6 +419,9 @@ fpadd751_asm proc
   adc    rax, r15
   mov    [reg_p3+88], rax 
   
+  pop    rsi
+  pop    rdi
+  pop    rbx
   pop    r15
   pop    r14
   pop    r13
@@ -434,6 +438,9 @@ fpsub751_asm proc
   push   r13
   push   r14
   push   r15
+  push   rbx
+  push   rdi
+  push   rsi
   
   mov    rbx, [reg_p1]
   mov    r9, [reg_p1+8]
@@ -530,6 +537,9 @@ fpsub751_asm proc
   adc    rax, r15
   mov    [reg_p3+88], rax 
   
+  pop    rsi
+  pop    rdi
+  pop    rbx
   pop    r15
   pop    r14
   pop    r13
@@ -547,335 +557,339 @@ mul751_asm proc
   push   r12
   push   r13
   push   r14
-  mov    rdi, reg_p3
+  push   rbx
+  mov    rbx, reg_p3
+  push   rdi
+  mov    rdi, reg_p2
+  push   rsi
   
-  ; rdi[0-5] <- AH+AL
+  ; rbx[0-5] <- AH+AL
   xor    rax, rax
-  mov    rbx, [reg_p1+48]
+  mov    r8, [reg_p1+48]
   mov    r9, [reg_p1+56]
   mov    r10, [reg_p1+64]
   mov    r11, [reg_p1+72]
   mov    r12, [reg_p1+80]
   mov    r13, [reg_p1+88]
-  add    rbx, [reg_p1] 
+  add    r8, [reg_p1] 
   adc    r9, [reg_p1+8] 
   adc    r10, [reg_p1+16] 
   adc    r11, [reg_p1+24] 
   adc    r12, [reg_p1+32] 
   adc    r13, [reg_p1+40] 
   push   r15  
-  mov    [rdi], rbx
-  mov    [rdi+8], r9
-  mov    [rdi+16], r10
-  mov    [rdi+24], r11
-  mov    [rdi+32], r12
-  mov    [rdi+40], r13
+  mov    [rbx], r8
+  mov    [rbx+8], r9
+  mov    [rbx+16], r10
+  mov    [rbx+24], r11
+  mov    [rbx+32], r12
+  mov    [rbx+40], r13
   sbb    rax, 0 
   sub    rsp, 96           ; Allocating space in stack
        
-  ; rdi[6-11] <- BH+BL
-  xor    rsi, rsi
-  mov    rbx, [reg_p2+48]
-  mov    r9, [reg_p2+56]
-  mov    r10, [reg_p2+64]
-  mov    r11, [reg_p2+72]
-  mov    r12, [reg_p2+80]
-  mov    r13, [reg_p2+88]
-  add    rbx, [reg_p2] 
-  adc    r9, [reg_p2+8] 
-  adc    r10, [reg_p2+16] 
-  adc    r11, [reg_p2+24] 
-  adc    r12, [reg_p2+32] 
-  adc    r13, [reg_p2+40] 
-  mov    [rdi+48], rbx
-  mov    [rdi+56], r9
-  mov    [rdi+64], r10
-  mov    [rdi+72], r11
-  mov    [rdi+80], r12
-  mov    [rdi+88], r13
-  sbb    rsi, 0 
+  ; rbx[6-11] <- BH+BL
+  xor    rdx, rdx
+  mov    r8, [rdi+48]
+  mov    r9, [rdi+56]
+  mov    r10, [rdi+64]
+  mov    r11, [rdi+72]
+  mov    r12, [rdi+80]
+  mov    r13, [rdi+88]
+  add    r8, [rdi] 
+  adc    r9, [rdi+8] 
+  adc    r10, [rdi+16] 
+  adc    r11, [rdi+24] 
+  adc    r12, [rdi+32] 
+  adc    r13, [rdi+40] 
+  mov    [rbx+48], r8
+  mov    [rbx+56], r9
+  mov    [rbx+64], r10
+  mov    [rbx+72], r11
+  mov    [rbx+80], r12
+  mov    [rbx+88], r13
+  sbb    rdx, 0 
   mov    [rsp+80], rax
-  mov    [rsp+88], rsi
+  mov    [rsp+88], rdx
   
-  ; (rsp[0-8],r10,rbx,r9) <- (AH+AL)*(BH+BL)
-  mov    r11, [rdi]
-  mov    rax, rbx 
+  ; (rsp[0-8],r10,r8,r9) <- (AH+AL)*(BH+BL)
+  mov    r11, [rbx]
+  mov    rax, r8 
   mul    r11
   mov    [rsp], rax        ; c0
-  mov    r14, rsi
+  mov    r14, rdx
   
   xor    r15, r15
   mov    rax, r9
   mul    r11
   xor    r9, r9
   add    r14, rax
-  adc    r9, rsi
+  adc    r9, rdx
   
-  mov    r12, [rdi+8] 
-  mov    rax, rbx 
+  mov    r12, [rbx+8] 
+  mov    rax, r8 
   mul    r12
   add    r14, rax
   mov    [rsp+8], r14      ; c1 
-  adc    r9, rsi
+  adc    r9, rdx
   adc    r15, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, r10 
   mul    r11
   add    r9, rax
-  mov    r13, [rdi+48] 
-  adc    r15, rsi 
-  adc    rbx, 0
+  mov    r13, [rbx+48] 
+  adc    r15, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+16] 
+  mov    rax, [rbx+16] 
   mul    r13
   add    r9, rax
-  adc    r15, rsi 
-  mov    rax, [rdi+56] 
-  adc    rbx, 0
+  adc    r15, rdx 
+  mov    rax, [rbx+56] 
+  adc    r8, 0
   
   mul    r12
   add    r9, rax
   mov    [rsp+16], r9      ; c2 
-  adc    r15, rsi 
-  adc    rbx, 0
+  adc    r15, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [rdi+72] 
+  mov    rax, [rbx+72] 
   mul    r11
   add    r15, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [rdi+24] 
+  mov    rax, [rbx+24] 
   mul    r13
   add    r15, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   mov    rax, r10 
   mul    r12
   add    r15, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    r14, [rdi+16] 
-  mov    rax, [rdi+56] 
+  mov    r14, [rbx+16] 
+  mov    rax, [rbx+56] 
   mul    r14
   add    r15, rax
   mov    [rsp+24], r15     ; c3 
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [rdi+80] 
+  mov    rax, [rbx+80] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [rdi+64] 
+  mov    rax, [rbx+64] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    r15, [rdi+48] 
-  mov    rax, [rdi+32] 
+  mov    r15, [rbx+48] 
+  mov    rax, [rbx+32] 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [rdi+72] 
+  mov    rax, [rbx+72] 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    r13, [rdi+24] 
-  mov    rax, [rdi+56] 
+  mov    r13, [rbx+24] 
+  mov    rax, [rbx+56] 
   mul    r13
-  add    rbx, rax
-  mov    [rsp+32], rbx      ; c4 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rsp+32], r8      ; c4 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [rdi+88] 
+  xor    r8, r8
+  mov    rax, [rbx+88] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+64] 
+  mov    rax, [rbx+64] 
   mul    r13
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+72] 
+  mov    rax, [rbx+72] 
   mul    r14
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+40] 
+  mov    rax, [rbx+40] 
   mul    r15
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+80] 
+  mov    rax, [rbx+80] 
   mul    r12
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    r15, [rdi+32] 
-  mov    rax, [rdi+56] 
+  mov    r15, [rbx+32] 
+  mov    rax, [rbx+56] 
   mul    r15
   add    r9, rax
   mov    [rsp+40], r9      ; c5 
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [rdi+64] 
+  mov    rax, [rbx+64] 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [rdi+88] 
+  mov    rax, [rbx+88] 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [rdi+80] 
+  mov    rax, [rbx+80] 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    r11, [rdi+40] 
-  mov    rax, [rdi+56] 
+  mov    r11, [rbx+40] 
+  mov    rax, [rbx+56] 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [rdi+72] 
+  mov    rax, [rbx+72] 
   mul    r13
   add    r10, rax
   mov    [rsp+48], r10     ; c6 
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [rdi+88] 
+  mov    rax, [rbx+88] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [rdi+64] 
+  mov    rax, [rbx+64] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [rdi+80]
+  mov    rax, [rbx+80]
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [rdi+72] 
+  mov    rax, [rbx+72] 
   mul    r15
-  add    rbx, rax
-  mov    [rsp+56], rbx      ; c7 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rsp+56], r8      ; c7 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [rdi+72] 
+  xor    r8, r8
+  mov    rax, [rbx+72] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+80] 
+  mov    rax, [rbx+80] 
   mul    r15
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [rdi+88] 
+  mov    rax, [rbx+88] 
   mul    r13
   add    r9, rax
   mov    [rsp+64], r9      ; c8 
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [rdi+88]
+  mov    rax, [rbx+88]
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
 
-  mov    rax, [rdi+80] 
+  mov    rax, [rbx+80] 
   mul    r11
   add    r10, rax          ; c9 
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
 
-  mov    rax, [rdi+88] 
+  mov    rax, [rbx+88] 
   mul    r11
-  add    rbx, rax           ; c10 
-  adc    r9, rsi           ; c11 
+  add    r8, rax           ; c10 
+  adc    r9, rdx           ; c11 
   
   mov    rax, [rsp+88]
-  mov    rsi, [rdi]
+  mov    rdx, [rbx]
   and    r12, rax
   and    r14, rax
-  and    rsi, rax
+  and    rdx, rax
   and    r13, rax
   and    r15, rax
   and    r11, rax
   mov    rax, [rsp+48]
-  add    rsi, rax
+  add    rdx, rax
   mov    rax, [rsp+56]
   adc    r12, rax
   mov    rax, [rsp+64]
   adc    r14, rax
   adc    r13, r10
-  adc    r15, rbx
+  adc    r15, r8
   adc    r11, r9
   mov    rax, [rsp+80]
-  mov    [rsp+48], rsi
+  mov    [rsp+48], rdx
   mov    [rsp+56], r12
   mov    [rsp+64], r14
   mov    [rsp+72], r13
   mov    [rsp+80], r15
   mov    [rsp+88], r11
   
-  mov    rbx, [rdi+48]
-  mov    r9, [rdi+56]
-  mov    r10, [rdi+64]
-  mov    r11, [rdi+72]
-  mov    r12, [rdi+80]
-  mov    r13, [rdi+88]
-  and    rbx, rax
+  mov    r8, [rbx+48]
+  mov    r9, [rbx+56]
+  mov    r10, [rbx+64]
+  mov    r11, [rbx+72]
+  mov    r12, [rbx+80]
+  mov    r13, [rbx+88]
+  and    r8, rax
   and    r9, rax
   and    r10, rax
   and    r11, rax
   and    r12, rax
   and    r13, rax
   mov    rax, [rsp+48]
-  add    rbx, rax
+  add    r8, rax
   mov    rax, [rsp+56]
   adc    r9, rax
   mov    rax, [rsp+64]
@@ -886,592 +900,595 @@ mul751_asm proc
   adc    r12, rax
   mov    rax, [rsp+88]
   adc    r13, rax
-  mov    [rsp+48], rbx
+  mov    [rsp+48], r8
   mov    [rsp+56], r9
   mov    [rsp+72], r11
   
-  ; rdi[0-11] <- AL*BL
+  ; rbx[0-11] <- AL*BL
   mov    r11, [reg_p1]
-  mov    rax, [reg_p2] 
+  mov    rax, [rdi] 
   mul    r11
   xor    r9, r9
-  mov    [rdi], rax        ; c0
+  mov    [rbx], rax        ; c0
   mov    [rsp+64], r10
-  mov    rbx, rsi
+  mov    r8, rdx
 
-  mov    rax, [reg_p2+8]
+  mov    rax, [rdi+8]
   mul    r11
   xor    r10, r10
-  add    rbx, rax
+  add    r8, rax
   mov    [rsp+80], r12
-  adc    r9, rsi
+  adc    r9, rdx
 
   mov    r12, [reg_p1+8] 
-  mov    rax, [reg_p2] 
+  mov    rax, [rdi] 
   mul    r12
-  add    rbx, rax
-  mov    [rdi+8], rbx       ; c1 
-  adc    r9, rsi
+  add    r8, rax
+  mov    [rbx+8], r8       ; c1 
+  adc    r9, rdx
   mov    [rsp+88], r13
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+16] 
+  xor    r8, r8
+  mov    rax, [rdi+16] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    r13, [reg_p2] 
+  mov    r13, [rdi] 
   mov    rax, [reg_p1+16] 
   mul    r13
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+8] 
+  mov    rax, [rdi+8] 
   mul    r12
   add    r9, rax
-  mov    [rdi+16], r9      ; c2 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+16], r9      ; c2 
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [reg_p2+24] 
+  mov    rax, [rdi+24] 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   mov    rax, [reg_p1+24] 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+16] 
+  mov    rax, [rdi+16] 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   mov    r14, [reg_p1+16] 
-  mov    rax, [reg_p2+8] 
+  mov    rax, [rdi+8] 
   mul    r14
   add    r10, rax
-  mov    [rdi+24], r10     ; c3 
-  adc    rbx, rsi 
+  mov    [rbx+24], r10     ; c3 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [reg_p2+32] 
+  mov    rax, [rdi+32] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+16] 
+  mov    rax, [rdi+16] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
   mov    rax, [reg_p1+32] 
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+24] 
+  mov    rax, [rdi+24] 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
   mov    r13, [reg_p1+24] 
-  mov    rax, [reg_p2+8] 
+  mov    rax, [rdi+8] 
   mul    r13
-  add    rbx, rax
-  mov    [rdi+32], rbx      ; c4 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rbx+32], r8      ; c4 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+40] 
+  xor    r8, r8
+  mov    rax, [rdi+40] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+16] 
+  mov    rax, [rdi+16] 
   mul    r13
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+24] 
+  mov    rax, [rdi+24] 
   mul    r14
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
   mov    r11, [reg_p1+40] 
-  mov    rax, [reg_p2] 
+  mov    rax, [rdi] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+32] 
+  mov    rax, [rdi+32] 
   mul    r12
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
   mov    r15, [reg_p1+32] 
-  mov    rax, [reg_p2+8] 
+  mov    rax, [rdi+8] 
   mul    r15
   add    r9, rax
-  mov    [rdi+40], r9      ; c5 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+40], r9      ; c5 
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [reg_p2+16] 
+  mov    rax, [rdi+16] 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+40] 
+  mov    rax, [rdi+40] 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+32] 
+  mov    rax, [rdi+32] 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+8] 
+  mov    rax, [rdi+8] 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+24] 
+  mov    rax, [rdi+24] 
   mul    r13
   add    r10, rax
-  mov    [rdi+48], r10     ; c6 
-  adc    rbx, rsi 
+  mov    [rbx+48], r10     ; c6 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [reg_p2+40] 
+  mov    rax, [rdi+40] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+16] 
+  mov    rax, [rdi+16] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+32]
+  mov    rax, [rdi+32]
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+24] 
+  mov    rax, [rdi+24] 
   mul    r15
-  add    rbx, rax
-  mov    [rdi+56], rbx      ; c7 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rbx+56], r8      ; c7 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+24] 
+  xor    r8, r8
+  mov    rax, [rdi+24] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+32] 
+  mov    rax, [rdi+32] 
   mul    r15
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+40] 
+  mov    rax, [rdi+40] 
   mul    r13
   add    r9, rax
-  mov    [rdi+64], r9     ; c8 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+64], r9     ; c8 
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [reg_p2+40]
+  mov    rax, [rdi+40]
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
 
-  mov    rax, [reg_p2+32] 
+  mov    rax, [rdi+32] 
   mul    r11
   add    r10, rax
-  mov    [rdi+72], r10     ; c9 
-  adc    rbx, rsi
+  mov    [rbx+72], r10     ; c9 
+  adc    r8, rdx
   adc    r9, 0
 
-  mov    rax, [reg_p2+40] 
+  mov    rax, [rdi+40] 
   mul    r11
-  add    rbx, rax
-  mov    [rdi+80], rbx      ; c10 
-  adc    r9, rsi   
-  mov    [rdi+88], r9      ; c11 
+  add    r8, rax
+  mov    [rbx+80], r8      ; c10 
+  adc    r9, rdx   
+  mov    [rbx+88], r9      ; c11 
 
-  ; rdi[12-23] <- AH*BH
+  ; rbx[12-23] <- AH*BH
   mov    r11, [reg_p1+48]
-  mov    rax, [reg_p2+48] 
+  mov    rax, [rdi+48] 
   mul    r11
   xor    r9, r9
-  mov    [rdi+96], rax       ; c0
-  mov    rbx, rsi
+  mov    [rbx+96], rax     ; c0
+  mov    r8, rdx
 
-  mov    rax, [reg_p2+56]
+  mov    rax, [rdi+56]
   mul    r11
   xor    r10, r10
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
 
   mov    r12, [reg_p1+56] 
-  mov    rax, [reg_p2+48] 
+  mov    rax, [rdi+48] 
   mul    r12
-  add    rbx, rax
-  mov    [rdi+104], rbx      ; c1 
-  adc    r9, rsi
+  add    r8, rax
+  mov    [rbx+104], r8      ; c1 
+  adc    r9, rdx
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+64] 
+  xor    r8, r8
+  mov    rax, [rdi+64] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    r13, [reg_p2+48] 
+  mov    r13, [rdi+48] 
   mov    rax, [reg_p1+64] 
   mul    r13
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+56] 
+  mov    rax, [rdi+56] 
   mul    r12
   add    r9, rax
-  mov    [rdi+112], r9     ; c2 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+112], r9     ; c2 
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [reg_p2+72] 
+  mov    rax, [rdi+72] 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   mov    rax, [reg_p1+72] 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+64] 
+  mov    rax, [rdi+64] 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
   mov    r14, [reg_p1+64] 
-  mov    rax, [reg_p2+56] 
+  mov    rax, [rdi+56] 
   mul    r14
   add    r10, rax
-  mov    [rdi+120], r10    ; c3 
-  adc    rbx, rsi 
+  mov    [rbx+120], r10    ; c3 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [reg_p2+80] 
+  mov    rax, [rdi+80] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+64] 
+  mov    rax, [rdi+64] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
   mov    r15, [reg_p1+80] 
   mov    rax, r13 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+72] 
+  mov    rax, [rdi+72] 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
   mov    r13, [reg_p1+72] 
-  mov    rax, [reg_p2+56] 
+  mov    rax, [rdi+56] 
   mul    r13
-  add    rbx, rax
-  mov    [rdi+128], rbx     ; c4 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rbx+128], r8     ; c4 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+88] 
+  xor    r8, r8
+  mov    rax, [rdi+88] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+64] 
+  mov    rax, [rdi+64] 
   mul    r13
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+72] 
+  mov    rax, [rdi+72] 
   mul    r14
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
   mov    r11, [reg_p1+88] 
-  mov    rax, [reg_p2+48] 
+  mov    rax, [rdi+48] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+80] 
+  mov    rax, [rdi+80] 
   mul    r12
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+56] 
+  mov    rax, [rdi+56] 
   mul    r15
   add    r9, rax
-  mov    [rdi+136], r9     ; c5 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+136], r9     ; c5 
+  adc    r10, rdx 
+  adc    r8, 0
   
   xor    r9, r9
-  mov    rax, [reg_p2+64] 
+  mov    rax, [rdi+64] 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+88] 
+  mov    rax, [rdi+88] 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+80] 
+  mov    rax, [rdi+80] 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+56] 
+  mov    rax, [rdi+56] 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi 
+  adc    r8, rdx 
   adc    r9, 0
   
-  mov    rax, [reg_p2+72] 
+  mov    rax, [rdi+72] 
   mul    r13
   add    r10, rax
-  mov    [rdi+144], r10    ; c6 
-  adc    rbx, rsi 
+  mov    [rbx+144], r10    ; c6 
+  adc    r8, rdx 
   adc    r9, 0
   
   xor    r10, r10
-  mov    rax, [reg_p2+88] 
+  mov    rax, [rdi+88] 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+64] 
+  mov    rax, [rdi+64] 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+80]
+  mov    rax, [rdi+80]
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi 
+  add    r8, rax
+  adc    r9, rdx 
   adc    r10, 0
   
-  mov    rax, [reg_p2+72] 
+  mov    rax, [rdi+72] 
   mul    r15
-  add    rbx, rax
-  mov    [rdi+152], rbx     ; c7 
-  adc    r9, rsi 
+  add    r8, rax
+  mov    [rbx+152], r8    ; c7 
+  adc    r9, rdx 
   adc    r10, 0
   
-  xor    rbx, rbx
-  mov    rax, [reg_p2+72] 
+  xor    r8, r8
+  mov    rax, [rdi+72] 
   mul    r11
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+80] 
+  mov    rax, [rdi+80] 
   mul    r15
   add    r9, rax
-  adc    r10, rsi 
-  adc    rbx, 0
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+88] 
+  mov    rax, [rdi+88] 
   mul    r13
   add    r9, rax
-  mov    [rdi+160], r9     ; c8 
-  adc    r10, rsi 
-  adc    rbx, 0
+  mov    [rbx+160], r9    ; c8 
+  adc    r10, rdx 
+  adc    r8, 0
   
-  mov    rax, [reg_p2+88]
+  mov    rax, [rdi+88]
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
 
-  mov    rax, [reg_p2+80] 
+  mov    rax, [rdi+80] 
   mul    r11
   add    r10, rax
-  mov    [rdi+168], r10     ; c9 
-  adc    rbx, rsi
+  mov    [rbx+168], r10    ; c9 
+  adc    r8, rdx
 
-  mov    rax, [reg_p2+88] 
+  mov    rax, [rdi+88] 
   mul    r11
-  add    rbx, rax
-  mov    [rdi+176], rbx      ; c10 
-  adc    rsi, 0   
-  mov    [rdi+184], rsi     ; c11  
+  add    r8, rax
+  mov    [rbx+176], r8     ; c10 
+  adc    rdx, 0   
+  mov    [rbx+184], rdx    ; c11  
       
-  ; [rbx,r9-r15,rax,rsi,rdi,[rsp]] <- (AH+AL)*(BH+BL) - AL*BL 
-  mov    rbx,  [rsp]
-  sub    rbx,  [rdi] 
+  ; [r8-r15,rax,rdx,rcx,[rsp]] <- (AH+AL)*(BH+BL) - AL*BL 
+  mov    r8,  [rsp]
+  sub    r8,  [rbx] 
   mov    r9,  [rsp+8]
-  sbb    r9,  [rdi+8]
+  sbb    r9,  [rbx+8]
   mov    r10, [rsp+16]
-  sbb    r10, [rdi+16]
+  sbb    r10, [rbx+16]
   mov    r11, [rsp+24]
-  sbb    r11, [rdi+24] 
+  sbb    r11, [rbx+24] 
   mov    r12, [rsp+32]
-  sbb    r12, [rdi+32]
+  sbb    r12, [rbx+32]
   mov    r13, [rsp+40]
-  sbb    r13, [rdi+40] 
+  sbb    r13, [rbx+40] 
   mov    r14, [rsp+48]
-  sbb    r14, [rdi+48] 
+  sbb    r14, [rbx+48] 
   mov    r15, [rsp+56]
-  sbb    r15, [rdi+56] 
+  sbb    r15, [rbx+56] 
   mov    rax, [rsp+64]
-  sbb    rax, [rdi+64]
-  mov    rsi, [rsp+72]
-  sbb    rsi, [rdi+72] 
-  mov    rdi, [rsp+80]
-  sbb    rdi, [rdi+80] 
+  sbb    rax, [rbx+64]
+  mov    rdx, [rsp+72]
+  sbb    rdx, [rbx+72] 
+  mov    rcx, [rsp+80]
+  sbb    rcx, [rbx+80] 
   mov    rsi, [rsp+88]
-  sbb    rsi, [rdi+88] 
+  sbb    rsi, [rbx+88] 
   mov    [rsp], rsi
       
-  ; [rbx,r9-r15,rax,rsi,rdi,[rsp]] <- (AH+AL)*(BH+BL) - AL*BL - AH*BH
-  mov    rsi, [rdi+96]
-  sub    rbx,  rsi 
-  mov    rsi, [rdi+104]
+  ; [r8-r15,rax,rdx,rcx,[rsp]] <- (AH+AL)*(BH+BL) - AL*BL - AH*BH
+  mov    rsi, [rbx+96]
+  sub    r8,  rsi 
+  mov    rsi, [rbx+104]
   sbb    r9,  rsi
-  mov    rsi, [rdi+112]
+  mov    rsi, [rbx+112]
   sbb    r10, rsi
-  mov    rsi, [rdi+120]
+  mov    rsi, [rbx+120]
   sbb    r11, rsi 
-  mov    rsi, [rdi+128]
+  mov    rsi, [rbx+128]
   sbb    r12, rsi
-  mov    rsi, [rdi+136]
+  mov    rsi, [rbx+136]
   sbb    r13, rsi
-  mov    rsi, [rdi+144]
+  mov    rsi, [rbx+144]
   sbb    r14, rsi 
-  mov    rsi, [rdi+152]
+  mov    rsi, [rbx+152]
   sbb    r15, rsi 
-  mov    rsi, [rdi+160]
+  mov    rsi, [rbx+160]
   sbb    rax, rsi
-  mov    rsi, [rdi+168]
-  sbb    rsi, rsi
-  mov    rsi, [rdi+176] 
-  sbb    rdi, rsi
+  mov    rsi, [rbx+168]
+  sbb    rdx, rsi
+  mov    rsi, [rbx+176] 
+  sbb    rcx, rsi
   mov    rsi, [rsp] 
-  sbb    rsi, [rdi+184]
+  sbb    rsi, [rbx+184]
       
   ; Final result
-  add    rbx,  [rdi+48] 
-  mov    [rdi+48], rbx
-  adc    r9,  [rdi+56]
-  mov    [rdi+56], r9
-  adc    r10, [rdi+64]
-  mov    [rdi+64], r10
-  adc    r11, [rdi+72]
-  mov    [rdi+72], r11
-  adc    r12, [rdi+80]
-  mov    [rdi+80], r12
-  adc    r13, [rdi+88]
-  mov    [rdi+88], r13
-  adc    r14, [rdi+96] 
-  mov    [rdi+96], r14
-  adc    r15, [rdi+104] 
-  mov    [rdi+104], r15
-  adc    rax, [rdi+112]
-  mov    [rdi+112], rax
-  adc    rsi, [rdi+120]
-  mov    [rdi+120], rsi
-  adc    rdi, [rdi+128]
-  mov    [rdi+128], rdi
-  adc    rsi, [rdi+136]
-  mov    [rdi+136], rsi  
-  mov    rax, [rdi+144]
+  add    r8,  [rbx+48] 
+  mov    [rbx+48], r8
+  adc    r9,  [rbx+56]
+  mov    [rbx+56], r9
+  adc    r10, [rbx+64]
+  mov    [rbx+64], r10
+  adc    r11, [rbx+72]
+  mov    [rbx+72], r11
+  adc    r12, [rbx+80]
+  mov    [rbx+80], r12
+  adc    r13, [rbx+88]
+  mov    [rbx+88], r13
+  adc    r14, [rbx+96] 
+  mov    [rbx+96], r14
+  adc    r15, [rbx+104] 
+  mov    [rbx+104], r15
+  adc    rax, [rbx+112]
+  mov    [rbx+112], rax
+  adc    rdx, [rbx+120]
+  mov    [rbx+120], rdx
+  adc    rcx, [rbx+128]
+  mov    [rbx+128], rcx
+  adc    rsi, [rbx+136]
+  mov    [rbx+136], rsi  
+  mov    rax, [rbx+144]
   adc    rax, 0
-  mov    [rdi+144], rax
-  mov    rax, [rdi+152]
+  mov    [rbx+144], rax
+  mov    rax, [rbx+152]
   adc    rax, 0
-  mov    [rdi+152], rax
-  mov    rax, [rdi+160]
+  mov    [rbx+152], rax
+  mov    rax, [rbx+160]
   adc    rax, 0
-  mov    [rdi+160], rax
-  mov    rax, [rdi+168]
+  mov    [rbx+160], rax
+  mov    rax, [rbx+168]
   adc    rax, 0
-  mov    [rdi+168], rax
-  mov    rax, [rdi+176]
+  mov    [rbx+168], rax
+  mov    rax, [rbx+176]
   adc    rax, 0
-  mov    [rdi+176], rax
-  mov    rax, [rdi+184]
+  mov    [rbx+176], rax
+  mov    rax, [rbx+184]
   adc    rax, 0
-  mov    [rdi+184], rax
+  mov    [rbx+184], rax
     
   add    rsp, 96           ; Restoring space in stack
+  pop    rsi
+  pop    rdi
+  pop    rbx
   pop    r15
   pop    r14
   pop    r13
@@ -1489,609 +1506,614 @@ rdc751_asm proc
   push   r12
   push   r13 
   push   r14 
-  push   r15 
+  push   r15
+  push   rbx
+  mov    rbx, reg_p2
+  push   rdi
 
   mov    r11, [reg_p1]
   mov    rax, p751p1_5 
   mul    r11
-  xor    rbx, rbx
+  xor    r8, r8
   add    rax, [reg_p1+40]
-  mov    [reg_p2+40], rax    ; z5
-  adc    rbx, rsi
+  mov    [rbx+40], rax    ; z5
+  adc    r8, rdx
   
   xor    r9, r9
   mov    rax, p751p1_6 
   mul    r11
   xor    r10, r10
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
 
   mov    r12, [reg_p1+8]
   mov    rax, p751p1_5 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+48]
-  mov    [reg_p2+48], rbx    ; z6
+  add    r8, [reg_p1+48]
+  mov    [rbx+48], r8    ; z6
   adc    r9, 0
   adc    r10, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, p751p1_7 
   mul    r11
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_6 
   mul    r12
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    r13, [reg_p1+16]
   mov    rax, p751p1_5 
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   add    r9, [reg_p1+56]
-  mov    [reg_p2+56], r9    ; z7
+  mov    [rbx+56], r9    ; z7
   adc    r10, 0
-  adc    rbx, 0
+  adc    r8, 0
   
   xor    r9, r9
   mov    rax, p751p1_8 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_7 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_6 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    r14, [reg_p1+24]
   mov    rax, p751p1_5 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   add    r10, [reg_p1+64]
-  mov    [reg_p2+64], r10   ; z8
-  adc    rbx, 0
+  mov    [rbx+64], r10   ; z8
+  adc    r8, 0
   adc    r9, 0
   
   xor    r10, r10
   mov    rax, p751p1_9 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_8 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_7 
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_6 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    r15, [reg_p1+32]
   mov    rax, p751p1_5 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+72]
-  mov    [reg_p2+72], rbx    ; z9
+  add    r8, [reg_p1+72]
+  mov    [rbx+72], r8    ; z9
   adc    r9, 0
   adc    r10, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, p751p1_10 
   mul    r11
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_9 
   mul    r12
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_8 
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_7 
   mul    r14
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_6 
   mul    r15
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
-  mov    rdi, [reg_p2+40]
+  mov    rdi, [rbx+40]
   mov    rax, p751p1_5 
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   add    r9, [reg_p1+80]
-  mov    [reg_p2+80], r9    ; z10
+  mov    [rbx+80], r9    ; z10
   adc    r10, 0
-  adc    rbx, 0
+  adc    r8, 0
   
   xor    r9, r9
   mov    rax, p751p1_11 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_10 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_9 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_8 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_7 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_6 
   mul    rdi
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
-  mov    r11, [reg_p2+48]
+  mov    r11, [rbx+48]
   mov    rax, p751p1_5 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   add    r10, [reg_p1+88]
-  mov    [reg_p2+88], r10    ; z11
-  adc    rbx, 0
+  mov    [rbx+88], r10    ; z11
+  adc    r8, 0
   adc    r9, 0
   
   xor    r10, r10
   mov    rax, p751p1_11 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_10 
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_9 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_8 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_7 
   mul    rdi
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_6 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
-  mov    r12, [reg_p2+56]
+  mov    r12, [rbx+56]
   mov    rax, p751p1_5 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+96]
-  mov    [reg_p2], rbx        ; z0
+  add    r8, [reg_p1+96]
+  mov    [rbx], r8        ; z0
   adc    r9, 0
   adc    r10, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, p751p1_11 
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
 
   mov    rax, p751p1_10 
   mul    r14
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
 
   mov    rax, p751p1_9
   mul    r15
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
 
   mov    rax, p751p1_8
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
 
   mov    rax, p751p1_7
   mul    r11
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
 
   mov    rax, p751p1_6
   mul    r12
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
-  mov    r13, [reg_p2+64]
+  mov    r13, [rbx+64]
   mov    rax, p751p1_5
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   add    r9, [reg_p1+104]
-  mov    [reg_p2+8], r9      ; z1
+  mov    [rbx+8], r9      ; z1
   adc    r10, 0
-  adc    rbx, 0
+  adc    r8, 0
   
   xor    r9, r9
   mov    rax, p751p1_11 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_10 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_9 
   mul    rdi
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_8 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_7 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_6 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
-  mov    r14, [reg_p2+72]
+  mov    r14, [rbx+72]
   mov    rax, p751p1_5 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   add    r10, [reg_p1+112]
-  mov    [reg_p2+16], r10    ; z2
-  adc    rbx, 0
+  mov    [rbx+16], r10    ; z2
+  adc    r8, 0
   adc    r9, 0
   
   xor    r10, r10
   mov    rax, p751p1_11 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_10 
   mul    rdi
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_9 
   mul    r11
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_8 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_7 
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_6 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
-  mov    r15, [reg_p2+80]
+  mov    r15, [rbx+80]
   mov    rax, p751p1_5 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+120]
-  mov    [reg_p2+24], rbx     ; z3
+  add    r8, [reg_p1+120]
+  mov    [rbx+24], r8     ; z3
   adc    r9, 0
   adc    r10, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, p751p1_11 
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_10 
   mul    r11
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_9 
   mul    r12
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_8 
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_7 
   mul    r14
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_6 
   mul    r15
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
-  mov    rdi, [reg_p2+88]
+  mov    rdi, [rbx+88]
   mov    rax, p751p1_5 
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   add    r9, [reg_p1+128]
-  mov    [reg_p2+32], r9     ; z4
+  mov    [rbx+32], r9     ; z4
   adc    r10, 0
-  adc    rbx, 0
+  adc    r8, 0
   
   xor    r9, r9
   mov    rax, p751p1_11 
   mul    r11
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_10 
   mul    r12
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_9 
   mul    r13
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_8 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_7 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_6 
   mul    rdi
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   add    r10, [reg_p1+136]
-  mov    [reg_p2+40], r10    ; z5
-  adc    rbx, 0
+  mov    [rbx+40], r10    ; z5
+  adc    r8, 0
   adc    r9, 0
   
   xor    r10, r10
   mov    rax, p751p1_11 
   mul    r12
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_10 
   mul    r13
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_9 
   mul    r14
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_8 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
   
   mov    rax, p751p1_7 
   mul    rdi
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+144]
-  mov    [reg_p2+48], rbx     ; z6
+  add    r8, [reg_p1+144]
+  mov    [rbx+48], r8     ; z6
   adc    r9, 0
   adc    r10, 0
   
-  xor    rbx, rbx
+  xor    r8, r8
   mov    rax, p751p1_11 
   mul    r13
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_10 
   mul    r14
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_9 
   mul    r15
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   
   mov    rax, p751p1_8 
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
-  adc    rbx, 0
+  adc    r10, rdx
+  adc    r8, 0
   add    r9, [reg_p1+152]
-  mov    [reg_p2+56], r9     ; z7
+  mov    [rbx+56], r9     ; z7
   adc    r10, 0
-  adc    rbx, 0
+  adc    r8, 0
   
   xor    r9, r9
   mov    rax, p751p1_11 
   mul    r14
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_10 
   mul    r15
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   
   mov    rax, p751p1_9 
   mul    rdi
   add    r10, rax
-  adc    rbx, rsi
+  adc    r8, rdx
   adc    r9, 0
   add    r10, [reg_p1+160]
-  mov    [reg_p2+64], r10    ; z8
-  adc    rbx, 0
+  mov    [rbx+64], r10    ; z8
+  adc    r8, 0
   adc    r9, 0
   
   xor    r10, r10
   mov    rax, p751p1_11 
   mul    r15
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
 
   mov    rax, p751p1_10 
   mul    rdi
-  add    rbx, rax
-  adc    r9, rsi
+  add    r8, rax
+  adc    r9, rdx
   adc    r10, 0
-  add    rbx, [reg_p1+168]    ; z9
-  mov    [reg_p2+72], rbx     ; z9
+  add    r8, [reg_p1+168]    ; z9
+  mov    [rbx+72], r8     ; z9
   adc    r9, 0
   adc    r10, 0
   
   mov    rax, p751p1_11 
   mul    rdi
   add    r9, rax
-  adc    r10, rsi
+  adc    r10, rdx
   add    r9, [reg_p1+176]    ; z10
-  mov    [reg_p2+80], r9     ; z10
+  mov    [rbx+80], r9     ; z10
   adc    r10, 0  
   add    r10, [reg_p1+184]   ; z11
-  mov    [reg_p2+88], r10    ; z11
+  mov    [rbx+88], r10    ; z11
 
+  pop    rdi
+  pop    rbx
   pop    r15
   pop    r14
   pop    r13
@@ -2106,6 +2128,9 @@ rdc751_asm endp
 srdc751_asm proc
   push   r12
   push   r13
+  push   r14
+  push   r15
+  push   rbx
 
   ; Zero rax for later use.
   xor    rax, rax
@@ -2161,6 +2186,9 @@ srdc751_asm proc
   adc    [reg_p1+80], r14
   adc    [reg_p1+88], r15
 
+  pop    rbx
+  pop    r15
+  pop    r14
   pop    r13
   pop    r12
   ret
@@ -2176,6 +2204,8 @@ mp_add751_asm proc
   push   r14
   push   r15
   push   rbx
+  push   rdi
+  push   rsi
   
   mov    rsi, [reg_p1]
   mov    r9, [reg_p1+8]
@@ -2216,6 +2246,8 @@ mp_add751_asm proc
   mov    [reg_p3+80], rdi
   mov    [reg_p3+88], rdi
   
+  pop    rsi
+  pop    rdi
   pop    rbx
   pop    r15
   pop    r14
@@ -2234,6 +2266,8 @@ mp_add751x2_asm proc
   push   r14
   push   r15
   push   rbx
+  push   rdi
+  push   rsi
   
   mov    rsi, [reg_p1]
   mov    r9, [reg_p1+8]
@@ -2313,6 +2347,8 @@ mp_add751x2_asm proc
   mov    [reg_p3+176], rdi
   mov    [reg_p3+184], rdi
   
+  pop    rsi
+  pop    rdi
   pop    rbx
   pop    r15
   pop    r14
@@ -2331,6 +2367,8 @@ mp_sub751x2_asm proc
   push   r14
   push   r15
   push   rbx
+  push   rdi
+  push   rsi
   
   mov    rsi, [reg_p1]
   mov    r9, [reg_p1+8]
@@ -2412,6 +2450,8 @@ mp_sub751x2_asm proc
   mov    [reg_p3+176], rdi
   mov    [reg_p3+184], rdi
   
+  pop    rsi
+  pop    rdi
   pop    rbx
   pop    r15
   pop    r14

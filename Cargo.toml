@@ -3,6 +3,9 @@ name = "sidh"
 version = "0.1.0"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 
+[profile.bench]
+debug = true
+
 [build-dependencies]
 cc = "1.0.3"
 subtle = "^0.3"
