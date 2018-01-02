@@ -7,6 +7,7 @@ use subtle::ConditionallySwappable;
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
 
+// Macro to assign tuples, as Rust does not allow tuples as lvalue.
 macro_rules! assign{
     {($v1:ident, $v2:ident) = $e:expr} =>
     {
@@ -110,18 +111,18 @@ impl ProjectiveCurveParameters {
     }
     // Compute cached parameters A + 2C, 4C.
     fn cached_params(&self) -> CachedCurveParameters {
-        let mut _Aplus2C = &self.C + &self.C;   // = 2*C
-        let _C4 = &_Aplus2C + &_Aplus2C;        // = 4*C
-        _Aplus2C = &_Aplus2C + &self.A;         // = 2*C + A
+        let mut Aplus2C = &self.C + &self.C; // = 2*C
+        let C4 = &Aplus2C + &Aplus2C;        // = 4*C
+        Aplus2C = &Aplus2C + &self.A;        // = 2*C + A
 
-        CachedCurveParameters { Aplus2C: _Aplus2C, C4: _C4 }
+        CachedCurveParameters{ Aplus2C, C4 }
     }
     // Compute cached parameters A - 2C, 2C.
     fn cached_triple_params(&self) -> CachedTripleCurveParameters {
-        let _C2 = &self.C + &self.C;    // = 2*C
-        let _Aminus2C = &self.A - &_C2; // = A -2*C
+        let C2 = &self.C + &self.C;   // = 2*C
+        let Aminus2C = &self.A - &C2; // = A -2*C
 
-        CachedTripleCurveParameters{ Aminus2C: _Aminus2C, C2: _C2 }
+        CachedTripleCurveParameters{ Aminus2C, C2 }
     }
 }
 

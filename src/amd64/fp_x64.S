@@ -538,6 +538,9 @@ mul751_asm:
   push   r12
   push   r13
   push   r14
+  // Here we store the destination in RCX instead of in reg_p3 because
+	// the multiplication instructions use DX as an implicit destination
+	// operand: MUL $REG sets DX:AX <-- AX * $REG.
   mov    rcx, reg_p3
   
   // rcx[0-5] <- AH+AL
@@ -2401,11 +2404,46 @@ mp_sub751x2_asm:
   mov    [reg_p3+144], r14
   mov    [reg_p3+152], r15
   mov    [reg_p3+160], rax 
-  mov    rax, 0
-  sbb    rax, 0
   mov    [reg_p3+168], rbx
   mov    [reg_p3+176], rcx
   mov    [reg_p3+184], rdi
+
+  // Now the carry flag is 1 if x-y < 0. If so, add p*2^768.
+  movq   rax, 0
+  sbb    rax, 0
+
+  // Load p into registers:
+  mov    r8, p751_0
+  // P751_{1,2,3,4} = P751_0, so reuse R8
+  mov    r9, p751_5
+  mov    r10, p751_6
+  mov    r11, p751_7
+  mov    r12, p751_8
+  mov    r13, p751_9
+  mov    r14, p751_10
+  mov    r15, p751_11
+
+  and    r8, rax
+  and    r9, rax
+  and    r10, rax
+  and    r11, rax
+  and    r12, rax
+  and    r13, rax
+  and    r14, rax
+  and    r15, rax
+
+  add    [reg_p3+96], r8
+  adc    [reg_p3+104], r8
+  adc    [reg_p3+112], r8
+  adc    [reg_p3+120], r8
+  adc    [reg_p3+128], r8
+  adc    [reg_p3+136], r9
+  adc    [reg_p3+144], r10
+  adc    [reg_p3+152], r11
+  adc    [reg_p3+160], r12
+  adc    [reg_p3+168], r13
+  adc    [reg_p3+176], r14
+  adc    [reg_p3+184], r15
   
   pop    rbx
   pop    r15
@@ -2413,4 +2451,3 @@ mp_sub751x2_asm:
   pop    r13
   pop    r12
   ret
-  

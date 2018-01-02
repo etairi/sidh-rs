@@ -24,6 +24,7 @@ extern crate rand;
 
 mod constants;
 mod field;
+#[macro_use]
 mod curve;
 mod isogeny;
 mod sidh;

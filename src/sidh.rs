@@ -20,18 +20,6 @@ use rand::{Rng, thread_rng};
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
 
-// Macro to assign tuples, as Rust does not allow tuples as lvalue.
-macro_rules! assign{
-    {($v1:ident, $v2:ident) = $e:expr} =>
-    {
-        {
-            let (v1, v2) = $e;
-            $v1 = v1;
-            $v2 = v2;
-        }
-    };
-}
-
 // The secret key size, in bytes.
 const SECRET_KEY_SIZE: usize = 48;
 // The public key size, in bytes.
@@ -650,12 +638,12 @@ mod test {
         let bob_public = bob_secret.public_key();
 
         let alice_shared_secret_slow = alice_shared_secret_slow(&bob_public, &alice_secret);
-        let alice_sahred_secret_fast = alice_secret.shared_secret(&bob_public);
+        let alice_shared_secret_fast = alice_secret.shared_secret(&bob_public);
         let bob_shared_secret_slow = bob_shared_secret_slow(&alice_public, &bob_secret);
         let bob_shared_secret_fast = bob_secret.shared_secret(&alice_public);
 
-        assert!(alice_sahred_secret_fast.iter().zip(bob_shared_secret_fast.iter()).all(|(a, b)| a == b), 
-            "\nShared secret (fast) mismatch: Alice has {:?}\nBob has {:?}", &alice_sahred_secret_fast[..], &bob_shared_secret_fast[..]);
+        assert!(alice_shared_secret_fast.iter().zip(bob_shared_secret_fast.iter()).all(|(a, b)| a == b), 
+            "\nShared secret (fast) mismatch: Alice has {:?}\nBob has {:?}", &alice_shared_secret_fast[..], &bob_shared_secret_fast[..]);
         assert!(alice_shared_secret_slow.iter().zip(bob_shared_secret_slow.iter()).all(|(a, b)| a == b), 
             "\nShared secret (slow) mismatch: Alice has {:?}\nBob has {:?}", &alice_shared_secret_slow[..], &bob_shared_secret_slow[..]);
         assert!(alice_shared_secret_slow.iter().zip(bob_shared_secret_fast.iter()).all(|(a, b)| a == b), 
