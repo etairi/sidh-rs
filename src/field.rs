@@ -1,3 +1,10 @@
+// This file is part of sidh-rs.
+// Copyright (c) 2017 Erkan Tairi
+// See LICENSE for licensing information.
+//
+// Author:
+// - Erkan Tairi <erkan.tairi@gmail.com>
+//
 use core::fmt::Debug;
 
 use core::cmp::{Eq, PartialEq};
@@ -10,8 +17,7 @@ use core::ops::Neg;
 // NOTE: We do not use conditional assign (for now).
 //use subtle::ConditionallyAssignable;
 use subtle::ConditionallySwappable;
-use subtle::Equal;
-use subtle::slices_equal;
+use subtle::{Equal, slices_equal};
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
@@ -462,12 +468,11 @@ impl PrimeFieldElement {
     fn sqrt(&self) -> PrimeFieldElement {
         let mut result = self.p34(); // result = (y^2)^((p-3)/4) = y^((p-3)/2)
         result = &result * self;     // result = y^2 * y^((p-3)/2) = y^((p+1)/2)
-        // Now result^2 = y^(p+1) = y^2 = x, so result = sqrt(x)
+        // Now result^2 = y^(p+1) = y^2 = x, so result = sqrt(x).
         result
     }
     // Set output to 1/x.
     pub fn inv(&self) -> PrimeFieldElement {
-        //let tmp_x = *self;
         let mut result = self.square(); // result = x^2
         result = result.p34();          // result = (x^2)^((p-3)/4) = x^((p-3)/2)
         result = result.square();       // result = x^(p-3)
@@ -739,10 +744,10 @@ impl Fp751X2 {
 }
 
 // (2^768) mod p
-const MONTGOMERY_R : Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 9444048418595930112, 6136068611055053926, 7599709743867700432, 14455912356952952366, 5522737203492907350, 1222606818372667369, 49869481633250]);
+const MONTGOMERY_R: Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 9444048418595930112, 6136068611055053926, 7599709743867700432, 14455912356952952366, 5522737203492907350, 1222606818372667369, 49869481633250]);
 
 // (2^768)^2 mod p
-const MONTGOMERY_RSQ : Fp751Element = Fp751Element([2535603850726686808, 15780896088201250090, 6788776303855402382, 17585428585582356230, 5274503137951975249, 2266259624764636289, 11695651972693921304, 13072885652150159301, 4908312795585420432, 6229583484603254826, 488927695601805643, 72213483953973]);
+const MONTGOMERY_RSQ: Fp751Element = Fp751Element([2535603850726686808, 15780896088201250090, 6788776303855402382, 17585428585582356230, 5274503137951975249, 2266259624764636289, 11695651972693921304, 13072885652150159301, 4908312795585420432, 6229583484603254826, 488927695601805643, 72213483953973]);
 
 extern {
     // If choice = 1, set x,y = y,x. Otherwise, leave x,y unchanged.
@@ -937,8 +942,7 @@ mod test {
     // }
 }
 
-//#[cfg(all(test, feature = "bench"))]
-#[cfg(test)]
+#[cfg(all(test, feature = "bench"))]
 mod bench {
     use super::*;
     use test::Bencher;

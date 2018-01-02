@@ -1,5 +1,12 @@
-use ::field::{Fp751Element, PrimeFieldElement, ExtensionFieldElement};
-use ::constants::*;
+// This file is part of sidh-rs.
+// Copyright (c) 2017 Erkan Tairi
+// See LICENSE for licensing information.
+//
+// Author:
+// - Erkan Tairi <erkan.tairi@gmail.com>
+//
+use field::{Fp751Element, PrimeFieldElement, ExtensionFieldElement};
+use constants::*;
 
 use core::fmt::Debug;
 use subtle::ConditionallySwappable;
@@ -1041,8 +1048,7 @@ mod test {
    }
 }
 
-//#[cfg(all(test, feature = "bench"))]
-#[cfg(test)]
+#[cfg(all(test, feature = "bench"))]
 mod bench {
     use super::*;
     use test::Bencher;

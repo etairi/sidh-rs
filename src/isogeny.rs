@@ -1,5 +1,12 @@
-use ::field::{Fp751Element, ExtensionFieldElement};
-use ::curve::{ProjectiveCurveParameters, ProjectivePoint};
+// This file is part of sidh-rs.
+// Copyright (c) 2017 Erkan Tairi
+// See LICENSE for licensing information.
+//
+// Author:
+// - Erkan Tairi <erkan.tairi@gmail.com>
+//
+use field::{Fp751Element, ExtensionFieldElement};
+use curve::{ProjectiveCurveParameters, ProjectivePoint};
 
 // Represents a 3-isogeny phi, holding the data necessary to evaluate phi.
 #[derive(Copy, Clone)]

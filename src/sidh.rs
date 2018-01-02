@@ -8,10 +8,10 @@
 // This package does NOT implement SIDH key validation, so it should only be
 // used for ephemeral DH. Each keypair should be used at most once.
 //
-use ::field::{Fp751Element, ExtensionFieldElement};
-use ::curve::{ProjectiveCurveParameters, ProjectivePoint};
-use ::isogeny::*;
-use ::constants::*;
+use field::{Fp751Element, ExtensionFieldElement};
+use curve::{ProjectiveCurveParameters, ProjectivePoint};
+use isogeny::*;
+use constants::*;
 
 use core::fmt::Debug;
 
@@ -673,8 +673,7 @@ mod test {
     }
 }
 
-//#[cfg(all(test, feature = "bench"))]
-#[cfg(test)]
+#[cfg(all(test, feature = "bench"))]
 mod bench {
     use super::*;
     use test::Bencher;
