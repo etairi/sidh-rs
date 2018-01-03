@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/etairi/sidh-rs/"
 homepage = "https://github.com/etairi/sidh-rs/"
 documentation = "https://docs.rs/sidh"
-categories = ["cryptography"]
+categories = ["cryptography", "no-std"]
 keywords = ["cryptography", "elliptic", "curve", "isogeny", "SIDH", "ECC"]
 description = "An efficient supersingular isogeny-based cryptography library."
 exclude = [
@@ -16,6 +16,13 @@ exclude = [
     "appveyor.yml",
 ]
 build = "build.rs"
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./rustdoc-include-katex-header.html"]
+
+[badges]
+appveyor = { repository = "sidh-rs", branch = "master", service = "github" }
+travis-ci = { repository = "etairi/sidh-rs", branch = "master" }
 
 [profile.bench]
 debug = true
