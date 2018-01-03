@@ -27,7 +27,7 @@ extern crate rand;
 
 #[cfg(all(test, feature = "bench"))]
 extern crate test;
-#[cfg(all(test, feature = "bench"))]
+#[cfg(any(test, feature = "bench"))]
 extern crate quickcheck;
 
 // Used for traits related to constant-time code.

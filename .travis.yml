@@ -6,18 +6,13 @@ rust:
   - nightly
 
 env:
-  - TEST_COMMAND=test EXTRA_FLAGS='' FEATURES=''
   - TEST_COMMAND=test EXTRA_FLAGS='' FEATURES='nightly'
-  - TEST_COMMAND=bench EXTRA_FLAGS='' FEATURES='bench'
   - TEST_COMMAND=bench EXTRA_FLAGS='' FEATURES='nightly bench'
-  - TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES='' 
+  - TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES='nightly' 
 
 matrix:
   exclude:
-    - rust: stable
-      env: TEST_COMMAND=bench EXTRA_FLAGS='' FEATURES='bench'
-    - rust: beta
-      env: TEST_COMMAND=bench EXTRA_FLAGS='' FEATURES='bench'
+    # Currently, we only support nightly.
     - rust: stable
       env: TEST_COMMAND=bench EXTRA_FLAGS='' FEATURES='nightly bench'
     - rust: beta
@@ -26,6 +21,10 @@ matrix:
       env: TEST_COMMAND=test EXTRA_FLAGS='' FEATURES='nightly'
     - rust: beta
       env: TEST_COMMAND=test EXTRA_FLAGS='' FEATURES='nightly'
+    - rust: stable
+      env: TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES='nightly'
+    - rust: beta
+      env: TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES='nightly'
 
 script:
 - cargo $TEST_COMMAND --features="$FEATURES" $EXTRA_FLAGS
