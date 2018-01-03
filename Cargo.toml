@@ -8,7 +8,7 @@ repository = "https://github.com/etairi/sidh-rs/"
 homepage = "https://github.com/etairi/sidh-rs/"
 documentation = "https://docs.rs/sidh"
 categories = ["cryptography", "no-std"]
-keywords = ["cryptography", "elliptic", "curve", "isogeny", "SIDH", "ECC"]
+keywords = ["cryptography", "elliptic", "curve", "isogeny", "SIDH"]
 description = "An efficient supersingular isogeny-based cryptography library."
 exclude = [
     ".gitignore",
