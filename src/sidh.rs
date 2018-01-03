@@ -31,7 +31,7 @@ pub const PUBLIC_KEY_SIZE: usize = 564;
 pub const SHARED_SECRET_SIZE: usize = 188;
 
 
-pub const MAX_ALICE: usize = 185;
+const MAX_ALICE: usize = 185;
 /// Alice's isogeny strategy.
 pub const ALICE_ISOGENY_STRATEGY: [u8; MAX_ALICE] = [0, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 5, 5,
 	        6, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 12, 11, 12, 12, 13, 14, 15, 16, 16, 16, 16,
@@ -45,7 +45,7 @@ pub const ALICE_ISOGENY_STRATEGY: [u8; MAX_ALICE] = [0, 1, 1, 2, 2, 2, 3, 4, 4, 
 	        72, 74, 75, 75, 77, 77, 79, 80, 80, 82];
 
 
-pub const MAX_BOB: usize = 239;
+const MAX_BOB: usize = 239;
 /// Bob's isogeny strategy.
 pub const BOB_ISOGENY_STRATEGY: [u8; MAX_BOB] = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6,
 	        7, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 12, 12, 12, 12, 12, 12, 13, 14, 14, 15, 16,

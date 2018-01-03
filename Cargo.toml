@@ -21,7 +21,7 @@ build = "build.rs"
 rustdoc-args = ["--html-in-header", "./rustdoc-include-katex-header.html"]
 
 [badges]
-appveyor = { repository = "sidh-rs", branch = "master", service = "github" }
+appveyor = { repository = "etairi/sidh-rs", branch = "master", service = "github" }
 travis-ci = { repository = "etairi/sidh-rs", branch = "master" }
 
 [profile.bench]

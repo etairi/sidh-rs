@@ -1,4 +1,4 @@
-# SIDH-RS
+# SIDH-RS [![](https://img.shields.io/crates/v/sidh.svg)](https://crates.io/crates/sidh) [![](https://docs.rs/sidh/badge.svg)](https://docs.rs/sidh/) [![Build status](https://ci.appveyor.com/api/projects/status/5wq05566l8dgn4y2/branch/master?svg=true)](https://ci.appveyor.com/project/etairi/sidh-rs/branch/master) [![Build Status](https://travis-ci.org/etairi/sidh-rs.svg?branch=master)](https://travis-ci.org/etairi/sidh-rs)
 
 The **SIDH-RS** library is an efficient supersingular isogeny-based cryptography library written in Rust language. The library includes the ephemeral Diffie-Hellman key exchange (SIDH) as described in [1,2]. This scheme is conjectured to be secure against quantum computer attacks.
 
@@ -12,7 +12,7 @@ used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once
 ## Main Features
 
 - Supports ephemeral Diffie-Hellman key exchange.
-- Support for Windows OS and Linux OS.      
+- Supports Windows OS and Linux OS.      
 - Provides optimized implementations of the underlying arithmetic functions for x64 platforms using assembly for Windows and Linux. 
 - Includes testing and benchmarking code.
 
