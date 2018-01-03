@@ -5,6 +5,10 @@
 // Author:
 // - Erkan Tairi <erkan.tairi@gmail.com>
 //
+
+//! This module contains finite field arithmetic functionality for SIDH, 
+//! which is not part of the public API.
+
 use core::fmt::Debug;
 
 use core::cmp::{Eq, PartialEq};
@@ -28,14 +32,14 @@ use rand::{Rand, Rng};
 //                           Extension Field                                   //
 //-----------------------------------------------------------------------------//
 
-// Represents an element of the extension field F_{p^2}.
+/// Represents an element of the extension field `F_{p^2}`.
 #[derive(Copy, Clone, PartialEq)]
 pub struct ExtensionFieldElement {
-    // This field element is in Montgomery form, so that the value `A` is
-    // represented by `aR mod p`.
+    /// This field element is in Montgomery form, so that the value `A` is
+    /// represented by `aR mod p`.
     pub A: Fp751Element,
-    // This field element is in Montgomery form, so that the value `B` is
-    // represented by `bR mod p`.
+    /// This field element is in Montgomery form, so that the value `B` is
+    /// represented by `bR mod p`.
     pub B: Fp751Element,
 }
 
@@ -92,7 +96,7 @@ impl<'b> MulAssign<&'b ExtensionFieldElement> for ExtensionFieldElement {
 impl<'a, 'b> Mul<&'b ExtensionFieldElement> for &'a ExtensionFieldElement {
     type Output = ExtensionFieldElement;
     fn mul(self, _rhs: &'b ExtensionFieldElement) -> ExtensionFieldElement {
-        // Alias self, _rhs for more readable formulas
+        // Alias self, _rhs for more readable formulas.
         let a = &self.A;
         let b = &self.B;
         let c = &_rhs.A;
@@ -107,7 +111,7 @@ impl<'a, 'b> Mul<&'b ExtensionFieldElement> for &'a ExtensionFieldElement {
         // (b - a)*(c - d) = (b*c + a*d) - a*c - b*d
         //
         // so (a*d + b*c) = (b-a)*(c-d) + a*c + b*d.
-
+        //
         let ac = a * c;                               // = a*c*R*R
         let bd = b * d;                               // = b*d*R*R
         let b_minus_a = b - a;                        // = (b-a)*R
@@ -176,21 +180,21 @@ impl Rand for ExtensionFieldElement {
 }
 
 impl ExtensionFieldElement {
-    // Construct zero.
+    /// Construct a zero `ExtensionFieldElement`.
     pub fn zero() -> ExtensionFieldElement {
         ExtensionFieldElement{
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
-    // Construct one.
+    /// Construct a one `ExtensionFieldElement`.
     pub fn one() -> ExtensionFieldElement {
         ExtensionFieldElement{
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
-    // Set output to 1/x.
+    /// Set output to `1/x`.
     pub fn inv(&self) -> ExtensionFieldElement {
         let a = &self.A;
         let b = &self.B;
@@ -204,9 +208,9 @@ impl ExtensionFieldElement {
         // Letting c = 1/(a^2 + b^2), this is
         //
         // 1/(a+bi) = a*c - b*ci.
-
-        let mut asq = a * a;                    // = a*a*R*R
-        let bsq = b * b;                    // = b*b*R*R
+        //
+        let mut asq = a * a;           // = a*a*R*R
+        let bsq = b * b;               // = b*b*R*R
         asq = &asq + &bsq;             // = (a^2 + b^2)*R*R
         let mut asq_plus_bsq = PrimeFieldElement::zero();
         asq_plus_bsq.A = asq.reduce(); // = (a^2 + b^2)*R mod p
@@ -245,7 +249,7 @@ impl ExtensionFieldElement {
 
         (_y1, _y2, _y3)
     }
-    // Set the output to x^2.
+    /// Set the output to `x^2`.
     pub fn square(&self) -> ExtensionFieldElement {
         let a = &self.A;
         let b = &self.B;
@@ -253,7 +257,7 @@ impl ExtensionFieldElement {
         // We want to compute
 	    //
 	    // (a + bi)*(a + bi) = (a^2 - b^2) + 2abi
-
+        //
         let a2 = a + a;        // = a*R + a*R = 2*a*R
         let a_plus_b = a + b;  // = a*R + b*R = (a+b)*R
         let a_minus_b = a - b; // = a*R - b*R = (a-b)*R
@@ -269,18 +273,18 @@ impl ExtensionFieldElement {
             B: _b
         }
     }
-    // Returns true if both sides are equal. Takes variable time.
+    /// Returns true if both sides are equal. Takes variable time.
     pub fn vartime_eq(&self, _rhs: &ExtensionFieldElement) -> bool {
         (&self.A == &_rhs.A) && (&self.B == &_rhs.B)
     }
-    // Convert the input to wire format.
+    /// Convert the input to wire format.
     pub fn to_bytes(&self) -> [u8; 188] {
         let mut bytes = [0u8; 188];
         bytes[0..94].clone_from_slice(&self.A.to_bytes());
         bytes[94..188].clone_from_slice(&self.B.to_bytes());
         bytes
     }
-    // Read 188 bytes into the given ExtensionFieldElement.
+    /// Read 188 bytes into the given `ExtensionFieldElement`.
     pub fn from_bytes(bytes: &[u8]) -> ExtensionFieldElement {
         assert!(bytes.len() >= 188, "Too short input to ExtensionFieldElement from_bytes, expected 188 bytes");
         let a = Fp751Element::from_bytes(&bytes[0..94]);
@@ -293,11 +297,11 @@ impl ExtensionFieldElement {
 //                             Prime Field                                     //
 //-----------------------------------------------------------------------------//
 
-// Represents an element of the prime field F_p.
+/// Represents an element of the prime field `F_p`.
 #[derive(Copy, Clone, PartialEq)]
 pub struct PrimeFieldElement {
-    // This field element is in Montgomery form, so that the value `A` is
-	// represented by `aR mod p`.
+    /// This field element is in Montgomery form, so that the value `A` is
+	/// represented by `aR mod p`.
     pub A: Fp751Element
 }
 
@@ -341,7 +345,7 @@ impl<'b> MulAssign<&'b PrimeFieldElement> for PrimeFieldElement {
 impl<'a, 'b> Mul<&'b PrimeFieldElement> for &'a PrimeFieldElement {
     type Output = PrimeFieldElement;
     fn mul(self, _rhs: &'b PrimeFieldElement) -> PrimeFieldElement {
-        // Alias self, _rhs for more readable formulas
+        // Alias self, _rhs for more readable formulas.
         let a = &self.A;      // = a*R
         let b = &_rhs.A;      // = b*R
         let ab = a * b;       // = a*b*R*R
@@ -395,19 +399,19 @@ impl Rand for PrimeFieldElement {
 }
 
 impl PrimeFieldElement {
-    // Construct zero.
+    /// Construct a zero `PrimeFieldElement`.
     pub fn zero() -> PrimeFieldElement {
         PrimeFieldElement{
             A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
-    // Construct one.
+    /// Construct a one `PrimeFieldElement`.
     pub fn one() -> PrimeFieldElement {
         PrimeFieldElement{
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
         }
     }
-    // Set the output to x.
+    /// Set the output to `x`.
     fn set_u64(x: u64) -> PrimeFieldElement {
         let mut output = PrimeFieldElement::zero(); // 0
         output.A.0[0] = x;                          // = x
@@ -416,7 +420,7 @@ impl PrimeFieldElement {
         output.A = xRR.reduce();                    // = x*R mod p
         output
     }
-    // Set the output to x^2.
+    /// Set the output to `x^2`.
     pub fn square(&self) -> PrimeFieldElement {
         let a = &self.A;      // = a*R
         let b = &self.A;      // = b*R
@@ -425,13 +429,13 @@ impl PrimeFieldElement {
 
         PrimeFieldElement{ A: _a }
     }
-    // Raise self to 2^(2^k)-th power, for k >= 1, by repeated squarings.
+    /// Raise self to `2^(2^k)`-th power, for `k >= 1`, by repeated squarings.
     fn pow2k(&self, k: u8) -> PrimeFieldElement {
         let mut result = self.square();
         for _ in 1..k { result = result.square(); }
         result
     }
-    // Set output to x^((p-3)/4). If x is square, this is 1/sqrt(x).
+    /// Set output to `x^((p-3)/4)`. If `x` is square, this is `1/sqrt(x)`.
     fn p34(&self) -> PrimeFieldElement {
         // Sliding-window strategy computed with Sage, awk, sed, and tr.
         //
@@ -464,14 +468,14 @@ impl PrimeFieldElement {
         }
         result
     }
-    // Set output to sqrt(x), if x is a square. If x is nonsquare output is undefined.
+    /// Set output to `sqrt(x)`, if x is a square. If `x` is nonsquare output is undefined.
     fn sqrt(&self) -> PrimeFieldElement {
         let mut result = self.p34(); // result = (y^2)^((p-3)/4) = y^((p-3)/2)
         result = &result * self;     // result = y^2 * y^((p-3)/2) = y^((p+1)/2)
         // Now result^2 = y^(p+1) = y^2 = x, so result = sqrt(x).
         result
     }
-    // Set output to 1/x.
+    /// Set output to `1/x`.
     pub fn inv(&self) -> PrimeFieldElement {
         let mut result = self.square(); // result = x^2
         result = result.p34();          // result = (x^2)^((p-3)/4) = x^((p-3)/2)
@@ -479,7 +483,7 @@ impl PrimeFieldElement {
         result = &result * self;        // result = x^(p-2)
         result
     }
-    // Returns true if both sides are equal. Takes variable time.
+    /// Returns true if both sides are equal. Takes variable time.
     pub fn vartime_eq(&self, _rhs: &PrimeFieldElement) -> bool {
         &self.A == &_rhs.A
     }
@@ -491,12 +495,12 @@ impl PrimeFieldElement {
 
 const FP751_NUM_WORDS: usize = 12;
 
-// Internal representation of an element of the base field F_p.
-//
-// This type is distinct from PrimeFieldElement in that no particular meaning
-// is assigned to the representation -- it could represent an element in
-// Montgomery form, or not.  Tracking the meaning of the field element is left
-// to higher types.
+/// Internal representation of an element of the base field `F_p`.
+///
+/// This type is distinct from `PrimeFieldElement` in that no particular meaning
+/// is assigned to the representation -- it could represent an element in
+/// Montgomery form, or not. Tracking the meaning of the field element is left
+/// to higher types.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Fp751Element(pub (crate) [u64; FP751_NUM_WORDS]);
@@ -565,7 +569,11 @@ impl ConditionallySwappable for Fp751Element {
 
 impl Eq for Fp751Element {}
 impl PartialEq for Fp751Element {
-    // This comparison is *not* constant time.
+    /// Test equality between two `Fp751Element`s.
+    /// 
+    /// # Warning
+    /// 
+    /// This comparison is *not* constant time.
     fn eq(&self, other: &Fp751Element) -> bool {
         let mut _self = *self;
         let mut _other = *other;
@@ -584,6 +592,11 @@ impl PartialEq for Fp751Element {
 }
 
 impl Equal for Fp751Element {
+    /// Test equality between two `Fp751Element`s.
+    ///
+    /// # Returns
+    ///
+    /// `1u8` if the two `Fp751Element`s are equal, and `0u8` otherwise.
     fn ct_eq(&self, other: &Fp751Element) -> u8 {
         slices_equal(&self.to_bytes(), &other.to_bytes())
     }
@@ -636,17 +649,17 @@ impl Rand for Fp751Element {
 }
 
 impl Fp751Element {
-    // Construct a new zero Fp751Element.
+    /// Construct a new zero `Fp751Element`.
     pub fn zero() -> Fp751Element {
         Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
     }
-    // Reduce a field element in [0, 2*p) to one in [0,p).
+    /// Reduce a field element in `[0, 2*p)` to one in `[0,p)`.
     fn strong_reduce(&self) -> Fp751Element {
         let mut _self = *self;
         unsafe { srdc751_asm(&mut _self); }
         _self
     }
-    // Given an Fp751Element in Montgomery form, convert to little-endian bytes.
+    /// Given an `Fp751Element` in Montgomery form, convert to little-endian bytes.
     fn to_bytes(&self) -> [u8; 94] {
         let mut bytes = [0u8; 94];
         let mut a = Fp751Element::zero();
@@ -667,7 +680,7 @@ impl Fp751Element {
         }
         bytes
     }
-    // Read an Fp751Element from little-endian bytes and convert to Montgomery form.
+    /// Read an `Fp751Element` from little-endian bytes and convert to Montgomery form.
     fn from_bytes(bytes: &[u8]) -> Fp751Element {
         assert!(bytes.len() >= 94, "Too short input to Fp751Element from_bytes, expected 94 bytes");
 
@@ -687,7 +700,7 @@ impl Fp751Element {
     }
 }
 
-// Represents an intermediate product of two elements of the base field F_p.
+/// Represents an intermediate product of two elements of the base field `F_p`.
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq)]
 pub struct Fp751X2(pub (crate) [u64; 2*FP751_NUM_WORDS]);
@@ -731,11 +744,11 @@ impl Debug for Fp751X2 {
 }
 
 impl Fp751X2 {
-    // Construct a zero Fp751X2.
+    /// Construct a zero `Fp751X2`.
     fn zero() -> Fp751X2 {
         Fp751X2([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
     }
-    // Perform Montgomery reduction, x R^{-1} (mod p).
+    /// Perform Montgomery reduction, `x R^{-1} (mod p)`.
     fn reduce(&self) -> Fp751Element {
         let mut result = Fp751Element::zero();
         unsafe { rdc751_asm(self, &mut result); }
@@ -743,10 +756,10 @@ impl Fp751X2 {
     }
 }
 
-// (2^768) mod p
+/// `(2^768) mod p`
 const MONTGOMERY_R: Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 9444048418595930112, 6136068611055053926, 7599709743867700432, 14455912356952952366, 5522737203492907350, 1222606818372667369, 49869481633250]);
 
-// (2^768)^2 mod p
+/// `(2^768)^2 mod p`
 const MONTGOMERY_RSQ: Fp751Element = Fp751Element([2535603850726686808, 15780896088201250090, 6788776303855402382, 17585428585582356230, 5274503137951975249, 2266259624764636289, 11695651972693921304, 13072885652150159301, 4908312795585420432, 6229583484603254826, 488927695601805643, 72213483953973]);
 
 extern {

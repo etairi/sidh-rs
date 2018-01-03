@@ -8,6 +8,9 @@
 // This package does NOT implement SIDH key validation, so it should only be
 // used for ephemeral DH. Each keypair should be used at most once.
 //
+
+//! An implementation of (ephemeral) supersingular isogeny Diffie-Hellman (SIDH).
+
 use field::{Fp751Element, ExtensionFieldElement};
 use curve::{ProjectiveCurveParameters, ProjectivePoint};
 use isogeny::*;
@@ -20,16 +23,17 @@ use rand::{Rng, thread_rng};
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
 
-// The secret key size, in bytes.
-const SECRET_KEY_SIZE: usize = 48;
-// The public key size, in bytes.
-const PUBLIC_KEY_SIZE: usize = 564;
-// The shared secret size, in bytes.
-const SHARED_SECRET_SIZE: usize = 188;
+/// The secret key size, in bytes.
+pub const SECRET_KEY_SIZE: usize = 48;
+/// The public key size, in bytes.
+pub const PUBLIC_KEY_SIZE: usize = 564;
+/// The shared secret size, in bytes.
+pub const SHARED_SECRET_SIZE: usize = 188;
 
-// Alice's isogeny strategy.
-const MAX_ALICE: usize = 185;
-const ALICE_ISOGENY_STRATEGY: [u8; MAX_ALICE] = [0, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 5, 5,
+
+pub const MAX_ALICE: usize = 185;
+/// Alice's isogeny strategy.
+pub const ALICE_ISOGENY_STRATEGY: [u8; MAX_ALICE] = [0, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 5, 5,
 	        6, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 12, 11, 12, 12, 13, 14, 15, 16, 16, 16, 16,
 	        16, 16, 17, 17, 18, 18, 17, 21, 17, 18, 21, 20, 21, 21, 21, 21, 21, 22, 25, 25,
 	        25, 26, 27, 28, 28, 29, 30, 31, 32, 32, 32, 32, 32, 32, 32, 33, 33, 33, 35, 36,
@@ -40,9 +44,10 @@ const ALICE_ISOGENY_STRATEGY: [u8; MAX_ALICE] = [0, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4
 	        70, 71, 72, 71, 72, 72, 74, 74, 75, 72, 72, 74, 74, 75, 72, 72, 74, 75, 75, 72,
 	        72, 74, 75, 75, 77, 77, 79, 80, 80, 82];
 
-// Bob's isogeny strategy.
-const MAX_BOB: usize = 239;
-const BOB_ISOGENY_STRATEGY: [u8; MAX_BOB] = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6,
+
+pub const MAX_BOB: usize = 239;
+/// Bob's isogeny strategy.
+pub const BOB_ISOGENY_STRATEGY: [u8; MAX_BOB] = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6,
 	        7, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 12, 12, 12, 12, 12, 12, 13, 14, 14, 15, 16,
 	        16, 16, 16, 16, 17, 16, 16, 17, 19, 19, 20, 21, 22, 22, 22, 22, 22, 22, 22, 22,
 	        22, 22, 24, 24, 25, 27, 27, 28, 28, 29, 28, 29, 28, 28, 28, 30, 28, 28, 28, 29,
@@ -56,7 +61,7 @@ const BOB_ISOGENY_STRATEGY: [u8; MAX_BOB] = [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5,
 	        88, 88, 86, 86, 86, 93, 90, 90, 92, 92, 92, 93, 93, 93, 93, 93, 97, 97, 97, 97,
 	        97, 97];
 
-// Alice's public key.
+/// Alice's public key.
 #[derive(Copy, Clone)]
 pub struct SIDHPublicKeyAlice {
     pub affine_xP  : ExtensionFieldElement,
@@ -65,7 +70,7 @@ pub struct SIDHPublicKeyAlice {
 }
 
 impl SIDHPublicKeyAlice {
-    // Read a public key from a byte slice. The input must be at least 564 bytes long.
+    /// Read a public key from a byte slice. The input must be at least 564 bytes long.
     pub fn from_bytes(bytes: &[u8]) -> SIDHPublicKeyAlice {
         assert!(bytes.len() >= 564, "Too short input to SIDH public key from_bytes, expected 564 bytes");
         let affine_xP = ExtensionFieldElement::from_bytes(&bytes[0..188]);
@@ -73,7 +78,7 @@ impl SIDHPublicKeyAlice {
         let affine_xQmP = ExtensionFieldElement::from_bytes(&bytes[376..564]);
         SIDHPublicKeyAlice{ affine_xP, affine_xQ, affine_xQmP }
     }
-    // Write a public key to a byte slice. The output will be 564 bytes long.
+    /// Write a public key to a byte slice. The output will be 564 bytes long.
     pub fn to_bytes(&self) -> [u8; 564] {
         let mut bytes = [0u8; 564];
         bytes[0..188].clone_from_slice(&self.affine_xP.to_bytes());
@@ -83,7 +88,7 @@ impl SIDHPublicKeyAlice {
     }
 }
 
-// Bob's public key.
+/// Bob's public key.
 #[derive(Copy, Clone)]
 pub struct SIDHPublicKeyBob {
     pub affine_xP  : ExtensionFieldElement,
@@ -92,7 +97,7 @@ pub struct SIDHPublicKeyBob {
 }
 
 impl SIDHPublicKeyBob {
-    // Read a public key from a byte slice. The input must be at least 564 bytes long.
+    /// Read a public key from a byte slice. The input must be at least 564 bytes long.
     pub fn from_bytes(bytes: &[u8]) -> SIDHPublicKeyBob {
         assert!(bytes.len() >= 564, "Too short input to SIDH public key from_bytes, expected 564 bytes");
         let affine_xP = ExtensionFieldElement::from_bytes(&bytes[0..188]);
@@ -100,7 +105,7 @@ impl SIDHPublicKeyBob {
         let affine_xQmP = ExtensionFieldElement::from_bytes(&bytes[376..564]);
         SIDHPublicKeyBob{ affine_xP, affine_xQ, affine_xQmP }
     }
-    // Write a public key to a byte slice. The output will be 564 bytes long.
+    /// Write a public key to a byte slice. The output will be 564 bytes long.
     pub fn to_bytes(&self) -> [u8; 564] {
         let mut bytes = [0u8; 564];
         bytes[0..188].clone_from_slice(&self.affine_xP.to_bytes());
@@ -110,7 +115,7 @@ impl SIDHPublicKeyBob {
     }
 }
 
-// Alice's secret key.
+/// Alice's secret key.
 #[derive(Copy, Clone)]
 pub struct SIDHSecretKeyAlice {
     pub scalar: [u8; SECRET_KEY_SIZE],
@@ -132,7 +137,7 @@ impl Arbitrary for SIDHSecretKeyAlice {
 }
 
 impl SIDHSecretKeyAlice {
-    // Compute the corresponding public key for the given secret key.
+    /// Compute the corresponding public key for the given secret key.
     pub fn public_key(&self) -> SIDHPublicKeyAlice {
         let mut xP = ProjectivePoint::from_affine_prime_field(&AFFINE_X_PB);  // = ( x_P : 1) = x(P_B)
         let mut xQ = ProjectivePoint::from_affine_prime_field(&AFFINE_X_PB);  //
@@ -192,7 +197,7 @@ impl SIDHSecretKeyAlice {
 
         SIDHPublicKeyAlice{ affine_xP, affine_xQ, affine_xQmP }
     }
-    // Compute (Alice's view of) a shared secret using Alice's secret key and Bob's public key.
+    /// Compute (Alice's view of) a shared secret using Alice's secret key and Bob's public key.
     pub fn shared_secret(&self, bob_public: &SIDHPublicKeyBob) -> [u8; SHARED_SECRET_SIZE] {
         let current_curve = ProjectiveCurveParameters::recover_curve_parameters(&bob_public.affine_xP, &bob_public.affine_xQ, &bob_public.affine_xQmP);
         let xP = ProjectivePoint::from_affine(&bob_public.affine_xP);
@@ -236,7 +241,7 @@ impl SIDHSecretKeyAlice {
     }
 }
 
-// Bob's secret key.
+/// Bob's secret key.
 #[derive(Copy, Clone)]
 pub struct SIDHSecretKeyBob {
     pub scalar: [u8; SECRET_KEY_SIZE],
@@ -258,7 +263,7 @@ impl Arbitrary for SIDHSecretKeyBob {
 }
 
 impl SIDHSecretKeyBob {
-    // Compute the public key corresponding to the secret key.
+    /// Compute the public key corresponding to the secret key.
     pub fn public_key(&self) -> SIDHPublicKeyBob {
         let mut xP = ProjectivePoint::from_affine_prime_field(&AFFINE_X_PA);  // = ( x_P : 1) = x(P_A)
         let mut xQ = ProjectivePoint::from_affine_prime_field(&AFFINE_X_PA);  //
@@ -312,7 +317,7 @@ impl SIDHSecretKeyBob {
 
         SIDHPublicKeyBob{ affine_xP, affine_xQ, affine_xQmP }
     }
-    // Compute (Bob's view of) a shared secret using Bob's secret key and Alice's public key.
+    /// Compute (Bob's view of) a shared secret using Bob's secret key and Alice's public key.
     pub fn shared_secret(&self, alice_public: &SIDHPublicKeyAlice) -> [u8; SHARED_SECRET_SIZE] {
         let mut current_curve = ProjectiveCurveParameters::recover_curve_parameters(&alice_public.affine_xP, &alice_public.affine_xQ, &alice_public.affine_xQmP);
         let xP = ProjectivePoint::from_affine(&alice_public.affine_xP);
@@ -353,9 +358,9 @@ impl SIDHSecretKeyBob {
     }
 }
 
-// Generate a keypair for "Alice". Note that because this library does not
-// implement SIDH validation, each keypair should be used for at most one
-// shared secret computation.
+/// Generate a keypair for "Alice". Note that because this library does not
+/// implement SIDH validation, each keypair should be used for at most one
+/// shared secret computation.
 pub fn generate_alice_keypair(rng: &mut Rng) -> (SIDHPublicKeyAlice, SIDHSecretKeyAlice) {
     let mut scalar = [0u8; SECRET_KEY_SIZE];
     rng.fill_bytes(&mut scalar[..]);
@@ -374,9 +379,9 @@ pub fn generate_alice_keypair(rng: &mut Rng) -> (SIDHPublicKeyAlice, SIDHSecretK
     (public_key, secret_key)
 }
 
-// Generate a keypair for "Bob". Note that because this library does not
-// implement SIDH validation, each keypair should be used for at most one
-// shared secret computation.
+/// Generate a keypair for "Bob". Note that because this library does not
+/// implement SIDH validation, each keypair should be used for at most one
+/// shared secret computation.
 pub fn generate_bob_keypair(rng: &mut Rng) -> (SIDHPublicKeyBob, SIDHSecretKeyBob) {
     let mut scalar = [0u8; SECRET_KEY_SIZE];
     // Perform rejection sampling to obtain a random value in [0,3^238]:

@@ -5,10 +5,14 @@
 // Author:
 // - Erkan Tairi <erkan.tairi@gmail.com>
 //
+
+//! This module contains internal isogeny representation and operations 
+//! for SIDH, which is not part of the public API.
+
 use field::{Fp751Element, ExtensionFieldElement};
 use curve::{ProjectiveCurveParameters, ProjectivePoint};
 
-// Represents a 3-isogeny phi, holding the data necessary to evaluate phi.
+/// Represents a 3-isogeny phi, holding the data necessary to evaluate phi.
 #[derive(Copy, Clone)]
 pub struct ThreeIsogeny {
     pub X: ExtensionFieldElement,
@@ -16,10 +20,10 @@ pub struct ThreeIsogeny {
 }
 
 impl ThreeIsogeny {
-    // Given a three-torsion point x3 = x(P_3) on the curve E_(A:C), construct the
-    // three-isogeny phi : E_(A:C) -> E_(A:C)/<P_3> = E_(A':C').
-    //
-    // Returns a tuple (codomain, isogeny) = (E_(A':C'), phi).
+    /// Given a three-torsion point `x3 = x(P_3)` on the curve `E_(A:C)`, construct the
+    /// three-isogeny `phi : E_(A:C) -> E_(A:C)/<P_3> = E_(A':C')`.
+    ///
+    /// Returns a tuple `(codomain, isogeny) = (E_(A':C'), phi)`.
     pub fn compute_three_isogeny(x3: &ProjectivePoint) -> (ProjectiveCurveParameters, ThreeIsogeny) {
         let isogeny = ThreeIsogeny{ X: x3.X, Z: x3.Z };
         // We want to compute
@@ -41,12 +45,12 @@ impl ThreeIsogeny {
 
         (codomain, isogeny)
     }
-    // Given a 3-isogeny phi and a point xP = x(P), compute x(Q), the x-coordinate
-    // of the image Q = phi(P) of P under phi : E_(A:C) -> E_(A':C').
-    //
-    // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
-    // parameters are returned by the compute_three_isogeny function used to construct
-    // phi.
+    /// Given a 3-isogeny phi and a point `xP = x(P)`, compute `x(Q)`, the x-coordinate
+    /// of the image `Q = phi(P)` of `P` under `phi : E_(A:C) -> E_(A':C')`.
+    ///
+    /// The output `xQ = x(Q)` is then a point on the curve `E_(A':C')`; the curve
+    /// parameters are returned by the compute_three_isogeny function used to construct
+    /// phi.
     pub fn eval(&self, xP: &ProjectivePoint) -> ProjectivePoint {
         let phi = *self;
         let mut t0 = &phi.X * &xP.X; // = X3*XP
@@ -65,7 +69,7 @@ impl ThreeIsogeny {
     }
 }
 
-// Represents a 4-isogeny phi, holding the data necessary to evaluate phi.
+/// Represents a 4-isogeny phi, holding the data necessary to evaluate phi.
 //
 // See compute_four_isogeny for more details.
 #[derive(Copy, Clone)]
@@ -78,11 +82,11 @@ pub struct FourIsogeny {
 }
 
 impl FourIsogeny {
-    // Given a four-torsion point x4 = x(P_4) on the curve E_(A:C), compute the
-    // coefficients of the codomain E_(A':C') of the four-isogeny phi : E_(A:C) ->
-    // E_(A:C)/<P_4>.
-    //
-    // Returns a tuple (codomain, isogeny) = (E_(A':C') : phi).
+    /// Given a four-torsion point `x4 = x(P_4)` on the curve `E_(A:C)`, compute the
+    /// coefficients of the codomain `E_(A':C')` of the four-isogeny `phi : E_(A:C) ->
+    /// E_(A:C)/<P_4>`.
+    ///
+    /// Returns a tuple `(codomain, isogeny) = (E_(A':C') : phi)`.
     //
     // There are two sets of formulas in Costello-Longa-Naehrig for computing
     // four-isogenies. One set is for the case where (1,...) lies in the kernel of
@@ -114,8 +118,8 @@ impl FourIsogeny {
 
         (codomain, isogeny)
     }
-    // Given a 4-isogeny phi and a point xP = x(P), compute x(Q), the x-coordinate
-    // of the image Q = phi(P) of P under phi : E_(A:C) -> E_(A':C').
+    /// Given a 4-isogeny phi and a point `xP = x(P)`, compute `x(Q)`, the x-coordinate
+    /// of the image `Q = phi(P)` of `P` under `phi : E_(A:C) -> E_(A':C')`.
     //
     // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
     // parameters are returned by the compute_four_isogeny function used to construct
@@ -153,7 +157,9 @@ impl FourIsogeny {
     }
 }
 
-// Represents a 4-isogeny phi. See compute_four_isogeny for details.
+/// Represents a 4-isogeny phi. 
+//
+// See compute_four_isogeny for details.
 #[derive(Copy, Clone)]
 pub struct FirstFourIsogeny {
     pub A: ExtensionFieldElement,
@@ -161,8 +167,9 @@ pub struct FirstFourIsogeny {
 }
 
 impl FirstFourIsogeny {
-    // Compute the "first" four-isogeny from the given curve. See also
-    // compute_four_isogeny and Costello-Longa-Naehrig for more details.
+    /// Compute the "first" four-isogeny from the given curve. 
+    //
+    //  See also compute_four_isogeny and Costello-Longa-Naehrig for more details.
     pub fn compute_first_four_isogeny(domain: &ProjectiveCurveParameters) -> (ProjectiveCurveParameters, FirstFourIsogeny) {
         let mut t0 = &domain.C + &domain.C; // = 2*C
         let c = &domain.A - &t0;            // = A - 2*C
@@ -176,8 +183,8 @@ impl FirstFourIsogeny {
 
         (codomain, isogeny)
     }
-    // Given a 4-isogeny phi and a point xP = x(P), compute x(Q), the x-coordinate
-    // of the image Q = phi(P) of P under phi : E_(A:C) -> E_(A':C').
+    /// Given a 4-isogeny phi and a point `xP = x(P)`, compute `x(Q)`, the x-coordinate
+    /// of the image `Q = phi(P)` of `P` under `phi : E_(A:C) -> E_(A':C')`.
     //
     // The output xQ = x(Q) is then a point on the curve E_(A':C'); the curve
     // parameters are returned by the compute_first_four_isogeny function used to 

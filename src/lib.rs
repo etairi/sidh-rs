@@ -15,6 +15,21 @@
 #![allow(unused_imports)]
 //#![deny(missing_docs)] // Refuse to compile if documentation is missing.
 
+//! # sidh
+//! 
+//! **An efficient supersingular isogeny-based cryptography library written in Rust.**
+//! 
+//! The library includes the ephemeral Diffie-Hellman key exchange (SIDH). This package 
+//! does **not** implement SIDH  key validation, so it should only be used for ephemeral 
+//! Diffie-Hellman, i.e. each keypair should be used at most once. This scheme is conjectured
+//! to be secure against quantum computer attacks.
+//! 
+//! This library follows the usual naming convention, writing "Alice" for the party using
+//! `2^e`-isogenies and "Bob" for the party using `3^e`-isogenies.
+//! 
+//! The implementation is intended for use on the `amd64` architecture only -- no generic 
+//! field arithmetic implementation is provided.
+
 //-----------------------------------------------------------------------------//
 //                          External Dependencies                              //
 //-----------------------------------------------------------------------------//
