@@ -18,7 +18,7 @@ exclude = [
 build = "build.rs"
 
 [package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", "./rustdoc-include-katex-header.html"]
+rustdoc-args = ["--html-in-header", ".cargo/registry/src/github.com-1ecc6299db9ec823/sidh-0.1.0/rustdoc-include-katex-header.html"]
 
 [badges]
 appveyor = { repository = "sidh-rs", branch = "master", service = "github" }
