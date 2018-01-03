@@ -3,7 +3,7 @@
 The **SIDH-RS** library is an efficient supersingular isogeny-based cryptography library written in Rust language. The library includes the ephemeral Diffie-Hellman key exchange (SIDH) as described in [1,2]. This scheme is conjectured to be secure against quantum computer attacks.
 
 The implementation is intended for use on the `amd64` architecture only -- no
-generic field arithmetic implementation is provided. Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic were ported from the [Microsoft Research implementation](https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
+generic field arithmetic implementation is provided. Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic are ported from the [Microsoft Research implementation](https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
 using 2^e-isogenies and "Bob" for the party using 3^e-isogenies.
 
 This package does **not** implement SIDH key validation, so it should only be
@@ -12,8 +12,6 @@ used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once
 ## Main Features
 
 - Supports ephemeral Diffie-Hellman key exchange.
-- Protected against timing through regular, constant-time implementation of 
-  all operations on secret key material.
 - Support for Windows OS and Linux OS.      
 - Provides optimized implementations of the underlying arithmetic functions for x64 platforms using assembly for Windows and Linux. 
 - Includes testing and benchmarking code.
@@ -25,7 +23,6 @@ cryptographers to be considered in any way, shape, or form, safe. The library wa
 
 **USE AT YOUR OWN RISK**
 
-<!---
 # Installation
 
 To install, add the following to the dependencies section of your project's `Cargo.toml`:
@@ -38,29 +35,28 @@ Then, in your library or executable source, add:
 
     extern crate sidh;
 
-By default, the benchmarks are not compiled without the `bench` feature. To run the benchmarks, do:
+By default, the benchmarks are not compiled without the `nightly` and `bench` features. To run the benchmarks, do:
 
 ```sh
-cargo bench --features="bench"
+cargo bench --features="nightly bench"
 ```
 
 ## Documentation
 
 Extensive documentation is available [here](https://docs.rs/sidh).
--->
 
 ## License
 
 **SIDH-RS** is licensed under the MIT License; see [`LICENSE`](LICENSE) for details.
 
-Portions of the library is derived from [Cloudflare's Go SIDH imlementation](https://github.com/cloudflare/p751sidh). The x64 field arithmetic implementation was derived from the [Microsoft Research SIDH implementation](https://github.com/Microsoft/PQCrypto-SIDH), which is available under the MIT license.
+Portions of the library are derived from [Cloudflare's Go SIDH imlementation](https://github.com/cloudflare/p751sidh). The x64 field arithmetic implementation is derived from the [Microsoft Research SIDH implementation](https://github.com/Microsoft/PQCrypto-SIDH).
 
 ## TODO
 
-We intend to stabilize the following:
+We intend to work on the following items:
 
 * Add support for x86 and ARM.
-* Provide documentation.
+* Improve the documentation.
 
 
 # References
