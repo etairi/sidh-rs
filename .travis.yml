@@ -26,12 +26,6 @@ matrix:
       env: TEST_COMMAND=test EXTRA_FLAGS='' FEATURES='nightly'
     - rust: beta
       env: TEST_COMMAND=test EXTRA_FLAGS='' FEATURES='nightly'
-    - rust: stable
-      env: TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES=''
-    - rust: beta
-      env: TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES=''
-    - rust: nightly
-      env: TEST_COMMAND=build EXTRA_FLAGS='--verbose' FEATURES=''
 
 script:
 - cargo $TEST_COMMAND --features="$FEATURES" $EXTRA_FLAGS
