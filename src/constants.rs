@@ -11,7 +11,7 @@
 //! Most of the constants are given with `LONG_DESCRIPTIVE_UPPER_CASE_NAMES`,
 //! but they can be brought into scope using a `let` binding:
 //!
-//! ```
+//! ```rust,no_run
 //! use sidh::constants;
 //!
 //! let xPA = &constants::AFFINE_X_PA;
