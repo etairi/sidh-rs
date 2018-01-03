@@ -2,6 +2,20 @@
 name = "sidh"
 version = "0.1.0"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/etairi/sidh-rs/"
+homepage = "https://github.com/etairi/sidh-rs/"
+documentation = "https://docs.rs/sidh"
+categories = ["cryptography"]
+keywords = ["cryptography", "elliptic", "curve", "isogeny", "SIDH", "ECC"]
+description = "An efficient supersingular isogeny-based cryptography library."
+exclude = [
+    ".gitignore",
+    ".travis.yml",
+    "appveyor.yml",
+]
+build = "build.rs"
 
 [profile.bench]
 debug = true
@@ -9,13 +23,21 @@ debug = true
 [build-dependencies]
 cc = "1.0.3"
 subtle = "^0.3"
+rand = "0.3"
 
 [dependencies.quickcheck]
 version = "0.5"
 
 [dependencies.rand]
+optional = true
 version = "0.3"
 
 [dependencies.subtle]
 version = "^0.3"
 default-features = false
+
+[features]
+nightly = ["subtle/nightly"]
+default = ["std"]
+std = ["rand", "subtle/std"]
+bench = []

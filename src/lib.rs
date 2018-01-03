@@ -34,15 +34,6 @@ extern crate quickcheck;
 extern crate subtle;
 
 //-----------------------------------------------------------------------------//
-//                              Public Modules                                 //
-//-----------------------------------------------------------------------------//
-
-// Useful constants.
-pub mod constants;
-// Supersingular Isogeny Diffie-Hellman (SIDH) operations.
-pub mod sidh;
-
-//-----------------------------------------------------------------------------//
 //                             Internal Modules                                //
 //-----------------------------------------------------------------------------//
 
@@ -53,3 +44,12 @@ pub(crate) mod field;
 pub(crate) mod curve;
 // Internal isogeny operations which are not part of the public API.
 pub(crate) mod isogeny;
+
+//-----------------------------------------------------------------------------//
+//                              Public Modules                                 //
+//-----------------------------------------------------------------------------//
+
+// Useful constants.
+pub mod constants;
+// Supersingular Isogeny Diffie-Hellman (SIDH) operations.
+pub mod sidh;

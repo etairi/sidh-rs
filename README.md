@@ -3,7 +3,7 @@
 The **SIDH-RS** library is an efficient supersingular isogeny-based cryptography library written in Rust language. The library includes the ephemeral Diffie-Hellman key exchange (SIDH) as described in [1,2]. This scheme is conjectured to be secure against quantum computer attacks.
 
 The implementation is intended for use on the `amd64` architecture only -- no
-generic field arithmetic implementation is provided. Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic were ported from the [Microsoft Research implementation]((https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
+generic field arithmetic implementation is provided. Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic were ported from the [Microsoft Research implementation](https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
 using 2^e-isogenies and "Bob" for the party using 3^e-isogenies.
 
 This package does **not** implement SIDH key validation, so it should only be
