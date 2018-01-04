@@ -766,35 +766,35 @@ extern {
     // If choice = 1, set x,y = y,x. Otherwise, leave x,y unchanged.
     // This function executes in constant time.
     #[no_mangle]
-    pub fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: u8);
+    fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: u8);
     // If choice = 1, assign y to x. Otherwise, leave x unchanged.
     // This function executes in constant time.
     #[no_mangle]
-    pub fn cassign751_asm(x: &mut Fp751Element, y: &Fp751Element, choice: u8);
+    fn cassign751_asm(x: &mut Fp751Element, y: &Fp751Element, choice: u8);
     // Compute z = x + y (mod p).
     #[no_mangle]
-    pub fn fpadd751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
+    fn fpadd751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x - y (mod p).
     #[no_mangle]
-    pub fn fpsub751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
+    fn fpsub751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x * y.
     #[no_mangle]
-    pub fn mul751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751X2);
+    fn mul751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751X2);
     // Perform Montgomery reduction: set z = x R^{-1} (mod p).
     #[no_mangle]
-    pub fn rdc751_asm(x: &Fp751X2, z: &mut Fp751Element);
+    fn rdc751_asm(x: &Fp751X2, z: &mut Fp751Element);
     // Reduce a field element in [0, 2*p) to one in [0,p).
     #[no_mangle]
-    pub fn srdc751_asm(x: &mut Fp751Element);
+    fn srdc751_asm(x: &mut Fp751Element);
     // Compute z = x + y, without reducing mod p.
     #[no_mangle]
-    pub fn mp_add751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
+    fn mp_add751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
     // Compute z = x + y, without reducing mod p.
     #[no_mangle]
-    pub fn mp_add751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
+    fn mp_add751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
     // Compute z = x - y, without reducing mod p.
     #[no_mangle]
-    pub fn mp_sub751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
+    fn mp_sub751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
 }
 
 #[cfg(test)]

@@ -435,10 +435,10 @@ pub fn generate_bob_keypair(rng: &mut Rng) -> (SIDHPublicKeyBob, SIDHSecretKeyBo
 extern {
     // Set result to zero if the input scalar is <= 3^238.
     #[no_mangle]
-    pub fn checklt238_asm(scalar: &[u8; 48], result: &mut u32);
+    fn checklt238_asm(scalar: &[u8; 48], result: &mut u32);
     // Set scalar = 3*scalar.
     #[no_mangle]
-    pub fn mulby3_asm(scalar: &mut [u8; 48]);
+    fn mulby3_asm(scalar: &mut [u8; 48]);
 }
 
 #[cfg(test)]

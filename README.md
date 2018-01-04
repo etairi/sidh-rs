@@ -59,7 +59,7 @@ fn main() {
     let bob_shared_secret = bob_secret.shared_secret(&alice_public);
 
     assert!(alice_shared_secret.iter().zip(bob_shared_secret.iter()).all(|(a, b)| a == b));
- }
+}
 ```
 
 ## Documentation
