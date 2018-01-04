@@ -1,15 +1,37 @@
-// Implemention of (ephemeral) supersingular isogeny Diffie-Hellman, as described
-// in Costello-Longa-Naehrig 2016. The field arithmetic implementation is 
-// mostly based on their implementation.
+// This file is part of sidh-rs.
+// Copyright (c) 2017 Erkan Tairi
+// See LICENSE for licensing information.
 //
-// This package follows their naming convention, writing "Alice" for the party
-// using 2^e-isogenies, and "Bob" for the party using 3^e-isogenies.
-//
-// This package does NOT implement SIDH key validation, so it should only be
-// used for ephemeral DH. Each keypair should be used at most once.
+// Author:
+// - Erkan Tairi <erkan.tairi@gmail.com>
 //
 
-//! An implementation of (ephemeral) supersingular isogeny Diffie-Hellman (SIDH).
+//! Implemention of (ephemeral) supersingular isogeny Diffie-Hellman.
+//!
+//! This package follows the usual naming convention, writing "Alice" for the 
+//! party using `2^e`-isogenies, and "Bob" for the party using `3^e`-isogenies.
+//!
+//! This package does **not** implement SIDH key validation, so it should only be
+//! used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once.
+//! 
+//! ```rust,no_run
+//! extern crate rand;
+//! extern crate sidh;
+//! 
+//! use rand::thread_rng;
+//! use sidh::sidh::*;
+//!
+//! fn main() {
+//!     let mut rng = thread_rng();
+//! 
+//!     let (alice_public, alice_secret) = generate_alice_keypair(&mut rng);
+//!     let (bob_public, bob_secret) = generate_bob_keypair(&mut rng);
+//!     let alice_shared_secret = alice_secret.shared_secret(&bob_public);
+//!     let bob_shared_secret = bob_secret.shared_secret(&alice_public);
+//! 
+//!     assert!(alice_shared_secret.iter().zip(bob_shared_secret.iter()).all(|(a, b)| a == b));
+//! }
+//! ```
 
 use field::{Fp751Element, ExtensionFieldElement};
 use curve::{ProjectiveCurveParameters, ProjectivePoint};

@@ -12,7 +12,7 @@
 //! but they can be brought into scope using a `let` binding:
 //!
 //! ```rust,no_run
-//! use sidh::constants;
+//! use sidh::constants::*;
 //!
 //! let xPA = &constants::AFFINE_X_PA;
 //! let xPB = &constants::AFFINE_X_PB;

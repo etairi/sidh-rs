@@ -41,6 +41,27 @@ By default, the benchmarks are not compiled without the `nightly` and `bench` fe
 cargo bench --features="nightly bench"
 ```
 
+## Example
+
+```rust
+extern crate rand;
+extern crate sidh;
+
+use rand::thread_rng;
+use sidh::sidh::*;
+
+fn main() {
+    let mut rng = thread_rng();
+
+    let (alice_public, alice_secret) = generate_alice_keypair(&mut rng);
+    let (bob_public, bob_secret) = generate_bob_keypair(&mut rng);
+    let alice_shared_secret = alice_secret.shared_secret(&bob_public);
+    let bob_shared_secret = bob_secret.shared_secret(&alice_public);
+
+    assert!(alice_shared_secret.iter().zip(bob_shared_secret.iter()).all(|(a, b)| a == b));
+ }
+```
+
 ## Documentation
 
 Extensive documentation is available [here](https://docs.rs/sidh).
