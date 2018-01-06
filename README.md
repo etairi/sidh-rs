@@ -23,7 +23,7 @@ cryptographers to be considered in any way, shape, or form, safe. The library wa
 
 **USE AT YOUR OWN RISK**
 
-# Installation
+## Installation
 
 To install, add the following to the dependencies section of your project's `Cargo.toml`:
 
@@ -80,7 +80,7 @@ We intend to work on the following items:
 * Improve the documentation.
 
 
-# References
+## References
 
 [1]  Craig Costello, Patrick Longa, and Michael Naehrig, "Efficient algorithms for supersingular isogeny Diffie-Hellman". Advances in Cryptology - CRYPTO 2016, LNCS 9814, pp. 572-601, 2016. 
 The extended version is available [here](http://eprint.iacr.org/2016/413). 
@@ -98,7 +98,7 @@ The preprint version is available [here](https://eprint.iacr.org/2017/504).
 [6]  Armando Faz-Hernández, Julio López, Eduardo Ochoa-Jiménez, and Francisco Rodríguez-Henríquez, "A faster software implementation of the supersingular isogeny Diffie-Hellman key exchange protocol". Cryptology ePrint Archive: Report 2017/1015, 2017. 
 The preprint version is available [here](https://eprint.iacr.org/2017/1015). 
 
-# Contributing
+## Contributing
 
 This project has adopted the [Rust Code of Conduct](http://www.rust-lang.org/conduct.html),
 with the following additional clauses:
@@ -108,5 +108,5 @@ with the following additional clauses:
   their primary identity, that wish is to be respected by all contributors. 
 
 
-If you have questions or comments, please feel free to email the author. For feature requests, suggestions, and bug reports, please open an issue on this Github repository (or, send an email to the author). Patches are also welcomed as pull requests on this repository, as well as by
+If you have questions or comments, please feel free to email the author. For feature requests, suggestions, and bug reports, please [open an issue on this Github repository](https://github.com/etairi/sidh-rs/issues) (or, send an email to the author). Patches are also welcomed as [pull requests on this GitHub repository](https://github.com/etairi/sidh-rs/pulls), as well as by
 email.
