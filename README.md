@@ -2,8 +2,7 @@
 
 The **SIDH-RS** library is an efficient supersingular isogeny-based cryptography library written in Rust language. The library includes the ephemeral Diffie-Hellman key exchange (SIDH) as described in [1,2]. This scheme is conjectured to be secure against quantum computer attacks.
 
-The implementation is intended for use on the `amd64` architecture only -- no
-generic field arithmetic implementation is provided. Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic are ported from the [Microsoft Research implementation](https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
+The library provides a generic field arithmetic implementation, therefore, making it compatible with many different architectures (such as x64, x86, and ARM). Significant portions of this code are ported from the [Cloudflare's SIDH library](https://github.com/cloudflare/p751sidh). Also portions of the field arithmetic are ported from the [Microsoft Research implementation](https://github.com/Microsoft/PQCrypto-SIDH). This library follows their naming convention, writing "Alice" for the party
 using 2^e-isogenies and "Bob" for the party using 3^e-isogenies.
 
 This package does **not** implement SIDH key validation, so it should only be
@@ -12,7 +11,8 @@ used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once
 ## Main Features
 
 - Supports ephemeral Diffie-Hellman key exchange.
-- Supports Windows OS and Linux OS.      
+- Supports Windows OS and Linux OS.
+- Provides basic implementation of the underlying arithmetic functions in Rust to enable support on a wide range of platforms including x64, x86 and ARM.
 - Provides optimized implementations of the underlying arithmetic functions for x64 platforms using assembly for Windows and Linux. 
 - Includes testing and benchmarking code.
 
@@ -76,7 +76,8 @@ Portions of the library are derived from [Cloudflare's Go SIDH imlementation](ht
 
 We intend to work on the following items:
 
-* Add support for x86 and ARM.
+* Add support for ARM.
+* Add support for [7].
 * Improve the documentation.
 
 
@@ -96,7 +97,11 @@ The preprint version is available [here](http://eprint.iacr.org/2016/963).
 The preprint version is available [here](https://eprint.iacr.org/2017/504). 
 
 [6]  Armando Faz-Hernández, Julio López, Eduardo Ochoa-Jiménez, and Francisco Rodríguez-Henríquez, "A faster software implementation of the supersingular isogeny Diffie-Hellman key exchange protocol". Cryptology ePrint Archive: Report 2017/1015, 2017. 
-The preprint version is available [here](https://eprint.iacr.org/2017/1015). 
+The preprint version is available [here](https://eprint.iacr.org/2017/1015).
+
+[7]  Gustavo H. M. Zanon, Marcos A. Simplicio Jr., Geovandro C. C. F. Pereira, Javad Doliskani, and Paulo S. L. M. Barreto, "Faster isogeny-based compressed key agreement". Cryptology ePrint Archive: Report 2017/1143, 2017. 
+The preprint version is available [here](https://eprint.iacr.org/2017/1143). 
+
 
 ## Contributing
 

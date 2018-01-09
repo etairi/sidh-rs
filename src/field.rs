@@ -28,6 +28,22 @@ use quickcheck::{Arbitrary, Gen, QuickCheck};
 #[cfg(test)]
 use rand::{Rand, Rng};
 
+use backend;
+
+#[cfg(feature="x86")]
+pub use backend::x86::fp_x86::*;
+#[cfg(feature="x86")]
+pub type Fp751Element = backend::x86::fp_x86::Fp751Element;
+#[cfg(feature="x86")]
+pub type Fp751X2 = backend::x86::fp_x86::Fp751X2;
+
+#[cfg(feature="x64")]
+pub use backend::x64::fp_x64::*;
+#[cfg(feature="x64")]
+pub type Fp751Element = backend::x64::fp_x64::Fp751Element;
+#[cfg(feature="x64")]
+pub type Fp751X2 = backend::x64::fp_x64::Fp751X2;
+
 //-----------------------------------------------------------------------------//
 //                           Extension Field                                   //
 //-----------------------------------------------------------------------------//
@@ -182,16 +198,36 @@ impl Rand for ExtensionFieldElement {
 impl ExtensionFieldElement {
     /// Construct a zero `ExtensionFieldElement`.
     pub fn zero() -> ExtensionFieldElement {
-        ExtensionFieldElement{
-            A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+        #[cfg(feature="x64")] 
+        {
+            ExtensionFieldElement{
+                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
+        }
+        #[cfg(feature="x86")]  
+        {
+            ExtensionFieldElement{
+                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
         }
     }
     /// Construct a one `ExtensionFieldElement`.
     pub fn one() -> ExtensionFieldElement {
-        ExtensionFieldElement{
-            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
-            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+        #[cfg(feature="x64")]  
+        {
+            ExtensionFieldElement{
+                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
+                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
+        }
+        #[cfg(feature="x86")]  
+        {
+            ExtensionFieldElement{
+                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
+                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
         }
     }
     /// Set output to `1/x`.
@@ -401,24 +437,33 @@ impl Rand for PrimeFieldElement {
 impl PrimeFieldElement {
     /// Construct a zero `PrimeFieldElement`.
     pub fn zero() -> PrimeFieldElement {
-        PrimeFieldElement{
-            A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+        #[cfg(feature="x64")] 
+        {
+            PrimeFieldElement{
+                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
+        }
+        #[cfg(feature="x86")] 
+        {
+            PrimeFieldElement{
+                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            }
         }
     }
     /// Construct a one `PrimeFieldElement`.
     pub fn one() -> PrimeFieldElement {
-        PrimeFieldElement{
-            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
+        #[cfg(feature="x64")] 
+        {
+            PrimeFieldElement{
+                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
+            }
         }
-    }
-    /// Set the output to `x`.
-    fn set_u64(x: u64) -> PrimeFieldElement {
-        let mut output = PrimeFieldElement::zero(); // 0
-        output.A.0[0] = x;                          // = x
-
-        let xRR = &output.A * &MONTGOMERY_RSQ;      // = x*R*R
-        output.A = xRR.reduce();                    // = x*R mod p
-        output
+        #[cfg(feature="x86")] 
+        {
+            PrimeFieldElement{
+                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
+            }
+        }
     }
     /// Set the output to `x^2`.
     pub fn square(&self) -> PrimeFieldElement {
@@ -493,18 +538,6 @@ impl PrimeFieldElement {
 //                              Internals                                      //
 //-----------------------------------------------------------------------------//
 
-const FP751_NUM_WORDS: usize = 12;
-
-/// Internal representation of an element of the base field `F_p`.
-///
-/// This type is distinct from `PrimeFieldElement` in that no particular meaning
-/// is assigned to the representation -- it could represent an element in
-/// Montgomery form, or not. Tracking the meaning of the field element is left
-/// to higher types.
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct Fp751Element(pub (crate) [u64; FP751_NUM_WORDS]);
-
 impl<'b> AddAssign<&'b Fp751Element> for Fp751Element {
     fn add_assign(&mut self, _rhs: &'b Fp751Element) {
         let result = (self as &Fp751Element) + _rhs;
@@ -516,7 +549,7 @@ impl<'a, 'b> Add<&'b Fp751Element> for &'a Fp751Element {
     type Output = Fp751Element;
     fn add(self, _rhs: &'b Fp751Element) -> Fp751Element {
         let mut result = Fp751Element::zero();
-        unsafe { fpadd751_asm(&self, _rhs, &mut result); }
+        fpadd751(&self, _rhs, &mut result);
         result
     }
 }
@@ -532,7 +565,7 @@ impl<'a, 'b> Sub<&'b Fp751Element> for &'a Fp751Element {
     type Output = Fp751Element;
     fn sub(self, _rhs: &'b Fp751Element) -> Fp751Element {
         let mut result = Fp751Element::zero();
-        unsafe { fpsub751_asm(&self, _rhs, &mut result); }
+        fpsub751(&self, _rhs, &mut result);
         result
     }
 }
@@ -541,7 +574,7 @@ impl<'a, 'b> Mul<&'b Fp751Element> for &'a Fp751Element {
     type Output = Fp751X2;
     fn mul(self, _rhs: &'b Fp751Element) -> Fp751X2 {
         let mut result = Fp751X2::zero();
-        unsafe { mul751_asm(&self, _rhs, &mut result); } // = a*c*R*R
+        mul751(&self, _rhs, &mut result); // = a*c*R*R
         result
     }
 }
@@ -561,12 +594,6 @@ impl <'a> Neg for &'a Fp751Element {
 //     }
 // }
 
-impl ConditionallySwappable for Fp751Element {
-    fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
-        unsafe { cswap751_asm(self, other, choice); }
-    }
-}
-
 impl Eq for Fp751Element {}
 impl PartialEq for Fp751Element {
     /// Test equality between two `Fp751Element`s.
@@ -578,10 +605,8 @@ impl PartialEq for Fp751Element {
         let mut _self = *self;
         let mut _other = *other;
 
-        unsafe {
-            srdc751_asm(&mut _self);
-            srdc751_asm(&mut _other);
-        }
+        _self = _self.strong_reduce();
+        _other = _other.strong_reduce();
 
         let mut eq: bool = true;
         for i in 0..FP751_NUM_WORDS {
@@ -602,12 +627,6 @@ impl Equal for Fp751Element {
     }
 }
 
-impl Debug for Fp751Element {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-        write!(f, "Fp751Element({:?})", &self.0[..])
-    }
-}
-
 #[cfg(test)]
 impl Arbitrary for Fp751Element {
     fn arbitrary<G: Gen>(g: &mut G) -> Fp751Element {
@@ -615,95 +634,14 @@ impl Arbitrary for Fp751Element {
     }
 }
 
-#[cfg(test)]
-impl Rand for Fp751Element {
-    fn rand<R: Rng>(rng: &mut R) -> Fp751Element {
-        // Generation strategy: low limbs taken from [0,2^64), high limb
-        // taken from smaller range.
-        //
-        // Field elements taken in range [0,2p). Emulate this by capping
-        // the high limb by the top digit of 2*p-1:
-        //
-        // sage: (2*p-1).digits(2^64)[-1]
-        // 246065832128056
-        //
-        // This still allows generating values >= 2p, but hopefully that
-        // excess is small.
-        let high_limb = rng.next_u64() % 246065832128056;
-
-        Fp751Element([
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            high_limb
-        ])
-    }
-}
-
 impl Fp751Element {
-    /// Construct a new zero `Fp751Element`.
-    pub fn zero() -> Fp751Element {
-        Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
-    }
     /// Reduce a field element in `[0, 2*p)` to one in `[0,p)`.
-    fn strong_reduce(&self) -> Fp751Element {
+    pub fn strong_reduce(&self) -> Fp751Element {
         let mut _self = *self;
-        unsafe { srdc751_asm(&mut _self); }
+        srdc751(&mut _self);
         _self
     }
-    /// Given an `Fp751Element` in Montgomery form, convert to little-endian bytes.
-    fn to_bytes(&self) -> [u8; 94] {
-        let mut bytes = [0u8; 94];
-        let mut a = Fp751Element::zero();
-        let mut aR = Fp751X2::zero();
-
-        aR.0[..FP751_NUM_WORDS].clone_from_slice(&self.0);
-        a = aR.reduce();       // = a mod p in [0, 2p)
-        a = a.strong_reduce(); // = a mod p in [0, p)
-
-        let mut j;
-        let mut k: u64;
-        // 8*12 = 96, but we drop the last two bytes since p is 751 < 752=94*8 bits.
-        for i in 0..94 {
-            j = i / 8;
-            k = (i % 8) as u64;
-            // Rust indexes are of type usize.
-            bytes[i as usize] = (a.0[j as usize] >> (8 * k)) as u8;
-        }
-        bytes
-    }
-    /// Read an `Fp751Element` from little-endian bytes and convert to Montgomery form.
-    fn from_bytes(bytes: &[u8]) -> Fp751Element {
-        assert!(bytes.len() >= 94, "Too short input to Fp751Element from_bytes, expected 94 bytes");
-
-        let mut a = Fp751Element::zero();
-        let mut j;
-        let mut k: u64;  
-        for i in 0..94 {
-            j = i / 8;
-            k = (i % 8) as u64;
-            // Rust indexes are of type usize.
-            a.0[j as usize] |= (bytes[i as usize] as u64) << (8 * k);
-        }
-
-        let aRR = &a * &MONTGOMERY_RSQ; // = a*R*R
-        let output = aRR.reduce();      // = a*R mod p
-        output
-    }
 }
-
-/// Represents an intermediate product of two elements of the base field `F_p`.
-#[repr(C)]
-#[derive(Copy, Clone, PartialEq)]
-pub struct Fp751X2(pub (crate) [u64; 2*FP751_NUM_WORDS]);
 
 impl<'b> AddAssign<&'b Fp751X2> for Fp751X2 {
     fn add_assign(&mut self, _rhs: &'b Fp751X2) {
@@ -716,7 +654,7 @@ impl<'a, 'b> Add<&'b Fp751X2> for &'a Fp751X2 {
     type Output = Fp751X2;
     fn add(self, _rhs: &'b Fp751X2) -> Fp751X2 {
         let mut result = Fp751X2::zero();
-        unsafe { mp_add751x2_asm(&self, _rhs, &mut result); }
+        mp_add751x2(&self, _rhs, &mut result);
         result
     }
 }
@@ -732,69 +670,32 @@ impl<'a, 'b> Sub<&'b Fp751X2> for &'a Fp751X2 {
     type Output = Fp751X2;
     fn sub(self, _rhs: &'b Fp751X2) -> Fp751X2 {
         let mut result = Fp751X2::zero();
-        unsafe { mp_sub751x2_asm(&self, _rhs, &mut result); }
+        mp_sub751x2(&self, _rhs, &mut result);
         result
-    }
-}
-
-impl Debug for Fp751X2 {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-        write!(f, "Fp751X2({:?})", &self.0[..])
     }
 }
 
 impl Fp751X2 {
-    /// Construct a zero `Fp751X2`.
-    fn zero() -> Fp751X2 {
-        Fp751X2([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
-    }
     /// Perform Montgomery reduction, `x R^{-1} (mod p)`.
-    fn reduce(&self) -> Fp751Element {
+    pub fn reduce(&self) -> Fp751Element {
         let mut result = Fp751Element::zero();
-        unsafe { rdc751_asm(self, &mut result); }
+        rdc751(self, &mut result);
         result
     }
 }
 
-/// `(2^768) mod p`
-const MONTGOMERY_R: Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 9444048418595930112, 6136068611055053926, 7599709743867700432, 14455912356952952366, 5522737203492907350, 1222606818372667369, 49869481633250]);
+pub fn checklt238(scalar: &[u8; 48], result: &mut u32) {
+    #[cfg(feature="x64")]
+    backend::x64::fp_x64::checklt238(scalar, result);
+    #[cfg(feature="x86")]
+    backend::x86::fp_x86::checklt238(scalar, result);
+}
 
-/// `(2^768)^2 mod p`
-const MONTGOMERY_RSQ: Fp751Element = Fp751Element([2535603850726686808, 15780896088201250090, 6788776303855402382, 17585428585582356230, 5274503137951975249, 2266259624764636289, 11695651972693921304, 13072885652150159301, 4908312795585420432, 6229583484603254826, 488927695601805643, 72213483953973]);
-
-extern {
-    // If choice = 1, set x,y = y,x. Otherwise, leave x,y unchanged.
-    // This function executes in constant time.
-    #[no_mangle]
-    fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: u8);
-    // If choice = 1, assign y to x. Otherwise, leave x unchanged.
-    // This function executes in constant time.
-    #[no_mangle]
-    fn cassign751_asm(x: &mut Fp751Element, y: &Fp751Element, choice: u8);
-    // Compute z = x + y (mod p).
-    #[no_mangle]
-    fn fpadd751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
-    // Compute z = x - y (mod p).
-    #[no_mangle]
-    fn fpsub751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
-    // Compute z = x * y.
-    #[no_mangle]
-    fn mul751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751X2);
-    // Perform Montgomery reduction: set z = x R^{-1} (mod p).
-    #[no_mangle]
-    fn rdc751_asm(x: &Fp751X2, z: &mut Fp751Element);
-    // Reduce a field element in [0, 2*p) to one in [0,p).
-    #[no_mangle]
-    fn srdc751_asm(x: &mut Fp751Element);
-    // Compute z = x + y, without reducing mod p.
-    #[no_mangle]
-    fn mp_add751_asm(x: &Fp751Element, y: &Fp751Element, z: &mut Fp751Element);
-    // Compute z = x + y, without reducing mod p.
-    #[no_mangle]
-    fn mp_add751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
-    // Compute z = x - y, without reducing mod p.
-    #[no_mangle]
-    fn mp_sub751x2_asm(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2);
+pub fn mulby3(scalar: &mut [u8; 48]) {
+    #[cfg(feature="x64")]
+    backend::x64::fp_x64::mulby3(scalar);
+    #[cfg(feature="x86")]
+    backend::x86::fp_x86::mulby3(scalar);
 }
 
 #[cfg(test)]
@@ -815,7 +716,7 @@ mod test {
             assert_eq!(bytes[i], 0);
         }
     }
-
+    
     #[test]
     fn extension_field_element_to_bytes_round_trip() {
         fn round_trips(x: ExtensionFieldElement) -> bool {
@@ -927,8 +828,19 @@ mod test {
 
     #[test]
     fn fp751_element_conditional_swap() {
-        let one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        let two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+        let one: Fp751Element;
+        let two: Fp751Element;
+
+        #[cfg(feature="x64")]  
+        {
+            one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+            two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+        }
+        #[cfg(feature="x86")] 
+        {
+            one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+            two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);          
+        }
 
         let mut x = one;
         let mut y = two;
@@ -944,8 +856,19 @@ mod test {
 
     // #[test]
     // fn fp751_element_conditional_assign() {
-    //     let mut one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-    //     let two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+    //     let mut one: Fp751Element;
+    //     let mut two: Fp751Element;
+
+    //     #[cfg(feature="x64")] 
+    //     {
+    //         one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    //         two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+    //     }
+    //     #[cfg(feature="x86")]  
+    //     {
+    //         one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    //         two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);          
+    //     }
 
     //     one.conditional_assign(&two, 0);
     //     assert_ne!(one, two);
@@ -960,11 +883,19 @@ mod bench {
     use super::*;
     use test::Bencher;
     
+    #[cfg(feature="x64")]
     static BENCH_X: Fp751Element = Fp751Element([17026702066521327207, 5108203422050077993, 10225396685796065916, 11153620995215874678, 6531160855165088358, 15302925148404145445, 1248821577836769963, 9789766903037985294, 7493111552032041328, 10838999828319306046, 18103257655515297935, 27403304611634]);
+    #[cfg(feature="x64")]
     static BENCH_Y: Fp751Element = Fp751Element([4227467157325093378, 10699492810770426363, 13500940151395637365, 12966403950118934952, 16517692605450415877, 13647111148905630666, 14223628886152717087, 7167843152346903316, 15855377759596736571, 4300673881383687338, 6635288001920617779, 30486099554235]);
+    #[cfg(feature="x64")]
     static BENCH_Z: Fp751X2 = Fp751X2([1595347748594595712, 10854920567160033970, 16877102267020034574, 12435724995376660096, 3757940912203224231, 8251999420280413600, 3648859773438820227, 17622716832674727914, 11029567000887241528, 11216190007549447055, 17606662790980286987, 4720707159513626555, 12887743598335030915, 14954645239176589309, 14178817688915225254, 1191346797768989683, 12629157932334713723, 6348851952904485603, 16444232588597434895, 7809979927681678066, 14642637672942531613, 3092657597757640067, 10160361564485285723, 240071237]);
-    static mut BENCH_FP751ELEMENT: Fp751Element = Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]);
-    static mut BENCH_FP751X2: Fp751X2 = Fp751X2([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]);
+
+    #[cfg(feature="x86")]
+    static BENCH_X: Fp751Element = Fp751Element([1936311911, 3964338001, 2881146153, 1189346290, 4166304380, 2380785691, 1663982198, 2596904755, 3071095398, 1520654385, 386227493, 3562989912, 3335369387, 290763931, 1098154510, 2279357729, 2705254768, 1744625985, 2541617470, 2523651306, 710686863, 4214993132, 1413263154, 6380]);
+    #[cfg(feature="x86")]
+    static BENCH_Y: Fp751Element = Fp751Element([1140726274, 984283899, 3872467451, 2491169797, 1639897205, 3143432585, 2500827560, 3018976177, 16248581, 3845825001, 3502967754, 3177465672, 2820547359, 3311696668, 3311039252, 1668893534, 610562107, 3691617809, 4071412906, 1001328667, 1357106483, 1544898376, 421687227, 7098]);
+    #[cfg(feature="x86")]
+    static BENCH_Z: Fp751X2 = Fp751X2([674445184, 371445843, 1990709938, 2527358142, 3618325006, 3929506583, 4192157312, 2895417854, 1724372135, 874963801, 1955274144, 1921318336, 2802352003, 849566369, 350210026, 4103108503, 172043064, 2568021184, 3443870607, 2611472738, 947370507, 4099370630, 1936979899, 1099125286, 1058207363, 3000661637, 2803593213, 3481899676, 3268487846, 3301263248, 3176258547, 277382041, 824052603, 2940454970, 2825566947, 1478207286, 4282423823, 3828721257, 2087041778, 1818402653, 780006429, 3409254754, 373411203, 720065459, 3501029211, 2365643522, 240071237, 0]);
 
     #[bench]
     fn extension_field_element_add(b: &mut Bencher) {
@@ -1034,21 +965,25 @@ mod bench {
 
     #[bench]
     fn fp751_mul(b: &mut Bencher) {
-        b.iter(|| unsafe { mul751_asm(&BENCH_X, &BENCH_Y, &mut BENCH_FP751X2) });
+        let mut z = Fp751X2::zero();
+        b.iter(|| mul751(&BENCH_X, &BENCH_Y, &mut z));
     }
 
     #[bench]
     fn fp751_rdc(b: &mut Bencher) {
-        b.iter(|| unsafe { rdc751_asm(&BENCH_Z, &mut BENCH_FP751ELEMENT) });
+        let mut z = Fp751Element::zero();
+        b.iter(|| rdc751(&BENCH_Z, &mut z));
     }
 
     #[bench]
     fn fp751_add(b: &mut Bencher) {
-        b.iter(|| unsafe { fpadd751_asm(&BENCH_X, &BENCH_Y, &mut BENCH_FP751ELEMENT) });
+        let mut z = Fp751Element::zero();
+        b.iter(|| fpadd751(&BENCH_X, &BENCH_Y, &mut z));
     }
 
     #[bench]
     fn fp751_sub(b: &mut Bencher) {
-        b.iter(|| unsafe { fpsub751_asm(&BENCH_X, &BENCH_Y, &mut BENCH_FP751ELEMENT) });
+        let mut z = Fp751Element::zero();
+        b.iter(|| fpsub751(&BENCH_X, &BENCH_Y, &mut z));
     }
 }

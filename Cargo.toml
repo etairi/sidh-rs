@@ -1,6 +1,6 @@
 [package]
 name = "sidh"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 readme = "README.md"
 license = "MIT"
@@ -48,3 +48,5 @@ nightly = ["subtle/nightly"]
 default = ["std"]
 std = ["rand", "subtle/std"]
 bench = []
+x64 = []
+x86 = []

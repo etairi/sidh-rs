@@ -13,6 +13,7 @@
 #![allow(non_snake_case)]
 #![allow(unused_assignments)]
 #![allow(unused_imports)]
+#![allow(unused_variables)]
 //#![deny(missing_docs)] // Refuse to compile if documentation is missing.
 
 //! # sidh
@@ -27,8 +28,8 @@
 //! This library follows the usual naming convention, writing "Alice" for the party using
 //! `2^e`-isogenies and "Bob" for the party using `3^e`-isogenies.
 //! 
-//! The implementation is intended for use on the `amd64` architecture only -- no generic 
-//! field arithmetic implementation is provided.
+//! TThe library provides a generic field arithmetic implementation, therefore, making it 
+//! compatible with many different architectures (such as x64, x86, and ARM).
 
 //-----------------------------------------------------------------------------//
 //                          External Dependencies                              //
@@ -52,6 +53,8 @@ extern crate subtle;
 //                             Internal Modules                                //
 //-----------------------------------------------------------------------------//
 
+// Arithmetic backends (for x64 and x86 arhitectures) live here.
+pub(crate) mod backend;
 // Finite field arithmetic.
 pub(crate) mod field;
 // Internal curve operations which are not part of the public API.

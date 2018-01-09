@@ -2131,7 +2131,7 @@ srdc751_asm:
   sbb    [reg_p1+80], r14
   sbb    [reg_p1+88], r15
 
-  // Save carry flag indicating x-p < 0 as a mask in AX
+  // Save carry flag indicating x-p < 0 as a mask in RAX
   sbb    rax, 0
 
   // Conditionally add p to x if x-p < 0
