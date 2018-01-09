@@ -13,7 +13,7 @@ fn main() {
     let target = env::var("TARGET").unwrap();
     let host = env::var("HOST").unwrap();
 
-    if cfg!(feature = "x64") {
+    if cfg!(target_arch = "x86_64") {
         if target.contains("msvc") && host.contains("windows") {
             cc::Build::new()
                 .file("src/backend/x64/amd64/fp_x64.asm")

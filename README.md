@@ -28,7 +28,7 @@ cryptographers to be considered in any way, shape, or form, safe. The library wa
 To install, add the following to the dependencies section of your project's `Cargo.toml`:
 
 ```toml
-sidh = "^0.1"
+sidh = "^0.2"
 ```
 
 Then, in your library or executable source, add:

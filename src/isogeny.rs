@@ -244,23 +244,23 @@ mod test {
         // sage: sage_isomorphism = sage_first_4_isogeny.codomain().isomorphism_to(EllipticCurve(Fp2, [0,(2*(a+6))/(a-2),0,1,0]))
         // sage: isogenized_R_A = sage_isomorphism(sage_first_4_isogeny(R_A))
         //
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0xa179cb7e2a95fce9, 0xbfd6a0f3a0a892c0, 0x8b2f0aa4250ab3f3, 0x2e7aa4dd4118732d, 0x627969e493acbc2a, 0x21a5b852c7b8cc83, 0x26084278586324f2, 0x383be1aa5aa947c0, 0xc6558ecbb5c0183e, 0xf1f192086a52b035, 0x4c58b755b865c1b, 0x67b4ceea2d2c]), 
             B: Fp751Element([0xfceb02a2797fecbf, 0x3fee9e1d21f95e99, 0xa1c4ce896024e166, 0xc09c024254517358, 0xf0255994b17b94e7, 0xa4834359b41ee894, 0x9487f7db7ebefbe, 0x3bbeeb34a0bf1f24, 0xfa7e5533514c6a05, 0x92b0328146450a9a, 0xfde71ca3fada4c06, 0x3610f995c2bd]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x2a95fce9, 0xa179cb7e, 0xa0a892c0, 0xbfd6a0f3, 0x250ab3f3, 0x8b2f0aa4, 0x4118732d, 0x2e7aa4dd, 0x93acbc2a, 0x627969e4, 0xc7b8cc83, 0x21a5b852, 0x586324f2, 0x26084278, 0x5aa947c0, 0x383be1aa, 0xb5c0183e, 0xc6558ecb, 0x6a52b035, 0xf1f19208, 0x5b865c1b, 0x4c58b75, 0xceea2d2c, 0x67b4]), 
             B: Fp751Element([0x797fecbf, 0xfceb02a2, 0x21f95e99, 0x3fee9e1d, 0x6024e166, 0xa1c4ce89, 0x54517358, 0xc09c0242, 0xb17b94e7, 0xf0255994, 0xb41ee894, 0xa4834359, 0xb7ebefbe, 0x9487f7d, 0xa0bf1f24, 0x3bbeeb34, 0x514c6a05, 0xfa7e5533, 0x46450a9a, 0x92b03281, 0xfada4c06, 0xfde71ca3, 0xf995c2bd, 0x3610]) 
         });
         
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0xff99e76f78da1e05, 0xdaa36bd2bb8d97c4, 0xb4328cee0a409daf, 0xc28b099980c5da3f, 0xf2d7cd15cfebb852, 0x1935103dded6cdef, 0xade81528de1429c3, 0x6775b0fa90a64319, 0x25f89817ee52485d, 0x706e2d00848e697, 0xc4958ec4216d65c0, 0xc519681417f]), 
             B: Fp751Element([0x742fe7dde60e1fb9, 0x801a3c78466a456b, 0xa9f945b786f48c35, 0x20ce89e1b144348f, 0xf633970b7776217e, 0x4c6077a9b38976e5, 0x34a513fc766c7825, 0xacccba359b9cd65, 0xd0ca8383f0fd0125, 0x77350437196287a, 0x9fe1ad7706d4ea21, 0x4d26129ee42d]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x78da1e05, 0xff99e76f, 0xbb8d97c4, 0xdaa36bd2, 0xa409daf, 0xb4328cee, 0x80c5da3f, 0xc28b0999, 0xcfebb852, 0xf2d7cd15, 0xded6cdef, 0x1935103d, 0xde1429c3, 0xade81528, 0x90a64319, 0x6775b0fa, 0xee52485d, 0x25f89817, 0x848e697, 0x706e2d0, 0x216d65c0, 0xc4958ec4, 0x9681417f, 0xc51]), 
             B: Fp751Element([0xe60e1fb9, 0x742fe7dd, 0x466a456b, 0x801a3c78, 0x86f48c35, 0xa9f945b7, 0xb144348f, 0x20ce89e1, 0x7776217e, 0xf633970b, 0xb38976e5, 0x4c6077a9, 0x766c7825, 0x34a513fc, 0x59b9cd65, 0xacccba3, 0xf0fd0125, 0xd0ca8383, 0x7196287a, 0x7735043, 0x6d4ea21, 0x9fe1ad77, 0x129ee42d, 0x4d26]) 
@@ -316,34 +316,34 @@ mod test {
         // sage: sage_iso = E2A_sage.isomorphism_to(E2A)
         // sage: isogenized2_R_A = sage_iso(phi4(isogenized_R_A))
         //
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0xff99e76f78da1e05, 0xdaa36bd2bb8d97c4, 0xb4328cee0a409daf, 0xc28b099980c5da3f, 0xf2d7cd15cfebb852, 0x1935103dded6cdef, 0xade81528de1429c3, 0x6775b0fa90a64319, 0x25f89817ee52485d, 0x706e2d00848e697, 0xc4958ec4216d65c0, 0xc519681417f]), 
             B: Fp751Element([0x742fe7dde60e1fb9, 0x801a3c78466a456b, 0xa9f945b786f48c35, 0x20ce89e1b144348f, 0xf633970b7776217e, 0x4c6077a9b38976e5, 0x34a513fc766c7825, 0xacccba359b9cd65, 0xd0ca8383f0fd0125, 0x77350437196287a, 0x9fe1ad7706d4ea21, 0x4d26129ee42d]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x78da1e05, 0xff99e76f, 0xbb8d97c4, 0xdaa36bd2, 0xa409daf, 0xb4328cee, 0x80c5da3f, 0xc28b0999, 0xcfebb852, 0xf2d7cd15, 0xded6cdef, 0x1935103d, 0xde1429c3, 0xade81528, 0x90a64319, 0x6775b0fa, 0xee52485d, 0x25f89817, 0x848e697, 0x706e2d0, 0x216d65c0, 0xc4958ec4, 0x9681417f, 0xc51]), 
             B: Fp751Element([0xe60e1fb9, 0x742fe7dd, 0x466a456b, 0x801a3c78, 0x86f48c35, 0xa9f945b7, 0xb144348f, 0x20ce89e1, 0x7776217e, 0xf633970b, 0xb38976e5, 0x4c6077a9, 0x766c7825, 0x34a513fc, 0x59b9cd65, 0xacccba3, 0xf0fd0125, 0xd0ca8383, 0x7196287a, 0x7735043, 0x6d4ea21, 0x9fe1ad77, 0x129ee42d, 0x4d26]) 
         });
         
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let xP4 = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x2afd75a913f3d5e7, 0x2918fba06f88c9ab, 0xa4ac4dc7cb526f05, 0x2d19e9391a607300, 0x7a79e2b34091b54, 0x3ad809dcb42f1792, 0xd46179328bd6402a, 0x1afa73541e2c4f3f, 0xf602d73ace9bdbd8, 0xd77ac58f6bab7004, 0x4689d97f6793b3b3, 0x4f26b00e42b7]), 
             B: Fp751Element([0x6cdf918dafdcb890, 0x666f273cc29cfae2, 0xad00fcd31ba618e2, 0x5fbcf62bef2f6a33, 0xf408bb88318e5098, 0x84ab97849453d175, 0x501bbfcdcfb8e1ac, 0xf2370098e6b5542c, 0xc7dc73f5f0f6bd32, 0xdd76dcd86729d1cf, 0xca22c905029996e4, 0x5cf4a9373de3]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let xP4 = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x13f3d5e7, 0x2afd75a9, 0x6f88c9ab, 0x2918fba0, 0xcb526f05, 0xa4ac4dc7, 0x1a607300, 0x2d19e939, 0x34091b54, 0x7a79e2b, 0xb42f1792, 0x3ad809dc, 0x8bd6402a, 0xd4617932, 0x1e2c4f3f, 0x1afa7354, 0xce9bdbd8, 0xf602d73a, 0x6bab7004, 0xd77ac58f, 0x6793b3b3, 0x4689d97f, 0xb00e42b7, 0x4f26]), 
             B: Fp751Element([0xafdcb890, 0x6cdf918d, 0xc29cfae2, 0x666f273c, 0x1ba618e2, 0xad00fcd3, 0xef2f6a33, 0x5fbcf62b, 0x318e5098, 0xf408bb88, 0x9453d175, 0x84ab9784, 0xcfb8e1ac, 0x501bbfcd, 0xe6b5542c, 0xf2370098, 0xf0f6bd32, 0xc7dc73f5, 0x6729d1cf, 0xdd76dcd8, 0x29996e4, 0xca22c905, 0xa9373de3, 0x5cf4]) 
         });
         
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x111efd8bd0b7a01e, 0x6ab75a4f3789ca9b, 0x939dbe518564cac4, 0xf9eeaba1601d0434, 0x8d41f8ba6edac998, 0xfcd2557efe9aa170, 0xb3c3549c098b7844, 0x52874fef6f81127c, 0xb2b9ac82aa518bb3, 0xee70820230520a86, 0xd4012b7f5efb184a, 0x573e4536329b]), 
             B: Fp751Element([0xa99952281e932902, 0x569a89a571f2c7b1, 0x6150143846ba3f6b, 0x11fd204441e91430, 0x7f469bd55c9b07b, 0xb72db8b9de35b161, 0x455a9a37a940512a, 0xb0cff7670abaf906, 0x18c785b7583375fe, 0x603ab9ca403c9148, 0xab54ba3a6e6c62c1, 0x2726d7d57c4f]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0xd0b7a01e, 0x111efd8b, 0x3789ca9b, 0x6ab75a4f, 0x8564cac4, 0x939dbe51, 0x601d0434, 0xf9eeaba1, 0x6edac998, 0x8d41f8ba, 0xfe9aa170, 0xfcd2557e, 0x98b7844, 0xb3c3549c, 0x6f81127c, 0x52874fef, 0xaa518bb3, 0xb2b9ac82, 0x30520a86, 0xee708202, 0x5efb184a, 0xd4012b7f, 0x4536329b, 0x573e]), 
             B: Fp751Element([0x1e932902, 0xa9995228, 0x71f2c7b1, 0x569a89a5, 0x46ba3f6b, 0x61501438, 0x41e91430, 0x11fd2044, 0x55c9b07b, 0x7f469bd, 0xde35b161, 0xb72db8b9, 0xa940512a, 0x455a9a37, 0xabaf906, 0xb0cff767, 0x583375fe, 0x18c785b7, 0x403c9148, 0x603ab9ca, 0x6e6c62c1, 0xab54ba3a, 0xd7d57c4f, 0x2726]) 
@@ -389,34 +389,34 @@ mod test {
         // ....:
         // sage: isogenized_R_B = three_isog(P_3, R_B)
         //
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0xbd0737ed5cc9a3d7, 0x45ae6d476517c101, 0x6f228e9e7364fdb2, 0xbba4871225b3dbd, 0x6299ccd2e5da1a07, 0x38488fe4af5f2d0e, 0xec23cae5a86e980c, 0x26c804ba3f1edffa, 0xfbbed81932df60e5, 0x7e00e9d182ae9187, 0xc7654abb66d05f4b, 0x262d0567237b]), 
             B: Fp751Element([0x3a3b5b6ad0b2ac33, 0x246602b5179127d3, 0x502ae0e9ad65077d, 0x10a3a37237e1bf70, 0x4a1ab9294dd05610, 0xb0f3adac30fe1fa6, 0x341995267faf70cb, 0xa14dd94d39cf4ec1, 0xce4b7527d1bf5568, 0xe0410423ed45c7e4, 0x38011809b6425686, 0x28f52472ebed]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x5cc9a3d7, 0xbd0737ed, 0x6517c101, 0x45ae6d47, 0x7364fdb2, 0x6f228e9e, 0x225b3dbd, 0xbba4871, 0xe5da1a07, 0x6299ccd2, 0xaf5f2d0e, 0x38488fe4, 0xa86e980c, 0xec23cae5, 0x3f1edffa, 0x26c804ba, 0x32df60e5, 0xfbbed819, 0x82ae9187, 0x7e00e9d1, 0x66d05f4b, 0xc7654abb, 0x567237b, 0x262d]), 
             B: Fp751Element([0xd0b2ac33, 0x3a3b5b6a, 0x179127d3, 0x246602b5, 0xad65077d, 0x502ae0e9, 0x37e1bf70, 0x10a3a372, 0x4dd05610, 0x4a1ab929, 0x30fe1fa6, 0xb0f3adac, 0x7faf70cb, 0x34199526, 0x39cf4ec1, 0xa14dd94d, 0xd1bf5568, 0xce4b7527, 0xed45c7e4, 0xe0410423, 0xb6425686, 0x38011809, 0x2472ebed, 0x28f5]) 
         });
 
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let xP3 = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x7bb7a4a07b0788dc, 0xdc36a3f6607b21b0, 0x4750e18ee74cf2f0, 0x464e319d0b7ab806, 0xc25aa44c04f758ff, 0x392e8521a46e0a68, 0xfc4e76b63eff37df, 0x1f3566d892e67dd8, 0xf8d2eb0f73295e65, 0x457b13ebc470bccb, 0xfda1cc9efef5be33, 0x5dbf3d92cc02]), 
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let xP3 = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x7b0788dc, 0x7bb7a4a0, 0x607b21b0, 0xdc36a3f6, 0xe74cf2f0, 0x4750e18e, 0xb7ab806, 0x464e319d, 0x4f758ff, 0xc25aa44c, 0xa46e0a68, 0x392e8521, 0x3eff37df, 0xfc4e76b6, 0x92e67dd8, 0x1f3566d8, 0x73295e65, 0xf8d2eb0f, 0xc470bccb, 0x457b13eb, 0xfef5be33, 0xfda1cc9e, 0x3d92cc02, 0x5dbf]), 
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]) 
         });
 
-        #[cfg(feature="x64")]
+        #[cfg(target_arch = "x86_64")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x286db7d75913c5b1, 0xcb2049ad50189220, 0xccee90ef765fa9f4, 0x65e52ce2730e7d88, 0xa6b6b553bd0d06e7, 0xb561ecec14591590, 0x17b7a66d8c64d959, 0x77778cecbe1461e, 0x9405c9c0c41a57ce, 0x8f6b4847e8ca7d3d, 0xf625eb987b366937, 0x421b3590e345]), 
             B: Fp751Element([0x566b893803e7d8d6, 0xe8c71a04d527e696, 0x5a1d8f87bf5eb51, 0x42ae08ae098724f, 0x4ee3d7c7af40ca2e, 0xd9f9ab9067bb10a7, 0xecd53d69edd6328c, 0xa581e9202dea107d, 0x8bcdfb6c8ecf9257, 0xe7cbbc2e5cbcf2af, 0x5f031a8701f0e53e, 0x18312d93e3cb]) 
         });
-        #[cfg(feature="x86")]
+        #[cfg(target_arch = "x86")]
         let sage_isogenized_xR = ProjectivePoint::from_affine(&ExtensionFieldElement{ 
             A: Fp751Element([0x5913c5b1, 0x286db7d7, 0x50189220, 0xcb2049ad, 0x765fa9f4, 0xccee90ef, 0x730e7d88, 0x65e52ce2, 0xbd0d06e7, 0xa6b6b553, 0x14591590, 0xb561ecec, 0x8c64d959, 0x17b7a66d, 0xcbe1461e, 0x77778ce, 0xc41a57ce, 0x9405c9c0, 0xe8ca7d3d, 0x8f6b4847, 0x7b366937, 0xf625eb98, 0x3590e345, 0x421b]), 
             B: Fp751Element([0x3e7d8d6, 0x566b8938, 0xd527e696, 0xe8c71a04, 0x7bf5eb51, 0x5a1d8f8, 0xe098724f, 0x42ae08a, 0xaf40ca2e, 0x4ee3d7c7, 0x67bb10a7, 0xd9f9ab90, 0xedd6328c, 0xecd53d69, 0x2dea107d, 0xa581e920, 0x8ecf9257, 0x8bcdfb6c, 0x5cbcf2af, 0xe7cbbc2e, 0x1f0e53e, 0x5f031a87, 0x2d93e3cb, 0x1831]) 

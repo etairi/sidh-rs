@@ -207,7 +207,7 @@ pub fn mp_sub751x2(x: &Fp751X2, y: &Fp751X2, z: &mut Fp751X2) {
 }
 
 pub fn checklt238(scalar: &[u8; 48], result: &mut u32) {
-    unsafe { checklt238_asm(scallar, result); }
+    unsafe { checklt238_asm(scalar, result); }
 }
 
 pub fn mulby3(scalar: &mut [u8; 48]) {
