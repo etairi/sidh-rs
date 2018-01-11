@@ -11,7 +11,7 @@ used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once
 ## Main Features
 
 - Supports ephemeral Diffie-Hellman key exchange.
-- Supports Windows OS and Linux OS.
+- Supports Linux OS, Mac OS and Windows OS.
 - Provides basic implementation of the underlying arithmetic functions in Rust to enable support on a wide range of platforms including x64, x86 and ARM.
 - Provides optimized implementations of the underlying arithmetic functions for x64 platforms using assembly for Windows and Linux. 
 - Includes testing and benchmarking code.

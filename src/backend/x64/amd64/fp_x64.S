@@ -1,8 +1,8 @@
-//*******************************************************************************************
+//***********************************************************************
 // SIDH: an efficient supersingular isogeny cryptography library
 //
-// Abstract: field arithmetic in x64 assembly for P751 on Linux
-//*******************************************************************************************
+// Abstract: field arithmetic in x64 assembly for P751 on Linux and Mac
+//***********************************************************************
 
 .intel_syntax noprefix 
 
@@ -45,9 +45,14 @@
 //  Operation: 
 //  If choice [reg_p3] = 0, leave x[reg_p1],y[reg_p2] unchanged.
 //  If choice [reg_p3] = 1, set x[reg_p1],y[reg_p2] = y[reg_p2],x[reg_p1].
-//*********************************************************************** 
+//***********************************************************************
+#ifdef __APPLE__
+.global _cswap751_asm
+_cswap751_asm:
+#else
 .global cswap751_asm
 cswap751_asm:
+#endif
   push   rbx
 
   movzx  rax, dl // Get the lower 8 bits of rdx (reg_p3)
@@ -180,9 +185,14 @@ cswap751_asm:
 //  Conditional assign
 //  Operation: If choice [reg_p3] = 0, leave x [reg_p1] unchanged. 
 //             If choice [reg_p3] = 1, set x [reg_p1] = y [reg_p2].
-//*********************************************************************** 
+//***********************************************************************
+#ifdef __APPLE__
+.global _cassign751_asm
+_cassign751_asm:
+#else
 .global cassign751_asm
 cassign751_asm:
+#endif
   push   rbx
 
   movzx  rax, dl // Get the lower 8 bits of rdx (reg_p3)
@@ -279,8 +289,13 @@ cassign751_asm:
 //  Field addition
 //  Operation: c [reg_p3] = a [reg_p1] + b [reg_p2]
 //***********************************************************************
+#ifdef __APPLE__
+.global _fpadd751_asm
+_fpadd751_asm:
+#else
 .global fpadd751_asm
 fpadd751_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -419,8 +434,13 @@ fpadd751_asm:
 //  Field subtraction
 //  Operation: c [reg_p3] = a [reg_p1] - b [reg_p2]
 //***********************************************************************
+#ifdef __APPLE__
+.global _fpsub751_asm
+_fpsub751_asm:
+#else
 .global fpsub751_asm
 fpsub751_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -533,8 +553,13 @@ fpsub751_asm:
 //  Operation: c [reg_p3] = a [reg_p1] * b [reg_p2]
 //  NOTE: a=c or b=c are not allowed
 //***********************************************************************
+#ifdef __APPLE__
+.global _mul751_asm
+_mul751_asm:
+#else
 .global mul751_asm
 mul751_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -1478,8 +1503,13 @@ mul751_asm:
 //  Operation: c [reg_p2] = a [reg_p1]
 //  NOTE: a=c is not allowed
 //***********************************************************************
+#ifdef __APPLE__
+.global _rdc751_asm
+_rdc751_asm:
+#else
 .global rdc751_asm
 rdc751_asm:
+#endif
   push   r12
   push   r13 
   push   r14 
@@ -2095,9 +2125,14 @@ rdc751_asm:
 //***********************************************************************
 //  Strong reduce a field element in [0, 2*p) to one in [0,p)
 //  Operation: a [reg_p2] = a [reg_p1] mod p
-//*********************************************************************** 
+//***********************************************************************
+#ifdef __APPLE__
+.global _srdc751_asm
+_srdc751_asm:
+#else
 .global srdc751_asm
 srdc751_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -2107,15 +2142,15 @@ srdc751_asm:
   xor    rax, rax
 
   // Load p into registers
-  mov    r8, p751_0
+  movq   r8, p751_0
   // P751_{1,2,3,4} = P751_0, so reuse R8
-  mov    r9, p751_5
-  mov    r10, p751_6
-  mov    r11, p751_7
-  mov    r12, p751_8
-  mov    r13, p751_9
-  mov    r14, p751_10
-  mov    r15, p751_11
+  movq   r9, p751_5
+  movq   r10, p751_6
+  movq   r11, p751_7
+  movq   r12, p751_8
+  movq   r13, p751_9
+  movq   r14, p751_10
+  movq   r15, p751_11
 
   // Set x <- x - p
   sub    [reg_p1], r8
@@ -2131,7 +2166,7 @@ srdc751_asm:
   sbb    [reg_p1+80], r14
   sbb    [reg_p1+88], r15
 
-  // Save carry flag indicating x-p < 0 as a mask in RAX
+  // Save carry flag indicating x-p < 0 as a mask in AX
   sbb    rax, 0
 
   // Conditionally add p to x if x-p < 0
@@ -2167,8 +2202,13 @@ srdc751_asm:
 //  751-bit multiprecision addition
 //  Operation: c [reg_p3] = a [reg_p1] + b [reg_p2]
 //***********************************************************************
+#ifdef __APPLE__
+.global _mp_add751_asm
+_mp_add751_asm:
+#else
 .global mp_add751_asm
 mp_add751_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -2225,8 +2265,13 @@ mp_add751_asm:
 //  2x751-bit multiprecision addition
 //  Operation: c [reg_p3] = a [reg_p1] + b [reg_p2]
 //***********************************************************************
+#ifdef __APPLE__
+.global _mp_add751x2_asm
+_mp_add751x2_asm:
+#else
 .global mp_add751x2_asm
 mp_add751x2_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -2322,8 +2367,13 @@ mp_add751x2_asm:
 //  2x751-bit multiprecision subtraction
 //  Operation: c [reg_p3] = a [reg_p1] - b [reg_p2]. Returns borrow mask
 //***********************************************************************
+#ifdef __APPLE__
+.global _mp_sub751x2_asm
+_mp_sub751x2_asm:
+#else
 .global mp_sub751x2_asm
 mp_sub751x2_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -2413,15 +2463,15 @@ mp_sub751x2_asm:
   sbb    rax, 0
 
   // Load p into registers:
-  mov    r8, p751_0
+  movq   r8, p751_0
   // P751_{1,2,3,4} = P751_0, so reuse R8
-  mov    r9, p751_5
-  mov    r10, p751_6
-  mov    r11, p751_7
-  mov    r12, p751_8
-  mov    r13, p751_9
-  mov    r14, p751_10
-  mov    r15, p751_11
+  movq   r9, p751_5
+  movq   r10, p751_6
+  movq   r11, p751_7
+  movq   r12, p751_8
+  movq   r13, p751_9
+  movq   r14, p751_10
+  movq   r15, p751_11
 
   and    r8, rax
   and    r9, rax

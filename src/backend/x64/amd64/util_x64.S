@@ -1,8 +1,8 @@
-//*******************************************************************************************
+//***********************************************************************
 // SIDH: an efficient supersingular isogeny cryptography library
 //
-// Abstract: utility functions in x64 assembly for P751 on Linux
-//*******************************************************************************************
+// Abstract: utility functions in x64 assembly for P751 on Linux and Mac
+//***********************************************************************
 
 .intel_syntax noprefix 
 
@@ -24,8 +24,13 @@
 //  Operation: 
 //  Set result [reg_p2] to 0 if the input [reg_p1] scalar is <= 3^238.
 //*********************************************************************** 
+#ifdef __APPLE__
+.global _checklt238_asm
+_checklt238_asm:
+#else 
 .global checklt238_asm
 checklt238_asm:
+#endif
   push   r12
   push   r13
   push   r14
@@ -35,12 +40,12 @@ checklt238_asm:
   xor    rax, rax
 
   // Set [R10,...,R15] = 3^238
-  mov    r10, three238m1_0
-  mov    r11, three238m1_1
-  mov    r12, three238m1_2
-  mov    r13, three238m1_3
-  mov    r14, three238m1_4
-  mov    r15, three238m1_5
+  movq   r10, three238m1_0
+  movq   r11, three238m1_1
+  movq   r12, three238m1_2
+  movq   r13, three238m1_3
+  movq   r14, three238m1_4
+  movq   r15, three238m1_5
 
   // Set [R10,...,R15] = 3^238 - scalar
   sub    r10, [reg_p1]
@@ -65,8 +70,13 @@ checklt238_asm:
 //  Operation: 
 //  Set scalar [reg_p1] = 3*scalar [reg_p1].
 //*********************************************************************** 
+#ifdef __APPLE__
+.global _mulby3_asm
+_mulby3_asm:
+#else
 .global mulby3_asm
 mulby3_asm:
+#endif
   push   r12
   push   r13
   push   r14
