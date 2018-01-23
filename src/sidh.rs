@@ -41,6 +41,7 @@ use constants::*;
 use core::fmt::Debug;
 
 use rand::{Rng, thread_rng};
+use heapless::Vec;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
@@ -51,6 +52,9 @@ pub const SECRET_KEY_SIZE: usize = 48;
 pub const PUBLIC_KEY_SIZE: usize = 564;
 /// The shared secret size, in bytes.
 pub const SHARED_SECRET_SIZE: usize = 188;
+
+const MAX_INT_POINTS_ALICE: usize = 8;
+const MAX_INT_POINTS_BOB: usize = 10;
 
 
 const MAX_ALICE: usize = 185;
@@ -177,17 +181,15 @@ impl SIDHSecretKeyAlice {
         xQmP = firstPhi.eval(&xQmP);
         xR = firstPhi.eval(&xR);
         
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
-        for j in 1..185 {
-            while i < 185-j {
-                points.push(xR);
-                indices.push(i);
-                let k = ALICE_ISOGENY_STRATEGY[185-i-j];
+        for j in 1..MAX_ALICE {
+            while i < MAX_ALICE-j {
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
+                let k = ALICE_ISOGENY_STRATEGY[MAX_ALICE-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
             }
@@ -230,17 +232,15 @@ impl SIDHSecretKeyAlice {
         let (mut current_curve, firstPhi) = FirstFourIsogeny::compute_first_four_isogeny(&current_curve);
         xR = firstPhi.eval(&xR);
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
-        for j in 1..185 {
-            while i < 185-j {
-                points.push(xR);
-                indices.push(i);
-                let k = ALICE_ISOGENY_STRATEGY[185-i-j];
+        for j in 1..MAX_ALICE {
+            while i < MAX_ALICE-j {
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
+                let k = ALICE_ISOGENY_STRATEGY[MAX_ALICE-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
             }
@@ -297,17 +297,15 @@ impl SIDHSecretKeyBob {
         // Starting curve has a = 0, so (A:C) = (0,1).
         let mut current_curve = ProjectiveCurveParameters{ A: ExtensionFieldElement::zero(), C: ExtensionFieldElement::one() };
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
-        for j in 1..239 {
-            while i < 239-j {
-                points.push(xR);
-                indices.push(i);
-                let k = BOB_ISOGENY_STRATEGY[239-i-j];
+        for j in 1..MAX_BOB {
+            while i < MAX_BOB-j {
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
+                let k = BOB_ISOGENY_STRATEGY[MAX_BOB-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
             }
@@ -347,17 +345,15 @@ impl SIDHSecretKeyBob {
         let xQmP = ProjectivePoint::from_affine(&alice_public.affine_xQmP);
         let mut xR = ProjectivePoint::right_to_left_ladder(&xP, &xQ, &xQmP, &current_curve, &self.scalar[..]);
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
-        for j in 1..239 {
-            while i < 239-j {
-                points.push(xR);
-                indices.push(i);
-                let k = BOB_ISOGENY_STRATEGY[239-i-j];
+        for j in 1..MAX_BOB {
+            while i < MAX_BOB-j {
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
+                let k = BOB_ISOGENY_STRATEGY[MAX_BOB-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
             }
@@ -491,7 +487,7 @@ mod test {
 
         let mut phi: ThreeIsogeny;
         // rev() makes the loop go from 238 down to 0.
-        for e in (0..239).rev() {
+        for e in (0..MAX_BOB).rev() {
             let xS = xR.pow3k(&current_curve, e as u32);
             assign!{(current_curve, phi) = ThreeIsogeny::compute_three_isogeny(&xS)};
 
@@ -550,7 +546,7 @@ mod test {
 
         let mut phi: ThreeIsogeny;
         // rev() makes the loop go from 239 down to 1.
-        for e in (1..239).rev() {
+        for e in (1..MAX_BOB).rev() {
             let xS = xR.pow3k(&current_curve, e as u32);
             assign!{(current_curve, phi) = ThreeIsogeny::compute_three_isogeny(&xS)};
 

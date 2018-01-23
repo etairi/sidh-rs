@@ -38,8 +38,8 @@
 #[cfg(feature = "std")]
 extern crate core;
 
-#[cfg(feature = "std")]
 extern crate rand;
+extern crate heapless;
 
 #[cfg(all(test, feature = "bench"))]
 extern crate test;
