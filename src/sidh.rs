@@ -184,11 +184,11 @@ impl SIDHSecretKeyAlice {
         let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
-        for j in 1..185 {
-            while i < 185-j {
+        for j in 1..MAX_ALICE {
+            while i < MAX_ALICE-j {
                 points.push(xR).unwrap();
                 indices.push(i).unwrap();
-                let k = ALICE_ISOGENY_STRATEGY[185-i-j];
+                let k = ALICE_ISOGENY_STRATEGY[MAX_ALICE-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
             }
@@ -237,11 +237,11 @@ impl SIDHSecretKeyAlice {
         let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
-        for j in 1..185 {
-            while i < 185-j {
+        for j in 1..MAX_ALICE {
+            while i < MAX_ALICE-j {
                 points.push(xR).unwrap();
                 indices.push(i).unwrap();
-                let k = ALICE_ISOGENY_STRATEGY[185-i-j];
+                let k = ALICE_ISOGENY_STRATEGY[MAX_ALICE-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
             }
@@ -304,11 +304,11 @@ impl SIDHSecretKeyBob {
         let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
-        for j in 1..239 {
-            while i < 239-j {
+        for j in 1..MAX_BOB {
+            while i < MAX_BOB-j {
                 points.push(xR).unwrap();
                 indices.push(i).unwrap();
-                let k = BOB_ISOGENY_STRATEGY[239-i-j];
+                let k = BOB_ISOGENY_STRATEGY[MAX_BOB-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
             }
@@ -354,11 +354,11 @@ impl SIDHSecretKeyBob {
         let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
-        for j in 1..239 {
-            while i < 239-j {
+        for j in 1..MAX_BOB {
+            while i < MAX_BOB-j {
                 points.push(xR).unwrap();
                 indices.push(i).unwrap();
-                let k = BOB_ISOGENY_STRATEGY[239-i-j];
+                let k = BOB_ISOGENY_STRATEGY[MAX_BOB-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
             }
@@ -492,7 +492,7 @@ mod test {
 
         let mut phi: ThreeIsogeny;
         // rev() makes the loop go from 238 down to 0.
-        for e in (0..239).rev() {
+        for e in (0..MAX_BOB).rev() {
             let xS = xR.pow3k(&current_curve, e as u32);
             assign!{(current_curve, phi) = ThreeIsogeny::compute_three_isogeny(&xS)};
 
@@ -551,7 +551,7 @@ mod test {
 
         let mut phi: ThreeIsogeny;
         // rev() makes the loop go from 239 down to 1.
-        for e in (1..239).rev() {
+        for e in (1..MAX_BOB).rev() {
             let xS = xR.pow3k(&current_curve, e as u32);
             assign!{(current_curve, phi) = ThreeIsogeny::compute_three_isogeny(&xS)};
 
