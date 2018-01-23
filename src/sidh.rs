@@ -41,6 +41,7 @@ use constants::*;
 use core::fmt::Debug;
 
 use rand::{Rng, thread_rng};
+use heapless::Vec;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
@@ -177,16 +178,16 @@ impl SIDHSecretKeyAlice {
         xQmP = firstPhi.eval(&xQmP);
         xR = firstPhi.eval(&xR);
         
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
+        // but BufferFullError.
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
+        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..185 {
             while i < 185-j {
-                points.push(xR);
-                indices.push(i);
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
                 let k = ALICE_ISOGENY_STRATEGY[185-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
@@ -230,16 +231,16 @@ impl SIDHSecretKeyAlice {
         let (mut current_curve, firstPhi) = FirstFourIsogeny::compute_first_four_isogeny(&current_curve);
         xR = firstPhi.eval(&xR);
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
+        // but BufferFullError.
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
+        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..185 {
             while i < 185-j {
-                points.push(xR);
-                indices.push(i);
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
                 let k = ALICE_ISOGENY_STRATEGY[185-i-j];
                 xR = xR.pow2k(&current_curve, (2*k) as u32);
                 i = i + k as usize;
@@ -297,16 +298,16 @@ impl SIDHSecretKeyBob {
         // Starting curve has a = 0, so (A:C) = (0,1).
         let mut current_curve = ProjectiveCurveParameters{ A: ExtensionFieldElement::zero(), C: ExtensionFieldElement::one() };
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
+        // but BufferFullError.
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
+        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..239 {
             while i < 239-j {
-                points.push(xR);
-                indices.push(i);
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
                 let k = BOB_ISOGENY_STRATEGY[239-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
@@ -347,16 +348,16 @@ impl SIDHSecretKeyBob {
         let xQmP = ProjectivePoint::from_affine(&alice_public.affine_xQmP);
         let mut xR = ProjectivePoint::right_to_left_ladder(&xP, &xQ, &xQmP, &current_curve, &self.scalar[..]);
 
-        // NOTE: One cannot use a Rust slice to insert, append or remove elements from 
-        //       the underlying container, therefore, we use Vec.
-        let mut points: Vec<ProjectivePoint> = Vec::with_capacity(8);
-        let mut indices: Vec<usize> = Vec::with_capacity(8);
+        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
+        // but BufferFullError.
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
+        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..239 {
             while i < 239-j {
-                points.push(xR);
-                indices.push(i);
+                points.push(xR).unwrap();
+                indices.push(i).unwrap();
                 let k = BOB_ISOGENY_STRATEGY[239-i-j];
                 xR = xR.pow3k(&current_curve, k as u32);
                 i = i + k as usize;
