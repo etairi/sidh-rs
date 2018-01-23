@@ -53,6 +53,9 @@ pub const PUBLIC_KEY_SIZE: usize = 564;
 /// The shared secret size, in bytes.
 pub const SHARED_SECRET_SIZE: usize = 188;
 
+const MAX_INT_POINTS_ALICE: usize = 8;
+const MAX_INT_POINTS_BOB: usize = 10;
+
 
 const MAX_ALICE: usize = 185;
 /// Alice's isogeny strategy.
@@ -178,10 +181,8 @@ impl SIDHSecretKeyAlice {
         xQmP = firstPhi.eval(&xQmP);
         xR = firstPhi.eval(&xR);
         
-        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
-        // but BufferFullError.
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
-        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..MAX_ALICE {
@@ -231,10 +232,8 @@ impl SIDHSecretKeyAlice {
         let (mut current_curve, firstPhi) = FirstFourIsogeny::compute_first_four_isogeny(&current_curve);
         xR = firstPhi.eval(&xR);
 
-        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
-        // but BufferFullError.
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
-        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..MAX_ALICE {
@@ -298,10 +297,8 @@ impl SIDHSecretKeyBob {
         // Starting curve has a = 0, so (A:C) = (0,1).
         let mut current_curve = ProjectiveCurveParameters{ A: ExtensionFieldElement::zero(), C: ExtensionFieldElement::one() };
 
-        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
-        // but BufferFullError.
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
-        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..MAX_BOB {
@@ -348,10 +345,8 @@ impl SIDHSecretKeyBob {
         let xQmP = ProjectivePoint::from_affine(&alice_public.affine_xQmP);
         let mut xR = ProjectivePoint::right_to_left_ladder(&xP, &xQ, &xQmP, &current_curve, &self.scalar[..]);
 
-        // FIXME: should be `[ProjectivePoint; 7]` or `[ProjectivePoint; 8]`,
-        // but BufferFullError.
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; 18]> = Vec::new();
-        let mut indices: Vec<usize, [usize; 18]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..MAX_BOB {
