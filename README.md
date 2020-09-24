@@ -72,15 +72,6 @@ Extensive documentation is available [here](https://docs.rs/sidh).
 
 Portions of the library are derived from [Cloudflare's Go SIDH imlementation](https://github.com/cloudflare/p751sidh). The x64 field arithmetic implementation is derived from the [Microsoft Research SIDH implementation](https://github.com/Microsoft/PQCrypto-SIDH).
 
-## TODO
-
-We intend to work on the following items:
-
-* Add support for ARM.
-* Add support for [7].
-* Improve the documentation.
-
-
 ## References
 
 [1]  Craig Costello, Patrick Longa, and Michael Naehrig, "Efficient algorithms for supersingular isogeny Diffie-Hellman". Advances in Cryptology - CRYPTO 2016, LNCS 9814, pp. 572-601, 2016. 
