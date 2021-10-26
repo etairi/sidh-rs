@@ -13,7 +13,7 @@ use field::{Fp751Element, PrimeFieldElement, ExtensionFieldElement};
 use constants::*;
 
 use core::fmt::Debug;
-use subtle::ConditionallySwappable;
+use subtle::ConditionallySelectable;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
@@ -154,7 +154,7 @@ pub struct ProjectivePoint {
     pub Z: ExtensionFieldElement,
 }
 
-impl ConditionallySwappable for ProjectivePoint {
+impl ConditionallySelectable for ProjectivePoint {
     fn conditional_swap(&mut self, other: &mut ProjectivePoint, choice: u8) {
         (&mut self.X).conditional_swap(&mut other.X, choice);
         (&mut self.Z).conditional_swap(&mut other.Z, choice);
@@ -657,7 +657,7 @@ struct ProjectivePrimeFieldPoint {
     Z: PrimeFieldElement,
 }
 
-impl ConditionallySwappable for ProjectivePrimeFieldPoint {
+impl ConditionallySelectable for ProjectivePrimeFieldPoint {
     fn conditional_swap(&mut self, other: &mut ProjectivePrimeFieldPoint, choice: u8) {
         (&mut self.X).conditional_swap(&mut other.X, choice);
         (&mut self.Z).conditional_swap(&mut other.Z, choice);

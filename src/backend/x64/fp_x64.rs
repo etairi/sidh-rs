@@ -8,7 +8,7 @@
 
 use core::fmt::Debug;
 
-use subtle::ConditionallySwappable;
+use subtle::ConditionallySelectable;
 
 #[cfg(test)]
 use rand::{Rand, Rng};
@@ -19,7 +19,7 @@ pub const FP751_NUM_WORDS: usize = 12;
 #[derive(Copy, Clone)]
 pub struct Fp751Element(pub (crate) [u64; FP751_NUM_WORDS]);
 
-impl ConditionallySwappable for Fp751Element {
+impl ConditionallySelectable for Fp751Element {
     fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
         unsafe { cswap751_asm(self, other, choice); }
     }

@@ -28,22 +28,22 @@ travis-ci = { repository = "etairi/sidh-rs", branch = "master" }
 debug = true
 
 [build-dependencies]
-cc = "1.0.3"
-subtle = "^0.3"
-rand = "0.4"
+cc = "^1.0.71"
+subtle = "^2.4.1"
+rand = "^0.8.4"
 
 [dependencies.quickcheck]
-version = "0.6"
+version = "^0.6"
 
 [dependencies.heapless]
-version = "0.2"
+version = "^0.7.7"
 
 [dependencies.rand]
-version = "0.4"
+version = "^0.8.4"
 default-features = false
 
 [dependencies.subtle]
-version = "^0.3"
+version = "^2.4.1"
 default-features = false
 
 [features]

@@ -9,7 +9,7 @@
 use core::mem::size_of;
 use core::fmt::Debug;
 
-use subtle::ConditionallyAssignable;
+use subtle::ConditionallySelectable;
 
 #[cfg(test)]
 use rand::{Rand, Rng};
@@ -329,7 +329,7 @@ pub fn mulby3(scalar: &mut [u8; 48]) {
 #[derive(Copy, Clone)]
 pub struct Fp751Element(pub (crate) [u32; FP751_NUM_WORDS]);
 
-impl ConditionallyAssignable for Fp751Element {
+impl ConditionallySelectable for Fp751Element {
     fn conditional_assign(&mut self, f: &Fp751Element, choice: u8) {
         let mask = (-(choice as i32)) as u32;
         for i in 0..FP751_NUM_WORDS {
@@ -337,12 +337,6 @@ impl ConditionallyAssignable for Fp751Element {
         }
     }
 }
-
-// impl ConditionallySwappable for Fp751Element {
-//     fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
-//         unsafe { cswap751_asm(self, other, choice); }
-//     }
-// }
 
 impl Debug for Fp751Element {
     fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {

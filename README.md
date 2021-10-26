@@ -18,8 +18,7 @@ used for ephemeral Diffie-Hellman, i.e. each keypair should be used at most once
 
 ## Warning
 
-This code has **not** yet received sufficient peer review by other qualified
-cryptographers to be considered in any way, shape, or form, safe. The library was developed for experimentation purposes.
+This library is not actively maintained anymore. Furthermore, the code has **not** yet received sufficient peer review by other qualified cryptographers to be considered in any way, shape, or form, safe. The library was developed for experimentation purposes.
 
 **USE AT YOUR OWN RISK**
 
@@ -92,17 +91,3 @@ The preprint version is available [here](https://eprint.iacr.org/2017/1015).
 
 [7]  Gustavo H. M. Zanon, Marcos A. Simplicio Jr., Geovandro C. C. F. Pereira, Javad Doliskani, and Paulo S. L. M. Barreto, "Faster isogeny-based compressed key agreement". Cryptology ePrint Archive: Report 2017/1143, 2017. 
 The preprint version is available [here](https://eprint.iacr.org/2017/1143). 
-
-
-## Contributing
-
-This project has adopted the [Rust Code of Conduct](http://www.rust-lang.org/conduct.html),
-with the following additional clauses:
-
-* We respect the rights to privacy and anonymity for contributors and people in
-  the community.  If someone wishes to contribute under a pseudonym different to
-  their primary identity, that wish is to be respected by all contributors. 
-
-
-If you have questions or comments, please feel free to email the author. For feature requests, suggestions, and bug reports, please [open an issue on this Github repository](https://github.com/etairi/sidh-rs/issues) (or, send an email to the author). Patches are also welcomed as [pull requests on this GitHub repository](https://github.com/etairi/sidh-rs/pulls), as well as by
-email.
