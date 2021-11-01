@@ -24,10 +24,6 @@ use subtle::Choice;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
-#[cfg(test)]
-use rand::Rng;
-#[cfg(test)]
-use rand::distributions::Distribution;
 
 use backend;
 
