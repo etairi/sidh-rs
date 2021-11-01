@@ -13,9 +13,7 @@ use subtle::ConditionallySelectable;
 use subtle::Choice;
 
 #[cfg(test)]
-use rand::Rng;
-#[cfg(test)]
-use rand::distributions::Distribution;
+use quickcheck::{Arbitrary,Gen};
 
 // Macro to assign tuples, as Rust does not allow tuples as lvalue.
 macro_rules! assign{
@@ -359,8 +357,8 @@ impl Debug for Fp751Element {
 }
 
 #[cfg(test)]
-impl Distribution<Fp751Element> for Fp751ElementDist {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Fp751Element {
+impl Arbitrary for Fp751Element {
+    fn arbitrary(g: &mut Gen) -> Fp751Element {
         // Generation strategy: low limbs taken from [0,2^64), high limb
         // taken from smaller range.
         //
@@ -372,15 +370,16 @@ impl Distribution<Fp751Element> for Fp751ElementDist {
         //
         // This still allows generating values >= 2p, but hopefully that
         // excess is small.
-        let high_limb = rng.next_u32() % 57291;
+        let mut rng = rand::thread_rng();
+        let high_limb = rng.gen::<u32>() % 57291;
 
         Fp751Element([
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), rng.next_u32(),
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), rng.next_u32(),
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), rng.next_u32(),
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), rng.next_u32(),
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), rng.next_u32(),
-            rng.next_u32(), rng.next_u32(), rng.next_u32(), high_limb
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(),
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(),
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(),
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(),
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(),
+            rng.gen::<u32>(), rng.gen::<u32>(), rng.gen::<u32>(), high_limb
         ])
     }
 }

@@ -12,10 +12,6 @@ use subtle::ConditionallySelectable;
 use subtle::Choice;
 
 #[cfg(test)]
-use rand::Rng;
-#[cfg(test)]
-use rand::distributions::Distribution;
-#[cfg(test)]
 use quickcheck::{Arbitrary,Gen};
 
 pub const FP751_NUM_WORDS: usize = 12;
