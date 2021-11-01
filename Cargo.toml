@@ -1,6 +1,6 @@
 [package]
 name = "sidh"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 readme = "README.md"
 license = "MIT"
@@ -13,12 +13,11 @@ description = "An efficient supersingular isogeny-based cryptography library."
 exclude = [
     ".gitignore",
     ".travis.yml",
-    "appveyor.yml",
 ]
 build = "build.rs"
 
 [package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", ".cargo/registry/src/github.com-1ecc6299db9ec823/sidh-0.1.0/rustdoc-include-katex-header.html"]
+rustdoc-args = ["--html-in-header", "katex-header.html"]
 
 [badges]
 appveyor = { repository = "etairi/sidh-rs", branch = "master", service = "github" }
