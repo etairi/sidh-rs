@@ -40,12 +40,18 @@ checklt238_asm:
   xor    rax, rax
 
   // Set [R10,...,R15] = 3^238
-  movq   r10, three238m1_0
-  movq   r11, three238m1_1
-  movq   r12, three238m1_2
-  movq   r13, three238m1_3
-  movq   r14, three238m1_4
-  movq   r15, three238m1_5
+  mov    r10, -1
+  mov    r10, three238m1_0
+  mov    r11, -1
+  mov    r11, three238m1_1
+  mov    r12, -1
+  mov    r12, three238m1_2
+  mov    r13, -1
+  mov    r13, three238m1_3
+  mov    r14, -1
+  mov    r14, three238m1_4
+  mov    r15, -1
+  mov    r15, three238m1_5
 
   // Set [R10,...,R15] = 3^238 - scalar
   sub    r10, [reg_p1]

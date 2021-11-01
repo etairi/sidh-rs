@@ -14,6 +14,7 @@ use constants::*;
 
 use core::fmt::Debug;
 use subtle::ConditionallySelectable;
+use subtle::Choice;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
@@ -70,9 +71,9 @@ impl Debug for ProjectiveCurveParameters {
 
 #[cfg(test)]
 impl Arbitrary for ProjectiveCurveParameters {
-    fn arbitrary<G: Gen>(g: &mut G) -> ProjectiveCurveParameters {
-        let a = g.gen::<ExtensionFieldElement>();
-        let c = g.gen::<ExtensionFieldElement>();
+    fn arbitrary(g: &mut Gen) -> ProjectiveCurveParameters {
+        let a = ExtensionFieldElement::arbitrary(g);
+        let c = ExtensionFieldElement::arbitrary(g);
         ProjectiveCurveParameters{ A: a, C: c }
     }
 }
@@ -155,9 +156,16 @@ pub struct ProjectivePoint {
 }
 
 impl ConditionallySelectable for ProjectivePoint {
-    fn conditional_swap(&mut self, other: &mut ProjectivePoint, choice: u8) {
-        (&mut self.X).conditional_swap(&mut other.X, choice);
-        (&mut self.Z).conditional_swap(&mut other.Z, choice);
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        ProjectivePoint{
+            X: ExtensionFieldElement::conditional_select(&a.X, &b.X, choice),
+            Z: ExtensionFieldElement::conditional_select(&a.Z, &b.Z, choice)
+        }
+    }
+
+    fn conditional_swap(a: &mut Self, b: &mut Self, choice: Choice) {
+        ExtensionFieldElement::conditional_swap(&mut a.X, &mut b.X, choice);
+        ExtensionFieldElement::conditional_swap(&mut a.Z, &mut b.Z, choice);
     }
 }
 
@@ -169,9 +177,9 @@ impl Debug for ProjectivePoint {
 
 #[cfg(test)]
 impl Arbitrary for ProjectivePoint {
-    fn arbitrary<G: Gen>(g: &mut G) -> ProjectivePoint {
-        let x = g.gen::<ExtensionFieldElement>();
-        let z = g.gen::<ExtensionFieldElement>();
+    fn arbitrary(g: &mut Gen) -> ProjectivePoint {
+        let x = ExtensionFieldElement::arbitrary(g);
+        let z = ExtensionFieldElement::arbitrary(g);
         ProjectivePoint{ X: x, Z: z }
     }
 }
@@ -343,7 +351,7 @@ impl ProjectivePoint {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
-                (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
+                ProjectivePoint::conditional_swap(&mut x0, &mut x1, (bit ^ prev_bit).into());
                 tmp = x0.double(&cached_params);
                 x1 = x0.add(&x1, &xP);
                 x0 = tmp;
@@ -351,7 +359,7 @@ impl ProjectivePoint {
             }
         }
         // Now prev_bit is the lowest bit of the scalar.
-        (&mut x0).conditional_swap(&mut x1, prev_bit);
+        ProjectivePoint::conditional_swap(&mut x0, &mut x1, prev_bit.into());
         let xQ = x0;
         xQ
     }
@@ -444,8 +452,8 @@ impl ProjectivePoint {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
-                (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
-                (&mut y0).conditional_swap(&mut y1, (bit ^ prev_bit));
+                ProjectivePoint::conditional_swap(&mut x0, &mut x1, (bit ^ prev_bit).into());
+                ProjectivePoint::conditional_swap(&mut y0, &mut y1, (bit ^ prev_bit).into());
                 x1 = x1.add(&x0, xQ); // = xADD(x1, x0, x(Q))
                 assign!{(x0, x2) = x0.dbl_add(&x2, &y0, &cached_params)};
                 prev_bit = bit;
@@ -471,12 +479,12 @@ impl ProjectivePoint {
             let scalar_byte = scalar[i];
             for j in 0..8 {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
-                (&mut R1).conditional_swap(&mut R2, (bit ^ prev_bit));
+                ProjectivePoint::conditional_swap(&mut R1, &mut R2, (bit ^ prev_bit).into());
                 assign!{(R0, R2) = R0.dbl_add(&R2, &R1, &cached_params)};
                 prev_bit = bit;
             }
         }
-        (&mut R1).conditional_swap(&mut R2, prev_bit);
+        ProjectivePoint::conditional_swap(&mut R1, &mut R2, prev_bit.into());
         let xR = R1;
         xR
     }
@@ -658,9 +666,16 @@ struct ProjectivePrimeFieldPoint {
 }
 
 impl ConditionallySelectable for ProjectivePrimeFieldPoint {
-    fn conditional_swap(&mut self, other: &mut ProjectivePrimeFieldPoint, choice: u8) {
-        (&mut self.X).conditional_swap(&mut other.X, choice);
-        (&mut self.Z).conditional_swap(&mut other.Z, choice);
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        ProjectivePrimeFieldPoint{
+            X: PrimeFieldElement::conditional_select(&a.X, &b.X, choice),
+            Z: PrimeFieldElement::conditional_select(&a.Z, &b.Z, choice)
+        }
+    }
+
+    fn conditional_swap(a: &mut Self, b: &mut Self, choice: Choice) {
+        PrimeFieldElement::conditional_swap(&mut a.X, &mut b.X, choice);
+        PrimeFieldElement::conditional_swap(&mut a.Z, &mut b.Z, choice);
     }
 }
 
@@ -672,9 +687,9 @@ impl Debug for ProjectivePrimeFieldPoint {
 
 #[cfg(test)]
 impl Arbitrary for ProjectivePrimeFieldPoint {
-    fn arbitrary<G: Gen>(g: &mut G) -> ProjectivePrimeFieldPoint {
-        let x = g.gen::<PrimeFieldElement>();
-        let z = g.gen::<PrimeFieldElement>();
+    fn arbitrary(g: &mut Gen) -> ProjectivePrimeFieldPoint {
+        let x = PrimeFieldElement::arbitrary(g);
+        let z = PrimeFieldElement::arbitrary(g);
         ProjectivePrimeFieldPoint{ X: x, Z: z }
     }
 }
@@ -797,13 +812,13 @@ impl ProjectivePrimeFieldPoint {
             let scalar_byte = scalar[i];
             for j in (0..8).rev() {
                 let bit = (scalar_byte >> (j as u32)) & 0x1;
-                (&mut x0).conditional_swap(&mut x1, (bit ^ prev_bit));
+                ProjectivePrimeFieldPoint::conditional_swap(&mut x0, &mut x1, (bit ^ prev_bit).into());
                 assign!{(x0, x1) = x0.dbl_add(&x1, &xP, aPlus2Over4)};
                 prev_bit = bit;
             }
         }
         // Now prev_bit is the lowest bit of the scalar.
-        (&mut x0).conditional_swap(&mut x1, prev_bit);
+        ProjectivePrimeFieldPoint::conditional_swap(&mut x0, &mut x1, prev_bit.into());
         (x0, x1)
     }
 }

@@ -9,9 +9,14 @@
 use core::fmt::Debug;
 
 use subtle::ConditionallySelectable;
+use subtle::Choice;
 
 #[cfg(test)]
-use rand::{Rand, Rng};
+use rand::Rng;
+#[cfg(test)]
+use rand::distributions::Distribution;
+#[cfg(test)]
+use quickcheck::{Arbitrary,Gen};
 
 pub const FP751_NUM_WORDS: usize = 12;
 
@@ -19,9 +24,21 @@ pub const FP751_NUM_WORDS: usize = 12;
 #[derive(Copy, Clone)]
 pub struct Fp751Element(pub (crate) [u64; FP751_NUM_WORDS]);
 
+#[cfg(test)]
+pub struct Fp751ElementDist;
+
 impl ConditionallySelectable for Fp751Element {
-    fn conditional_swap(&mut self, other: &mut Fp751Element, choice: u8) {
-        unsafe { cswap751_asm(self, other, choice); }
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        let mut bytes = [0u64; FP751_NUM_WORDS];
+        for i in 0..FP751_NUM_WORDS {
+            bytes[i] = u64::conditional_select(&a.0[i], &b.0[i], choice);
+        }
+
+        Fp751Element(bytes)
+    }
+
+    fn conditional_swap(a: &mut Self, b: &mut Self, choice: Choice) {
+        unsafe { cswap751_asm(a, b, choice); }
     }
 }
 
@@ -32,8 +49,8 @@ impl Debug for Fp751Element {
 }
 
 #[cfg(test)]
-impl Rand for Fp751Element {
-    fn rand<R: Rng>(rng: &mut R) -> Fp751Element {
+impl Arbitrary for Fp751Element {
+    fn arbitrary(g: &mut Gen) -> Fp751Element {
         // Generation strategy: low limbs taken from [0,2^64), high limb
         // taken from smaller range.
         //
@@ -45,20 +62,21 @@ impl Rand for Fp751Element {
         //
         // This still allows generating values >= 2p, but hopefully that
         // excess is small.
-        let high_limb = rng.next_u64() % 246065832128056;
+        let mut rng = rand::thread_rng();
+        let high_limb = rng.gen::<u64>() % 246065832128056;
 
         Fp751Element([
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
-            rng.next_u64(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
+            rng.gen::<u64>(),
             high_limb
         ])
     }
@@ -137,7 +155,7 @@ extern {
     // If choice = 1, set x,y = y,x. Otherwise, leave x,y unchanged.
     // This function executes in constant time.
     #[no_mangle]
-    fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: u8);
+    fn cswap751_asm(x: &mut Fp751Element, y: &mut Fp751Element, choice: Choice);
     // If choice = 1, assign y to x. Otherwise, leave x unchanged.
     // This function executes in constant time.
     #[no_mangle]

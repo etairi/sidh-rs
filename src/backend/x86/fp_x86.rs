@@ -10,9 +10,12 @@ use core::mem::size_of;
 use core::fmt::Debug;
 
 use subtle::ConditionallySelectable;
+use subtle::Choice;
 
 #[cfg(test)]
-use rand::{Rand, Rng};
+use rand::Rng;
+#[cfg(test)]
+use rand::distributions::Distribution;
 
 // Macro to assign tuples, as Rust does not allow tuples as lvalue.
 macro_rules! assign{
@@ -329,8 +332,19 @@ pub fn mulby3(scalar: &mut [u8; 48]) {
 #[derive(Copy, Clone)]
 pub struct Fp751Element(pub (crate) [u32; FP751_NUM_WORDS]);
 
+#[cfg(test)]
+pub struct Fp751ElementDist;
+
 impl ConditionallySelectable for Fp751Element {
-    fn conditional_assign(&mut self, f: &Fp751Element, choice: u8) {
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        let mut bytes [u32; FP751_NUM_WORDS];
+        for i in 0..FP751_NUM_WORDS {
+            bytes[i] = u32::conditional_select(&a.0[i], &b.0[i], choice);
+        }
+        Fp751Element(bytes);
+    }
+
+    fn conditional_assign(&mut self, f: &Self, choice: Choice) {
         let mask = (-(choice as i32)) as u32;
         for i in 0..FP751_NUM_WORDS {
             self.0[i] ^= mask & (self.0[i] ^ f.0[i]);
@@ -345,8 +359,8 @@ impl Debug for Fp751Element {
 }
 
 #[cfg(test)]
-impl Rand for Fp751Element {
-    fn rand<R: Rng>(rng: &mut R) -> Fp751Element {
+impl Distribution<Fp751Element> for Fp751ElementDist {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Fp751Element {
         // Generation strategy: low limbs taken from [0,2^64), high limb
         // taken from smaller range.
         //

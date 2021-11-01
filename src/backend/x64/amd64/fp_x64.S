@@ -329,20 +329,26 @@ fpadd751_asm:
   adc    rax, [reg_p2+88] 
   mov    [reg_p3+88], rax
 
-  movq   rax, p751x2_0
+  mov    rax, -1
+  mov    rax, p751x2_0
   sub    r8, rax
-  movq   rax, p751x2_1
+  mov    rax, -1
+  mov    rax, p751x2_1
   sbb    r9, rax
   sbb    r10, rax
   sbb    r11, rax
   sbb    r12, rax
-  movq   rax, p751x2_5
+  mov    rax, -1
+  mov    rax, p751x2_5
   sbb    r13, rax
-  movq   rax, p751x2_6
+  mov    rax, -1
+  mov    rax, p751x2_6
   sbb    r14, rax
-  movq   rax, p751x2_7
+  mov    rax, -1
+  mov    rax, p751x2_7
   sbb    r15, rax
-  movq   rax, p751x2_8
+  mov    rax, -1
+  mov    rax, p751x2_8
   sbb    rcx, rax
   mov    [reg_p3], r8
   mov    [reg_p3+8], r9
@@ -356,35 +362,45 @@ fpadd751_asm:
   mov    r8, [reg_p3+72]
   mov    r9, [reg_p3+80]
   mov    r10, [reg_p3+88]
-  movq   rax, p751x2_9
+  mov    rax, -1
+  mov    rax, p751x2_9
   sbb    r8, rax
-  movq   rax, p751x2_10
+  mov    rax, -1
+  mov    rax, p751x2_10
   sbb    r9, rax
-  movq   rax, p751x2_11
+  mov    rax, -1
+  mov    rax, p751x2_11
   sbb    r10, rax
   mov    [reg_p3+72], r8
   mov    [reg_p3+80], r9
   mov    [reg_p3+88], r10
-  movq   rax, 0
+  mov    rax, 0
   sbb    rax, 0
   
   mov    rsi, p751x2_0
   and    rsi, rax
   mov    r8, p751x2_1
   and    r8, rax
-  movq   r9, p751x2_5
+  mov    r9, -1
+  mov    r9, p751x2_5
   and    r9, rax
-  movq   r10, p751x2_6
+  mov    r10, -1
+  mov    r10, p751x2_6
   and    r10, rax
-  movq   r11, p751x2_7
+  mov    r11, -1
+  mov    r11, p751x2_7
   and    r11, rax
-  movq   r12, p751x2_8
+  mov    r12, -1
+  mov    r12, p751x2_8
   and    r12, rax
-  movq   r13, p751x2_9
+  mov    r13, -1
+  mov    r13, p751x2_9
   and    r13, rax
-  movq   r14, p751x2_10
+  mov    r14, -1
+  mov    r14, p751x2_10
   and    r14, rax
-  movq   r15, p751x2_11
+  mov    r15, -1
+  mov    r15, p751x2_11
   and    r15, rax
   
   mov    rax, [reg_p3]
@@ -482,26 +498,33 @@ fpsub751_asm:
   mov    rax, [reg_p1+88]
   sbb    rax, [reg_p2+88] 
   mov    [reg_p3+88], rax
-  movq   rax, 0
+  mov    rax, 0
   sbb    rax, 0
   
   mov    rsi, p751x2_0
   and    rsi, rax
   mov    r8, p751x2_1
   and    r8, rax
-  movq   r9, p751x2_5
+  mov    r9, -1
+  mov    r9, p751x2_5
   and    r9, rax
-  movq   r10, p751x2_6
+  mov    r10, -1
+  mov    r10, p751x2_6
   and    r10, rax
-  movq   r11, p751x2_7
+  mov    r11, -1
+  mov    r11, p751x2_7
   and    r11, rax
-  movq   r12, p751x2_8
+  mov    r12, -1
+  mov    r12, p751x2_8
   and    r12, rax
-  movq   r13, p751x2_9
+  mov    r13, -1
+  mov    r13, p751x2_9
   and    r13, rax
-  movq   r14, p751x2_10
+  mov    r14, -1
+  mov    r14, p751x2_10
   and    r14, rax
-  movq   r15, p751x2_11
+  mov    r15, -1
+  mov    r15, p751x2_11
   and    r15, rax
   
   mov    rax, [reg_p3]
@@ -1516,7 +1539,8 @@ rdc751_asm:
   push   r15 
 
   mov    r11, [reg_p1]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r11
   xor    r8, r8
   add    rax, [reg_p1+40]
@@ -1524,14 +1548,16 @@ rdc751_asm:
   adc    r8, rdx
   
   xor    r9, r9
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r11
   xor    r10, r10
   add    r8, rax
   adc    r9, rdx
 
   mov    r12, [reg_p1+8]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r12
   add    r8, rax
   adc    r9, rdx
@@ -1542,20 +1568,23 @@ rdc751_asm:
   adc    r10, 0
   
   xor    r8, r8
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r11
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r12
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
   mov    r13, [reg_p1+16]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r13
   add    r9, rax
   adc    r10, rdx
@@ -1566,26 +1595,30 @@ rdc751_asm:
   adc    r8, 0
   
   xor    r9, r9
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r11
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r12
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r13
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
   mov    r14, [reg_p1+24]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r14
   add    r10, rax
   adc    r8, rdx
@@ -1596,32 +1629,37 @@ rdc751_asm:
   adc    r9, 0
   
   xor    r10, r10
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r11
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r12
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r13
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r14
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
   mov    r15, [reg_p1+32]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r15
   add    r8, rax
   adc    r9, rdx
@@ -1632,38 +1670,44 @@ rdc751_asm:
   adc    r10, 0
   
   xor    r8, r8
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r11
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r12
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r13
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r14
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r15
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
   mov    rcx, [reg_p2+40]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    rcx
   add    r9, rax
   adc    r10, rdx
@@ -1674,44 +1718,51 @@ rdc751_asm:
   adc    r8, 0
   
   xor    r9, r9
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r11
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r12
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r13
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r14
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r15
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    rcx
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
   mov    r11, [reg_p2+48]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r11
   add    r10, rax
   adc    r8, rdx
@@ -1722,44 +1773,51 @@ rdc751_asm:
   adc    r9, 0
   
   xor    r10, r10
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r12
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r13
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r14
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r15
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    rcx
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r11
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
   mov    r12, [reg_p2+56]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r12
   add    r8, rax
   adc    r9, rdx
@@ -1770,44 +1828,51 @@ rdc751_asm:
   adc    r10, 0
   
   xor    r8, r8
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r13
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
 
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r14
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
 
-  movq   rax, p751p1_9
+  mov    rax, -1
+  mov    rax, p751p1_9
   mul    r15
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
 
-  movq   rax, p751p1_8
+  mov    rax, -1
+  mov    rax, p751p1_8
   mul    rcx
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
 
-  movq   rax, p751p1_7
+  mov    rax, -1
+  mov    rax, p751p1_7
   mul    r11
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
 
-  movq   rax, p751p1_6
+  mov    rax, -1
+  mov    rax, p751p1_6
   mul    r12
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
   mov    r13, [reg_p2+64]
-  movq   rax, p751p1_5
+  mov    rax, -1
+  mov    rax, p751p1_5
   mul    r13
   add    r9, rax
   adc    r10, rdx
@@ -1818,44 +1883,51 @@ rdc751_asm:
   adc    r8, 0
   
   xor    r9, r9
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r14
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r15
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    rcx
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r11
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r12
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r13
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
   mov    r14, [reg_p2+72]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r14
   add    r10, rax
   adc    r8, rdx
@@ -1866,44 +1938,51 @@ rdc751_asm:
   adc    r9, 0
   
   xor    r10, r10
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r15
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    rcx
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r11
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r12
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r13
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r14
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
   mov    r15, [reg_p2+80]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    r15
   add    r8, rax
   adc    r9, rdx
@@ -1914,44 +1993,51 @@ rdc751_asm:
   adc    r10, 0
   
   xor    r8, r8
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    rcx
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r11
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r12
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r13
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r14
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_6 
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    r15
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
   mov    rcx, [reg_p2+88]
-  movq   rax, p751p1_5 
+  mov    rax, -1
+  mov    rax, p751p1_5 
   mul    rcx
   add    r9, rax
   adc    r10, rdx
@@ -1962,37 +2048,43 @@ rdc751_asm:
   adc    r8, 0
   
   xor    r9, r9
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r11
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r12
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r13
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r14
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    r15
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
-  
-  movq   rax, p751p1_6 
+
+  mov    rax, -1
+  mov    rax, p751p1_6 
   mul    rcx
   add    r10, rax
   adc    r8, rdx
@@ -2003,31 +2095,36 @@ rdc751_asm:
   adc    r9, 0
   
   xor    r10, r10
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r12
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r13
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r14
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    r15
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
   
-  movq   rax, p751p1_7 
+  mov    rax, -1
+  mov    rax, p751p1_7 
   mul    rcx
   add    r8, rax
   adc    r9, rdx
@@ -2038,25 +2135,29 @@ rdc751_asm:
   adc    r10, 0
   
   xor    r8, r8
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r13
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r14
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    r15
   add    r9, rax
   adc    r10, rdx
   adc    r8, 0
   
-  movq   rax, p751p1_8 
+  mov    rax, -1
+  mov    rax, p751p1_8 
   mul    rcx
   add    r9, rax
   adc    r10, rdx
@@ -2067,19 +2168,22 @@ rdc751_asm:
   adc    r8, 0
   
   xor    r9, r9
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r14
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    r15
   add    r10, rax
   adc    r8, rdx
   adc    r9, 0
   
-  movq   rax, p751p1_9 
+  mov    rax, -1
+  mov    rax, p751p1_9 
   mul    rcx
   add    r10, rax
   adc    r8, rdx
@@ -2090,13 +2194,15 @@ rdc751_asm:
   adc    r9, 0
   
   xor    r10, r10
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    r15
   add    r8, rax
   adc    r9, rdx
   adc    r10, 0
 
-  movq   rax, p751p1_10 
+  mov    rax, -1
+  mov    rax, p751p1_10 
   mul    rcx
   add    r8, rax
   adc    r9, rdx
@@ -2106,7 +2212,8 @@ rdc751_asm:
   adc    r9, 0
   adc    r10, 0
   
-  movq   rax, p751p1_11 
+  mov    rax, -1
+  mov    rax, p751p1_11 
   mul    rcx
   add    r9, rax
   adc    r10, rdx
@@ -2142,15 +2249,23 @@ srdc751_asm:
   xor    rax, rax
 
   // Load p into registers
-  movq   r8, p751_0
+  mov    r8, -1
+  mov    r8, p751_0
   // P751_{1,2,3,4} = P751_0, so reuse R8
-  movq   r9, p751_5
-  movq   r10, p751_6
-  movq   r11, p751_7
-  movq   r12, p751_8
-  movq   r13, p751_9
-  movq   r14, p751_10
-  movq   r15, p751_11
+  mov    r9, -1
+  mov    r9, p751_5
+  mov    r10, -1
+  mov    r10, p751_6
+  mov    r11, -1
+  mov    r11, p751_7
+  mov    r12, -1
+  mov    r12, p751_8
+  mov    r13, -1
+  mov    r13, p751_9
+  mov    r14, -1
+  mov    r14, p751_10
+  mov    r15, -1
+  mov    r15, p751_11
 
   // Set x <- x - p
   sub    [reg_p1], r8
@@ -2459,19 +2574,27 @@ mp_sub751x2_asm:
   mov    [reg_p3+184], rdi
 
   // Now the carry flag is 1 if x-y < 0. If so, add p*2^768.
-  movq   rax, 0
+  mov    rax, 0
   sbb    rax, 0
 
   // Load p into registers:
-  movq   r8, p751_0
+  mov    r8, -1
+  mov    r8, p751_0
   // P751_{1,2,3,4} = P751_0, so reuse R8
-  movq   r9, p751_5
-  movq   r10, p751_6
-  movq   r11, p751_7
-  movq   r12, p751_8
-  movq   r13, p751_9
-  movq   r14, p751_10
-  movq   r15, p751_11
+  mov    r9, -1
+  mov    r9, p751_5
+  mov    r10, -1
+  mov    r10, p751_6
+  mov    r11, -1
+  mov    r11, p751_7
+  mov    r12, -1
+  mov    r12, p751_8
+  mov    r13, -1
+  mov    r13, p751_9
+  mov    r14, -1
+  mov    r14, p751_10
+  mov    r15, -1
+  mov    r15, p751_11
 
   and    r8, rax
   and    r9, rax

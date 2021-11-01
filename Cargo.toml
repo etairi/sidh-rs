@@ -1,6 +1,6 @@
 [package]
 name = "sidh"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 readme = "README.md"
 license = "MIT"
@@ -29,17 +29,21 @@ debug = true
 
 [build-dependencies]
 cc = "^1.0.71"
+rand = "^0.8.0"
 subtle = "^2.4.1"
-rand = "^0.8.4"
 
 [dependencies.quickcheck]
-version = "^0.6"
+version = "^1.0"
 
 [dependencies.heapless]
 version = "^0.7.7"
 
 [dependencies.rand]
-version = "^0.8.4"
+version = "^0.8.0"
+default-features = false
+
+[dependencies.rand_core]
+version = "^0.6"
 default-features = false
 
 [dependencies.subtle]
@@ -49,5 +53,5 @@ default-features = false
 [features]
 nightly = ["subtle/nightly"]
 default = ["std"]
-std = ["rand/std", "subtle/std"]
+std = ["rand/std", "subtle/std", "rand_core/std"]
 bench = []

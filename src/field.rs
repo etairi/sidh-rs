@@ -19,12 +19,15 @@ use core::ops::{Mul, MulAssign};
 use core::ops::Neg;
 
 use subtle::ConditionallySelectable;
-use subtle::{Equal, slices_equal};
+use subtle::ConstantTimeEq;
+use subtle::Choice;
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};
 #[cfg(test)]
-use rand::{Rand, Rng};
+use rand::Rng;
+#[cfg(test)]
+use rand::distributions::Distribution;
 
 use backend;
 
@@ -156,9 +159,16 @@ impl <'a> Neg for &'a ExtensionFieldElement {
 }
 
 impl ConditionallySelectable for ExtensionFieldElement {
-    fn conditional_swap(&mut self, other: &mut ExtensionFieldElement, choice: u8) {
-        (&mut self.A).conditional_swap(&mut other.A, choice);
-        (&mut self.B).conditional_swap(&mut other.B, choice);
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        ExtensionFieldElement{
+            A: Fp751Element::conditional_select(&a.A, &b.A, choice),
+            B: Fp751Element::conditional_select(&a.B, &b.B, choice)
+        }
+    }
+
+    fn conditional_swap(a: &mut Self, b: &mut Self, choice: Choice) {
+        Fp751Element::conditional_swap(&mut a.A, &mut b.A, choice);
+        Fp751Element::conditional_swap(&mut a.B, &mut b.B, choice);
     }
 }
 
@@ -169,19 +179,13 @@ impl Debug for ExtensionFieldElement {
 }
 
 #[cfg(test)]
-impl Arbitrary for ExtensionFieldElement {
-    fn arbitrary<G: Gen>(g: &mut G) -> ExtensionFieldElement {
-        let a = g.gen::<Fp751Element>();
-        let b = g.gen::<Fp751Element>();
-        ExtensionFieldElement{ A: a, B: b }
-    }
-}
+pub struct ExtensionFieldElementDist;
 
 #[cfg(test)]
-impl Rand for ExtensionFieldElement {
-    fn rand<R: Rng>(rng: &mut R) -> ExtensionFieldElement {
-        let a = rng.gen::<Fp751Element>();
-        let b = rng.gen::<Fp751Element>();
+impl Arbitrary for ExtensionFieldElement {
+    fn arbitrary(g: &mut Gen) -> ExtensionFieldElement {
+        let a = Fp751Element::arbitrary(g);
+        let b = Fp751Element::arbitrary(g);
         ExtensionFieldElement{ A: a, B: b }
     }
 }
@@ -392,8 +396,14 @@ impl <'a> Neg for &'a PrimeFieldElement {
 }
 
 impl ConditionallySelectable for PrimeFieldElement {
-    fn conditional_swap(&mut self, other: &mut PrimeFieldElement, choice: u8) {
-        (&mut self.A).conditional_swap(&mut other.A, choice);
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        PrimeFieldElement{
+            A: Fp751Element::conditional_select(&a.A, &b.A, choice)
+        }
+    }
+
+    fn conditional_swap(a: &mut Self, b: &mut Self, choice: Choice) {
+        Fp751Element::conditional_swap(&mut a.A, &mut b.A, choice);
     }
 }
 
@@ -405,16 +415,8 @@ impl Debug for PrimeFieldElement {
 
 #[cfg(test)]
 impl Arbitrary for PrimeFieldElement {
-    fn arbitrary<G: Gen>(g: &mut G) -> PrimeFieldElement {
-        let a = g.gen::<Fp751Element>();
-        PrimeFieldElement{ A: a }
-    }
-}
-
-#[cfg(test)]
-impl Rand for PrimeFieldElement {
-    fn rand<R: Rng>(rng: &mut R) -> PrimeFieldElement {
-        let a = rng.gen::<Fp751Element>();
+    fn arbitrary(g: &mut Gen) -> PrimeFieldElement {
+        let a = Fp751Element::arbitrary(g);
         PrimeFieldElement{ A: a }
     }
 }
@@ -595,23 +597,41 @@ impl PartialEq for Fp751Element {
     }
 }
 
-impl Equal for Fp751Element {
+impl ConstantTimeEq for Fp751Element {
     /// Test equality between two `Fp751Element`s.
     ///
     /// # Returns
     ///
     /// `1u8` if the two `Fp751Element`s are equal, and `0u8` otherwise.
-    fn ct_eq(&self, other: &Fp751Element) -> u8 {
-        slices_equal(&self.to_bytes(), &other.to_bytes())
+    fn ct_eq(&self, other: &Fp751Element) -> Choice {
+        let self_bytes = self.to_bytes();
+        let other_bytes = other.to_bytes();
+        let len = self_bytes.len();
+
+        // Short-circuit on the *lengths* of the slices, not their
+        // contents.
+        if len != other_bytes.len() {
+            return Choice::from(0);
+        }
+
+        // This loop shouldn't be shortcircuitable, since the compiler
+        // shouldn't be able to reason about the value of the `u8`
+        // unwrapped from the `ct_eq` result.
+        let mut x = 1u8;
+        for (selfi, otheri) in self_bytes.iter().zip(other_bytes.iter()) {
+            x &= selfi.ct_eq(otheri).unwrap_u8();
+        }
+
+        x.into()
     }
 }
 
-#[cfg(test)]
-impl Arbitrary for Fp751Element {
-    fn arbitrary<G: Gen>(g: &mut G) -> Fp751Element {
-        g.gen::<Fp751Element>()
-    }
-}
+// #[cfg(test)]
+// impl Arbitrary for Fp751Element {
+//     fn arbitrary(g: &mut Gen) -> Fp751Element {
+//         Fp751Element::arbitrary(g);
+//     }
+// }
 
 impl Fp751Element {
     /// Reduce a field element in `[0, 2*p)` to one in `[0,p)`.
@@ -824,37 +844,14 @@ mod test {
         let mut x = one;
         let mut y = two;
 
-        x.conditional_swap(&mut y, 0);
+        Fp751Element::conditional_swap(&mut x, &mut y, 0.into());
         assert_eq!(x, one); 
         assert_eq!(y, two);
 
-        x.conditional_swap(&mut y, 1);
+        Fp751Element::conditional_swap(&mut x, &mut y, 1.into());
         assert_eq!(x, two);
         assert_eq!(y, one);
     }
-
-    // #[test]
-    // fn fp751_element_conditional_assign() {
-    //     let mut one: Fp751Element;
-    //     let mut two: Fp751Element;
-
-    //     #[cfg(target_arch = "x86_64")] 
-    //     {
-    //         one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-    //         two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
-    //     }
-    //     #[cfg(target_arch = "x86")]  
-    //     {
-    //         one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-    //         two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);          
-    //     }
-
-    //     one.conditional_assign(&two, 0);
-    //     assert_ne!(one, two);
-
-    //     one.conditional_assign(&two, 1);
-    //     assert_eq!(one, two);
-    // }
 }
 
 #[cfg(all(test, feature = "bench"))]

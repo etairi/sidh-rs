@@ -40,7 +40,8 @@ use constants::*;
 
 use core::fmt::Debug;
 
-use rand::{Rng, thread_rng};
+use rand_core::{CryptoRng, RngCore};
+use rand::thread_rng;
 use heapless::Vec;
 
 #[cfg(test)]
@@ -155,7 +156,7 @@ impl Debug for SIDHSecretKeyAlice {
 
 #[cfg(test)]
 impl Arbitrary for SIDHSecretKeyAlice {
-    fn arbitrary<G: Gen>(_g: &mut G) -> SIDHSecretKeyAlice {
+    fn arbitrary(_g: &mut Gen) -> SIDHSecretKeyAlice {
         let mut rng = thread_rng();
         let (_, alice_secret_key) = generate_alice_keypair(&mut rng);
         alice_secret_key
@@ -181,8 +182,8 @@ impl SIDHSecretKeyAlice {
         xQmP = firstPhi.eval(&xQmP);
         xR = firstPhi.eval(&xR);
         
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
-        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, MAX_INT_POINTS_ALICE> = Vec::new();
+        let mut indices: Vec<usize, MAX_INT_POINTS_ALICE> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..MAX_ALICE {
@@ -232,8 +233,8 @@ impl SIDHSecretKeyAlice {
         let (mut current_curve, firstPhi) = FirstFourIsogeny::compute_first_four_isogeny(&current_curve);
         xR = firstPhi.eval(&xR);
 
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_ALICE]> = Vec::new();
-        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_ALICE]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, MAX_INT_POINTS_ALICE> = Vec::new();
+        let mut indices: Vec<usize, MAX_INT_POINTS_ALICE> = Vec::new();
         let mut i: usize = 0;
         let mut phi: FourIsogeny;
         for j in 1..MAX_ALICE {
@@ -277,7 +278,7 @@ impl Debug for SIDHSecretKeyBob {
 
 #[cfg(test)]
 impl Arbitrary for SIDHSecretKeyBob {
-    fn arbitrary<G: Gen>(_g: &mut G) -> SIDHSecretKeyBob {
+    fn arbitrary(_g: &mut Gen) -> SIDHSecretKeyBob {
         let mut rng = thread_rng();
         let (_, bob_secret_key) = generate_bob_keypair(&mut rng);
         bob_secret_key
@@ -297,8 +298,8 @@ impl SIDHSecretKeyBob {
         // Starting curve has a = 0, so (A:C) = (0,1).
         let mut current_curve = ProjectiveCurveParameters{ A: ExtensionFieldElement::zero(), C: ExtensionFieldElement::one() };
 
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
-        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, MAX_INT_POINTS_BOB> = Vec::new();
+        let mut indices: Vec<usize, MAX_INT_POINTS_BOB> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..MAX_BOB {
@@ -345,8 +346,8 @@ impl SIDHSecretKeyBob {
         let xQmP = ProjectivePoint::from_affine(&alice_public.affine_xQmP);
         let mut xR = ProjectivePoint::right_to_left_ladder(&xP, &xQ, &xQmP, &current_curve, &self.scalar[..]);
 
-        let mut points: Vec<ProjectivePoint, [ProjectivePoint; MAX_INT_POINTS_BOB]> = Vec::new();
-        let mut indices: Vec<usize, [usize; MAX_INT_POINTS_BOB]> = Vec::new();
+        let mut points: Vec<ProjectivePoint, MAX_INT_POINTS_BOB> = Vec::new();
+        let mut indices: Vec<usize, MAX_INT_POINTS_BOB> = Vec::new();
         let mut i: usize = 0;
         let mut phi: ThreeIsogeny;
         for j in 1..MAX_BOB {
@@ -379,7 +380,7 @@ impl SIDHSecretKeyBob {
 /// Generate a keypair for "Alice". Note that because this library does not
 /// implement SIDH validation, each keypair should be used for at most one
 /// shared secret computation.
-pub fn generate_alice_keypair(rng: &mut Rng) -> (SIDHPublicKeyAlice, SIDHSecretKeyAlice) {
+pub fn generate_alice_keypair<R: RngCore + CryptoRng>(rng: &mut R) -> (SIDHPublicKeyAlice, SIDHSecretKeyAlice) {
     let mut scalar = [0u8; SECRET_KEY_SIZE];
     rng.fill_bytes(&mut scalar[..]);
 
@@ -400,7 +401,7 @@ pub fn generate_alice_keypair(rng: &mut Rng) -> (SIDHPublicKeyAlice, SIDHSecretK
 /// Generate a keypair for "Bob". Note that because this library does not
 /// implement SIDH validation, each keypair should be used for at most one
 /// shared secret computation.
-pub fn generate_bob_keypair(rng: &mut Rng) -> (SIDHPublicKeyBob, SIDHSecretKeyBob) {
+pub fn generate_bob_keypair<R: RngCore + CryptoRng>(rng: &mut R) -> (SIDHPublicKeyBob, SIDHSecretKeyBob) {
     let mut scalar = [0u8; SECRET_KEY_SIZE];
     // Perform rejection sampling to obtain a random value in [0,3^238]:
     let mut ok: u32 = 1;
