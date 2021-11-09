@@ -9,37 +9,18 @@
 //! This module contains finite field arithmetic functionality for SIDH, 
 //! which is not part of the public API.
 
-use core::fmt::Debug;
+use std::fmt::Debug;
 
-use core::cmp::{Eq, PartialEq};
-
-use core::ops::{Add, AddAssign};
-use core::ops::{Sub, SubAssign};
-use core::ops::{Mul, MulAssign};
-use core::ops::Neg;
+use std::cmp::{Eq, PartialEq};
+use std::ops::*;
 
 use subtle::ConditionallySelectable;
 use subtle::ConstantTimeEq;
 use subtle::Choice;
+use fp::*;
 
 #[cfg(test)]
-use quickcheck::{Arbitrary, Gen, QuickCheck};
-
-use backend;
-
-#[cfg(target_arch = "x86")]
-pub use backend::x86::fp_x86::*;
-#[cfg(target_arch = "x86")]
-pub type Fp751Element = backend::x86::fp_x86::Fp751Element;
-#[cfg(target_arch = "x86")]
-pub type Fp751X2 = backend::x86::fp_x86::Fp751X2;
-
-#[cfg(target_arch = "x86_64")]
-pub use backend::x64::fp_x64::*;
-#[cfg(target_arch = "x86_64")]
-pub type Fp751Element = backend::x64::fp_x64::Fp751Element;
-#[cfg(target_arch = "x86_64")]
-pub type Fp751X2 = backend::x64::fp_x64::Fp751X2;
+use quickcheck::{Arbitrary, Gen};
 
 //-----------------------------------------------------------------------------//
 //                           Extension Field                                   //
@@ -169,7 +150,7 @@ impl ConditionallySelectable for ExtensionFieldElement {
 }
 
 impl Debug for ExtensionFieldElement {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "ExtensionFieldElement(A: {:?}\nB: {:?})", &self.A.0[..], &self.B.0[..])
     }
 }
@@ -189,36 +170,16 @@ impl Arbitrary for ExtensionFieldElement {
 impl ExtensionFieldElement {
     /// Construct a zero `ExtensionFieldElement`.
     pub fn zero() -> ExtensionFieldElement {
-        #[cfg(target_arch = "x86_64")] 
-        {
-            ExtensionFieldElement{
-                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
-        }
-        #[cfg(target_arch = "x86")]  
-        {
-            ExtensionFieldElement{
-                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
+        ExtensionFieldElement{
+            A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
+            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     /// Construct a one `ExtensionFieldElement`.
     pub fn one() -> ExtensionFieldElement {
-        #[cfg(target_arch = "x86_64")]  
-        {
-            ExtensionFieldElement{
-                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
-                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
-        }
-        #[cfg(target_arch = "x86")]  
-        {
-            ExtensionFieldElement{
-                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
-                B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
+        ExtensionFieldElement{
+            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
+            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     /// Set output to `1/x`.
@@ -404,7 +365,7 @@ impl ConditionallySelectable for PrimeFieldElement {
 }
 
 impl Debug for PrimeFieldElement {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "PrimeFieldElement(A: {:?})", &self.A.0[..])
     }
 }
@@ -420,32 +381,14 @@ impl Arbitrary for PrimeFieldElement {
 impl PrimeFieldElement {
     /// Construct a zero `PrimeFieldElement`.
     pub fn zero() -> PrimeFieldElement {
-        #[cfg(target_arch = "x86_64")] 
-        {
-            PrimeFieldElement{
-                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
-        }
-        #[cfg(target_arch = "x86")] 
-        {
-            PrimeFieldElement{
-                A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-            }
+        PrimeFieldElement{
+            A: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
         }
     }
     /// Construct a one `PrimeFieldElement`.
     pub fn one() -> PrimeFieldElement {
-        #[cfg(target_arch = "x86_64")] 
-        {
-            PrimeFieldElement{
-                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
-            }
-        }
-        #[cfg(target_arch = "x86")] 
-        {
-            PrimeFieldElement{
-                A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
-            }
+        PrimeFieldElement{
+            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
         }
     }
     /// Set the output to `x^2`.
@@ -679,23 +622,20 @@ impl Fp751X2 {
     }
 }
 
+#[inline(always)]
 pub fn checklt238(scalar: &[u8; 48], result: &mut u32) {
-    #[cfg(target_arch = "x86_64")]
-    backend::x64::fp_x64::checklt238(scalar, result);
-    #[cfg(target_arch = "x86")]
-    backend::x86::fp_x86::checklt238(scalar, result);
+    crate::fp::checklt238(scalar, result);
 }
 
+#[inline(always)]
 pub fn mulby3(scalar: &mut [u8; 48]) {
-    #[cfg(target_arch = "x86_64")]
-    backend::x64::fp_x64::mulby3(scalar);
-    #[cfg(target_arch = "x86")]
-    backend::x86::fp_x86::mulby3(scalar);
+    crate::fp::mulby3(scalar);
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use quickcheck::QuickCheck;
 
     const SCALE_FACTOR: u8 = 3;
     const MAX_TESTS: u64 = 1 << (10 + SCALE_FACTOR);
@@ -823,19 +763,8 @@ mod test {
 
     #[test]
     fn fp751_element_conditional_swap() {
-        let one: Fp751Element;
-        let two: Fp751Element;
-
-        #[cfg(target_arch = "x86_64")]  
-        {
-            one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-            two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
-        }
-        #[cfg(target_arch = "x86")] 
-        {
-            one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-            two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);          
-        }
+        let one = Fp751Element([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        let two = Fp751Element([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
 
         let mut x = one;
         let mut y = two;
@@ -847,115 +776,5 @@ mod test {
         Fp751Element::conditional_swap(&mut x, &mut y, 1.into());
         assert_eq!(x, two);
         assert_eq!(y, one);
-    }
-}
-
-#[cfg(all(test, feature = "bench"))]
-mod bench {
-    use super::*;
-    use test::Bencher;
-    
-    #[cfg(target_arch = "x86_64")]
-    static BENCH_X: Fp751Element = Fp751Element([17026702066521327207, 5108203422050077993, 10225396685796065916, 11153620995215874678, 6531160855165088358, 15302925148404145445, 1248821577836769963, 9789766903037985294, 7493111552032041328, 10838999828319306046, 18103257655515297935, 27403304611634]);
-    #[cfg(target_arch = "x86_64")]
-    static BENCH_Y: Fp751Element = Fp751Element([4227467157325093378, 10699492810770426363, 13500940151395637365, 12966403950118934952, 16517692605450415877, 13647111148905630666, 14223628886152717087, 7167843152346903316, 15855377759596736571, 4300673881383687338, 6635288001920617779, 30486099554235]);
-    #[cfg(target_arch = "x86_64")]
-    static BENCH_Z: Fp751X2 = Fp751X2([1595347748594595712, 10854920567160033970, 16877102267020034574, 12435724995376660096, 3757940912203224231, 8251999420280413600, 3648859773438820227, 17622716832674727914, 11029567000887241528, 11216190007549447055, 17606662790980286987, 4720707159513626555, 12887743598335030915, 14954645239176589309, 14178817688915225254, 1191346797768989683, 12629157932334713723, 6348851952904485603, 16444232588597434895, 7809979927681678066, 14642637672942531613, 3092657597757640067, 10160361564485285723, 240071237]);
-
-    #[cfg(target_arch = "x86")]
-    static BENCH_X: Fp751Element = Fp751Element([1936311911, 3964338001, 2881146153, 1189346290, 4166304380, 2380785691, 1663982198, 2596904755, 3071095398, 1520654385, 386227493, 3562989912, 3335369387, 290763931, 1098154510, 2279357729, 2705254768, 1744625985, 2541617470, 2523651306, 710686863, 4214993132, 1413263154, 6380]);
-    #[cfg(target_arch = "x86")]
-    static BENCH_Y: Fp751Element = Fp751Element([1140726274, 984283899, 3872467451, 2491169797, 1639897205, 3143432585, 2500827560, 3018976177, 16248581, 3845825001, 3502967754, 3177465672, 2820547359, 3311696668, 3311039252, 1668893534, 610562107, 3691617809, 4071412906, 1001328667, 1357106483, 1544898376, 421687227, 7098]);
-    #[cfg(target_arch = "x86")]
-    static BENCH_Z: Fp751X2 = Fp751X2([674445184, 371445843, 1990709938, 2527358142, 3618325006, 3929506583, 4192157312, 2895417854, 1724372135, 874963801, 1955274144, 1921318336, 2802352003, 849566369, 350210026, 4103108503, 172043064, 2568021184, 3443870607, 2611472738, 947370507, 4099370630, 1936979899, 1099125286, 1058207363, 3000661637, 2803593213, 3481899676, 3268487846, 3301263248, 3176258547, 277382041, 824052603, 2940454970, 2825566947, 1478207286, 4282423823, 3828721257, 2087041778, 1818402653, 780006429, 3409254754, 373411203, 720065459, 3501029211, 2365643522, 240071237, 0]);
-
-    #[bench]
-    fn extension_field_element_add(b: &mut Bencher) {
-        let z = ExtensionFieldElement{ A: BENCH_X, B: BENCH_Y };
-        b.iter(|| &z + &z);
-    }
-
-    #[bench]
-    fn extension_field_element_sub(b: &mut Bencher) {
-        let z = ExtensionFieldElement{ A: BENCH_X, B: BENCH_Y };
-        b.iter(|| &z - &z);
-    }
-
-    #[bench]
-    fn extension_field_element_mul(b: &mut Bencher) {
-        let z = ExtensionFieldElement{ A: BENCH_X, B: BENCH_Y };
-        b.iter(|| &z * &z);
-    }
-
-    #[bench]
-    fn extension_field_element_inv(b: &mut Bencher) {
-        let z = ExtensionFieldElement{ A: BENCH_X, B: BENCH_Y };
-        b.iter(|| z.inv()); 
-    }
-
-    #[bench]
-    fn extension_field_element_square(b: &mut Bencher) {
-        let z = ExtensionFieldElement{ A: BENCH_X, B: BENCH_Y };
-        b.iter(|| z.square());
-    }
-
-    #[bench]
-    fn prime_field_element_add(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| &z + &z);
-    }
-
-    #[bench]
-    fn prime_field_element_sub(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| &z - &z);
-    }
-
-    #[bench]
-    fn prime_field_element_mul(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| &z * &z);
-    }
-
-    #[bench]
-    fn prime_field_element_inv(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| z.inv());
-    }
-
-    #[bench]
-    fn prime_field_element_sqrt(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| z.sqrt());
-    }
-
-    #[bench]
-    fn prime_field_element_square(b: &mut Bencher) {
-        let z = PrimeFieldElement{ A: BENCH_X };
-        b.iter(|| z.square());
-    }
-
-    #[bench]
-    fn fp751_mul(b: &mut Bencher) {
-        let mut z = Fp751X2::zero();
-        b.iter(|| mul751(&BENCH_X, &BENCH_Y, &mut z));
-    }
-
-    #[bench]
-    fn fp751_rdc(b: &mut Bencher) {
-        let mut z = Fp751Element::zero();
-        b.iter(|| rdc751(&BENCH_Z, &mut z));
-    }
-
-    #[bench]
-    fn fp751_add(b: &mut Bencher) {
-        let mut z = Fp751Element::zero();
-        b.iter(|| fpadd751(&BENCH_X, &BENCH_Y, &mut z));
-    }
-
-    #[bench]
-    fn fp751_sub(b: &mut Bencher) {
-        let mut z = Fp751Element::zero();
-        b.iter(|| fpsub751(&BENCH_X, &BENCH_Y, &mut z));
     }
 }

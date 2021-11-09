@@ -6,16 +6,20 @@
 // - Erkan Tairi <erkan.tairi@gmail.com>
 //
 
-use core::mem::size_of;
-use core::fmt::Debug;
-
-use subtle::ConditionallySelectable;
-use subtle::Choice;
+use std::mem::size_of;
+use std::fmt::Debug;
+use std::ops::Neg;
 
 #[cfg(test)]
-use quickcheck::{Arbitrary,Gen};
+use quickcheck::{Arbitrary, Gen};
+
+#[cfg(test)]
+use rand::Rng;
+
+use subtle::{ConditionallySelectable, Choice};
 
 // Macro to assign tuples, as Rust does not allow tuples as lvalue.
+#[macro_export]
 macro_rules! assign{
     {($v1:ident, $v2:expr) = $e:expr} =>
     {
@@ -290,7 +294,7 @@ pub fn checklt238(scalar: &[u8; 48], result: &mut u32) {
         k = (i % 4) as u32;
         scalar_u32[j as usize] |= (scalar[i] as u32) << (8 * k);
     }
-    
+
     let mut borrow: u32 = 0;
 
     for i in 0..12 {
@@ -335,15 +339,15 @@ pub struct Fp751ElementDist;
 
 impl ConditionallySelectable for Fp751Element {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
-        let mut bytes [u32; FP751_NUM_WORDS];
+        let mut bytes = [0_u32; FP751_NUM_WORDS];
         for i in 0..FP751_NUM_WORDS {
             bytes[i] = u32::conditional_select(&a.0[i], &b.0[i], choice);
         }
-        Fp751Element(bytes);
+        Fp751Element(bytes)
     }
 
     fn conditional_assign(&mut self, f: &Self, choice: Choice) {
-        let mask = (-(choice as i32)) as u32;
+        let mask = ((choice.unwrap_u8() as i32).neg()) as u32;
         for i in 0..FP751_NUM_WORDS {
             self.0[i] ^= mask & (self.0[i] ^ f.0[i]);
         }
@@ -351,7 +355,7 @@ impl ConditionallySelectable for Fp751Element {
 }
 
 impl Debug for Fp751Element {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Fp751Element({:?})", &self.0[..])
     }
 }
@@ -400,7 +404,7 @@ impl Fp751Element {
         //aR = self * &one;
         a = aR.reduce();       // = a mod p in [0, 2p)
         a = a.strong_reduce(); // = a mod p in [0, p)
-        
+
         let mut j;
         let mut k: u32;
         // 4*24 = 96, but we drop the last two bytes since p is 751 < 752=94*8 bits.
@@ -418,7 +422,7 @@ impl Fp751Element {
 
         let mut a = Fp751Element::zero();
         let mut j;
-        let mut k: u32;  
+        let mut k: u32;
         for i in 0..94 {
             j = i / 4;
             k = (i % 4) as u32;
@@ -436,7 +440,7 @@ impl Fp751Element {
 pub struct Fp751X2(pub (crate) [u32; 2*FP751_NUM_WORDS]);
 
 impl Debug for Fp751X2 {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Fp751X2({:?})", &self.0[..])
     }
 }
@@ -445,12 +449,12 @@ impl Fp751X2 {
     // Construct a zero `Fp751X2`.
     pub fn zero() -> Fp751X2 {
         Fp751X2([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-                 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
+            0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
     }
 }
 
 /// `(2^768) mod p`
-pub const MONTGOMERY_R: Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2198863872, 928803942, 1428664804, 1062151376, 1769445311, 2891730478, 3365779378, 3523701078, 1285862457, 1964165097, 284660332, 616359394, 11611]);
+//pub const MONTGOMERY_R: Fp751Element = Fp751Element([149933, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2198863872, 928803942, 1428664804, 1062151376, 1769445311, 2891730478, 3365779378, 3523701078, 1285862457, 1964165097, 284660332, 616359394, 11611]);
 
 /// `(2^768)^2 mod p`
 pub const MONTGOMERY_RSQ: Fp751Element = Fp751Element([2645377112, 590366276, 2794865962, 3674276193, 1927544206, 1580635156, 2191714054, 4094426656, 2421131089, 1228065960, 518519937, 527654687, 3238301208, 2723106176, 3451258821, 3043768380, 1935645840, 1142805627, 1785382954, 1450437932, 288500043, 113837350, 2198806325, 16813]);

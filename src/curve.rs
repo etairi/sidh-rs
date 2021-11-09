@@ -9,15 +9,16 @@
 //! This module contains internal curve representation and operations 
 //! for SIDH, which is not part of the public API.
 
-use field::{Fp751Element, PrimeFieldElement, ExtensionFieldElement};
+use fp::Fp751Element;
+use field::{PrimeFieldElement, ExtensionFieldElement};
 use constants::*;
 
-use core::fmt::Debug;
-use subtle::ConditionallySelectable;
-use subtle::Choice;
+use std::fmt::Debug;
+use std::ops::Neg;
+use subtle::{ConditionallySelectable, Choice};
 
 #[cfg(test)]
-use quickcheck::{Arbitrary, Gen, QuickCheck};
+use quickcheck::{Gen, Arbitrary};
 
 // Macro to assign tuples, as Rust does not allow tuples as lvalue.
 macro_rules! assign{
@@ -32,13 +33,6 @@ macro_rules! assign{
 }
 
 // = 256
-#[cfg(target_arch = "x86_64")]
-const CONST_256: ExtensionFieldElement = ExtensionFieldElement {
-    A: Fp751Element([0x249ad67, 0x0, 0x0, 0x0, 0x0, 0x730000000000000, 0x738154969973da8b, 0x856657c146718c7f, 0x461860e4e363a697, 0xf9fd6510bba838cd, 0x4e1a3c3f06993c0c, 0x55abef5b75c7]),
-    B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
-};
-
-#[cfg(target_arch = "x86")]
 const CONST_256: ExtensionFieldElement = ExtensionFieldElement {
     A: Fp751Element([0x249ad67, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7300000, 0x9973da8b, 0x73815496, 0x46718c7f, 0x856657c1, 0xe363a697, 0x461860e4,0xbba838cd, 0xf9fd6510,0x06993c0c, 0x4e1a3c3f, 0xef5b75c7, 0x55ab]),
     B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
@@ -64,7 +58,7 @@ struct CachedTripleCurveParameters {
 }
 
 impl Debug for ProjectiveCurveParameters {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "ProjectiveCurveParameters(A: {:?}\nC: {:?})", &self.A, &self.C)
     }
 }
@@ -170,7 +164,7 @@ impl ConditionallySelectable for ProjectivePoint {
 }
 
 impl Debug for ProjectivePoint {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "ProjectivePoint(X: {:?}\nZ: {:?})", &self.X, &self.Z)
     }
 }
@@ -597,7 +591,7 @@ impl ProjectivePoint {
     // here, since the bulk of the cost is already in the ladder.
     pub fn secret_point(affine_xP: &PrimeFieldElement, affine_yP: &PrimeFieldElement, scalar: &[u8]) -> ProjectivePoint {
         let mut xQ = ProjectivePrimeFieldPoint::from_affine(affine_xP);
-        xQ.X = -(&xQ.X);
+        xQ.X = (&xQ.X).neg();
 
         // Compute x([m]Q) = (X_{mQ} : Z_{mQ}), x([m+1]Q) = (X_{m1Q} : Z_{m1Q}).
         let (xmQ, xm1Q) = xQ.scalar_mul_prime_field(&E0_A_PLUS2_OVER4, scalar);
@@ -619,7 +613,7 @@ impl ProjectivePoint {
 
         // Z_{mQ} = -2*(Z_{mQ}^2 * Z_{m1Q} * y_P)
         t0 = &(&xmQ.Z * &xm1Q.Z) * affine_yP;   // = Z_{mQ} * Z_{m1Q} * y_P
-        t0 = -(&t0);                            // = -1*(Z_{mQ} * Z_{m1Q} * y_P)
+        t0 = (&t0).neg();                            // = -1*(Z_{mQ} * Z_{m1Q} * y_P)
         t0 = &t0 + &t0;                         // = -2*(Z_{mQ} * Z_{m1Q} * y_P)
         let ZmQ = &xmQ.Z * &t0;                 // = -2*(Z_{mQ}^2 * Z_{m1Q} * y_P)
 
@@ -631,7 +625,7 @@ impl ProjectivePoint {
         let mut XRb = &ZmQ.square() * &YmQ; // = Y_{mQ} * Z_{mQ}^2
         XRb = &XRb * affine_yP;             // = Y_{mQ} * y_P * Z_{mQ}^2
         XRb = &XRb + &XRb;                  // = 2 * Y_{mQ} * y_P * Z_{mQ}^2
-        XRb = -(&XRb);                      // = -2 * Y_{mQ} * y_P * Z_{mQ}^2
+        XRb = (&XRb).neg();                      // = -2 * Y_{mQ} * y_P * Z_{mQ}^2
 
         t0 = (affine_yP * &ZmQ).square();   // = (y_P * Z_{mQ})^2
         t1 = YmQ.square();                  // = Y_{mQ}^2
@@ -680,7 +674,7 @@ impl ConditionallySelectable for ProjectivePrimeFieldPoint {
 }
 
 impl Debug for ProjectivePrimeFieldPoint {
-    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "ProjectivePrimeFieldPoint(X: {:?}\nZ: {:?})", &self.X, &self.Z)
     }
 }
@@ -840,93 +834,33 @@ impl ProjectivePrimeFieldPoint {
 #[cfg(test)]
 mod test {
     use super::*;
+    use quickcheck::QuickCheck;
 
     // A = 4385300808024233870220415655826946795549183378139271271040522089756750951667981765872679172832050962894122367066234419550072004266298327417513857609747116903999863022476533671840646615759860564818837299058134292387429068536219*i + 1408083354499944307008104531475821995920666351413327060806684084512082259107262519686546161682384352696826343970108773343853651664489352092568012759783386151707999371397181344707721407830640876552312524779901115054295865393760
-    #[cfg(target_arch = "x86_64")]
-    const CURVE_A: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x8319eb18ca2c435e, 0x3a93beae72cd0267, 0x5e465e1f72fd5a84, 0x8617fa4150aa7272, 0x887da24799d62a13, 0xb079b31b3c7667fe, 0xc4661b150fa14f2e, 0xd4d2b2967bc6efd6, 0x854215a8b7239003, 0x61c5302ccba656c2, 0xf93194a27d6f97a2, 0x1ed9532bca75]),
-                                                                  B: Fp751Element([0xb6f541040e8c7db6, 0x99403e7365342e15, 0x457e9cee7c29cced, 0x8ece72dc073b1d67, 0x6e73cef17ad28d28, 0x7aed836ca317472, 0x89e1de9454263b54, 0x745329277aa0071b, 0xf623dfc73bc86b9b, 0xb8e3c1d8a9245882, 0x6ad0b3d317770bec, 0x5b406e8d502b]) };
-    #[cfg(target_arch = "x86")]
     const CURVE_A: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xca2c435e, 0x8319eb18, 0x72cd0267, 0x3a93beae, 0x72fd5a84, 0x5e465e1f, 0x50aa7272, 0x8617fa41, 0x99d62a13, 0x887da247, 0x3c7667fe, 0xb079b31b, 0x0fa14f2e, 0xc4661b15, 0x7bc6efd6, 0xd4d2b296, 0xb7239003, 0x854215a8, 0xcba656c2, 0x61c5302c, 0x7d6f97a2, 0xf93194a2, 0x532bca75, 0x1ed9]),
                                                                   B: Fp751Element([0x0e8c7db6, 0xb6f54104, 0x65342e15, 0x99403e73, 0x7c29cced, 0x457e9cee, 0x073b1d67, 0x8ece72dc, 0x7ad28d28, 0x6e73cef1, 0xca317472, 0x7aed836, 0x54263b54, 0x89e1de94, 0x7aa0071b, 0x74532927, 0x3bc86b9b, 0xf623dfc7, 0xa9245882, 0xb8e3c1d8, 0x17770bec, 0x6ad0b3d3, 0x6e8d502b, 0x5b40]) };
     // C = 933177602672972392833143808100058748100491911694554386487433154761658932801917030685312352302083870852688835968069519091048283111836766101703759957146191882367397129269726925521881467635358356591977198680477382414690421049768*i + 9088894745865170214288643088620446862479558967886622582768682946704447519087179261631044546285104919696820250567182021319063155067584445633834024992188567423889559216759336548208016316396859149888322907914724065641454773776307
-    #[cfg(target_arch = "x86_64")]
-    const CURVE_C: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x4fb2358bbf723107, 0x3a791521ac79e240, 0x283e24ef7c4c922f, 0xc89baa1205e33cc, 0x3031be81cff6fee1, 0xaf7a494a2f6a95c4, 0x248d251eaac83a1d, 0xc122fca1e2550c88, 0xbc0451b11b6cfd3d, 0x9c0a114ab046222c, 0x43b957b32f21f6ea, 0x5b9c87fa61de]),
-                                                                  B: Fp751Element([0xacf142afaac15ec6, 0xfd1322a504a071d5, 0x56bb205e10f6c5c6, 0xe204d2849a97b9bd, 0x40b0122202fe7f2e, 0xecf72c6fafacf2cb, 0x45dfc681f869f60a, 0x11814c9aff4af66c, 0x9278b0c4eea54fe7, 0x9a633d5baf7f2e2e, 0x69a329e6f1a05112, 0x1d874ace23e4]) };
-    #[cfg(target_arch = "x86")]
     const CURVE_C: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xbf723107, 0x4fb2358b, 0xac79e240, 0x3a791521, 0x7c4c922f, 0x283e24ef, 0x205e33cc, 0xc89baa1, 0xcff6fee1, 0x3031be81, 0x2f6a95c4, 0xaf7a494a, 0xaac83a1d, 0x248d251e, 0xe2550c88, 0xc122fca1, 0x1b6cfd3d, 0xbc0451b1, 0xb046222c, 0x9c0a114a, 0x2f21f6ea, 0x43b957b3, 0x87fa61de, 0x5b9c]),
                                                                   B: Fp751Element([0xaac15ec6, 0xacf142af, 0x04a071d5, 0xfd1322a5, 0x10f6c5c6, 0x56bb205e, 0x9a97b9bd, 0xe204d284, 0x02fe7f2e, 0x40b01222, 0xafacf2cb, 0xecf72c6f, 0xf869f60a, 0x45dfc681, 0xff4af66c, 0x11814c9a, 0xeea54fe7, 0x9278b0c4, 0xaf7f2e2e, 0x9a633d5b, 0xf1a05112, 0x69a329e6, 0x4ace23e4, 0x1d87]) };
     
     const CURVE: ProjectiveCurveParameters = ProjectiveCurveParameters{ A: CURVE_A, C: CURVE_C };
-
-    // x(P) = 8172151271761071554796221948801462094972242987811852753144865524899433583596839357223411088919388342364651632180452081960511516040935428737829624206426287774255114241789158000915683252363913079335550843837650671094705509470594*i + 9326574858039944121604015439381720195556183422719505497448541073272720545047742235526963773359004021838961919129020087515274115525812121436661025030481584576474033630899768377131534320053412545346268645085054880212827284581557
-    #[cfg(target_arch = "x86_64")]
-    const AFFINE_XP: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xe8d05f30aac47247, 0x576ec00c55441de7, 0xbf1a8ec5fe558518, 0xd77cb17f77515881, 0x8e9852837ee73ec4, 0x8159634ad4f44a6b, 0x2e4eb5533a798c5, 0x9be8c4354d5bc849, 0xf47dc61806496b84, 0x25d0e130295120e0, 0xdbef54095f8139e3, 0x5a724f20862c]),
-                                                                    B: Fp751Element([0x3ca30d7623602e30, 0xfb281eddf45f07b7, 0xd2bf62d5901a45bc, 0xc67c9baf86306dd2, 0x4e2bd93093f538ca, 0xcfd92075c25b9cbe, 0xceafe9a3095bcbab, 0x7d928ad380c85414, 0x37c5f38b2afdc095, 0x75325899a7b779f4, 0xf130568249f20fdd, 0x178f264767d1]) };
-    #[cfg(target_arch = "x86")]
     const AFFINE_XP: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xaac47247, 0xe8d05f30, 0x55441de7, 0x576ec00c, 0xfe558518, 0xbf1a8ec5, 0x77515881, 0xd77cb17f, 0x7ee73ec4, 0x8e985283, 0xd4f44a6b, 0x8159634a, 0x33a798c5, 0x2e4eb55, 0x4d5bc849, 0x9be8c435, 0x06496b84, 0xf47dc618, 0x295120e0, 0x25d0e130, 0x5f8139e3, 0xdbef5409, 0x4f20862c, 0x5a72]),
                                                                     B: Fp751Element([0x23602e30, 0x3ca30d76, 0xf45f07b7, 0xfb281edd, 0x901a45bc, 0xd2bf62d5, 0x86306dd2, 0xc67c9baf, 0x93f538ca, 0x4e2bd930, 0xc25b9cbe, 0xcfd92075, 0x095bcbab, 0xceafe9a3, 0x80c85414, 0x7d928ad3, 0x2afdc095, 0x37c5f38b, 0xa7b779f4, 0x75325899, 0x49f20fdd, 0xf1305682, 0x264767d1, 0x178f]) };
-    
-    // x([2]P) = 1476586462090705633631615225226507185986710728845281579274759750260315746890216330325246185232948298241128541272709769576682305216876843626191069809810990267291824247158062860010264352034514805065784938198193493333201179504845*i + 3623708673253635214546781153561465284135688791018117615357700171724097420944592557655719832228709144190233454198555848137097153934561706150196041331832421059972652530564323645509890008896574678228045006354394485640545367112224
-    #[cfg(target_arch = "x86_64")]
-    const AFFINE_XP2: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x2a77afa8576ce979, 0xab1360e69b0aeba0, 0xd79e3e3cbffad660, 0x5fd0175aa10f106b, 0x1800ebafce9fbdbc, 0x228fc9142bdd6166, 0x867cf907314e34c3, 0xa58d18c94c13c31c, 0x699a5bc78b11499f, 0xa29fc29a01f7ccf1, 0x6c69c0c5347eebce, 0x38ecee0cc57]),
-                                                                     B: Fp751Element([0x43607fd5f4837da0, 0x560bad4ce27f8f4a, 0x2164927f8495b4dd, 0x621103fdb831a997, 0xad740c4eea7db2db, 0x2cde0442205096cd, 0x2af51a70ede8324e, 0x41a4e680b9f3466, 0x5481f74660b8f476, 0xfcb2f3e656ff4d18, 0x42e3ce0837171acc, 0x44238c30530c]) };
-    #[cfg(target_arch = "x86")]
     const AFFINE_XP2: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x576ce979, 0x2a77afa8, 0x9b0aeba0, 0xab1360e6, 0xbffad660, 0xd79e3e3c, 0xa10f106b, 0x5fd0175a, 0xce9fbdbc, 0x1800ebaf, 0x2bdd6166, 0x228fc914, 0x314e34c3, 0x867cf907, 0x4c13c31c, 0xa58d18c9, 0x8b11499f, 0x699a5bc7, 0x01f7ccf1, 0xa29fc29a, 0x347eebce, 0x6c69c0c5, 0xcee0cc57, 0x38e]),
                                                                      B: Fp751Element([0xf4837da0, 0x43607fd5, 0xe27f8f4a, 0x560bad4c, 0x8495b4dd, 0x2164927f, 0xb831a997, 0x621103fd, 0xea7db2db, 0xad740c4e, 0x205096cd, 0x2cde0442, 0xede8324e, 0x2af51a70, 0x0b9f3466, 0x41a4e68, 0x60b8f476, 0x5481f746, 0x56ff4d18, 0xfcb2f3e6, 0x37171acc, 0x42e3ce08, 0x8c30530c, 0x4423]) };
-
-    // x([3]P) = 9351941061182433396254169746041546943662317734130813745868897924918150043217746763025923323891372857734564353401396667570940585840576256269386471444236630417779544535291208627646172485976486155620044292287052393847140181703665*i + 9010417309438761934687053906541862978676948345305618417255296028956221117900864204687119686555681136336037659036201780543527957809743092793196559099050594959988453765829339642265399496041485088089691808244290286521100323250273
-    #[cfg(target_arch = "x86_64")]
-    const AFFINE_XP3: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x2096e3f23feca947, 0xf36f635aa4ad8634, 0xdae3b1c6983c5e9a, 0xe08df6c262cb74b4, 0xd2ca4edc37452d3d, 0xfb5f3fe42f500c79, 0x73740aa3abc2b21f, 0xd535fd869f914cca, 0x4a558466823fb67f, 0x3e50a7a0e3bfc715, 0xf43c6da9183a132f, 0x61aca1e1b8b9]),
-                                                                     B: Fp751Element([0x1e54ec26ea5077bd, 0x61380572d8769f9a, 0xc615170684f59818, 0x6309c3b93e84ef6e, 0x33c74b1318c3fcd0, 0xfe8d7956835afb14, 0x2d5a7b55423c1ecc, 0x869db67edfafea68, 0x1292632394f0a628, 0x10bba48225bfd141, 0x6466c28b408daba, 0x63cacfdb7c43]) };
-    #[cfg(target_arch = "x86")]
     const AFFINE_XP3: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x3feca947, 0x2096e3f2, 0xa4ad8634, 0xf36f635a, 0x983c5e9a, 0xdae3b1c6, 0x62cb74b4, 0xe08df6c2, 0x37452d3d, 0xd2ca4edc, 0x2f500c79, 0xfb5f3fe4, 0xabc2b21f, 0x73740aa3, 0x9f914cca, 0xd535fd86, 0x823fb67f, 0x4a558466, 0xe3bfc715, 0x3e50a7a0, 0x183a132f, 0xf43c6da9, 0xa1e1b8b9, 0x61ac]),
                                                                      B: Fp751Element([0xea5077bd, 0x1e54ec26, 0xd8769f9a, 0x61380572, 0x84f59818, 0xc6151706, 0x3e84ef6e, 0x6309c3b9, 0x18c3fcd0, 0x33c74b13, 0x835afb14, 0xfe8d7956, 0x423c1ecc, 0x2d5a7b55, 0xdfafea68, 0x869db67e, 0x94f0a628, 0x12926323, 0x25bfd141, 0x10bba482, 0xb408daba, 0x6466c28, 0xcfdb7c43, 0x63ca]) };
-
-    // x([a]P) = 7893578558852400052689739833699289348717964559651707250677393044951777272628231794999463214496545377542328262828965953246725804301238040891993859185944339366910592967840967752138115122568615081881937109746463885908097382992642*i + 8293895847098220389503562888233557012043261770526854885191188476280014204211818299871679993460086974249554528517413590157845430186202704783785316202196966198176323445986064452630594623103149383929503089342736311904030571524837
-    #[cfg(target_arch = "x86_64")]
-    const AFFINE_XAP: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x2112f3c7d7f938bb, 0x704a677f0a4df08f, 0x825370e31fb4ef00, 0xddbf79b7469f902, 0x27640c899ea739fd, 0xfb7b8b19f244108e, 0x546a6679dd3baebc, 0xe9f0ecf398d5265f, 0x223d2b350e75e461, 0x84b322a0b6aff016, 0xfabe426f539f8b39, 0x4507a0604f50]),
-                                                                     B: Fp751Element([0xac77737e5618a5fe, 0xf91c0e08c436ca52, 0xd124037bc323533c, 0xc9a772bf52c58b63, 0x3b30c8f38ef6af4d, 0xb9eed160e134f36e, 0x24e3836393b25017, 0xc828be1b11baf1d9, 0x7b7dab585df50e93, 0x1ca3852c618bd8e0, 0x4efa73bcb359fa00, 0x50b6a923c2d4]) };
-    #[cfg(target_arch = "x86")]
     const AFFINE_XAP: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xd7f938bb, 0x2112f3c7, 0xa4df08f, 0x704a677f, 0x1fb4ef00, 0x825370e3, 0x7469f902, 0xddbf79b, 0x9ea739fd, 0x27640c89, 0xf244108e, 0xfb7b8b19, 0xdd3baebc, 0x546a6679, 0x98d5265f, 0xe9f0ecf3, 0xe75e461, 0x223d2b35, 0xb6aff016, 0x84b322a0, 0x539f8b39, 0xfabe426f, 0xa0604f50, 0x4507]),
                                                                      B: Fp751Element([0x5618a5fe, 0xac77737e, 0xc436ca52, 0xf91c0e08, 0xc323533c, 0xd124037b, 0x52c58b63, 0xc9a772bf, 0x8ef6af4d, 0x3b30c8f3, 0xe134f36e, 0xb9eed160, 0x93b25017, 0x24e38363, 0x11baf1d9, 0xc828be1b, 0x5df50e93, 0x7b7dab58, 0x618bd8e0, 0x1ca3852c, 0xb359fa00, 0x4efa73bc, 0xa923c2d4, 0x50b6]) };
 
     // m = 96550223052359874398280314003345143371473380422728857598463622014420884224892
     const M_SCALAR_BYTES: [u8; 32] = [124, 123, 149, 250, 180, 117, 108, 72, 140, 23, 85, 180, 73, 245, 30, 163, 11, 49, 240, 164, 166, 129, 173, 148, 81, 17, 231, 245, 91, 125, 117, 213];
 
-    // Since function calls in constants and statics are limited to constant functions in Rust, we define it here and assign to other consts when needed.
-    #[cfg(target_arch = "x86_64")]
-    const EXTENSION_FIELD_ELEMENT_ONE: ExtensionFieldElement = ExtensionFieldElement {
-            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
-            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-    };
-    #[cfg(target_arch = "x86")]
     const EXTENSION_FIELD_ELEMENT_ONE: ExtensionFieldElement = ExtensionFieldElement{
             A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
             B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
     };
 
-    #[cfg(target_arch = "x86_64")]
-    const THREE_POINT_LADDER_INPUTS: [ProjectivePoint; 3] = [
-        // x(P)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0xe8d05f30aac47247, 0x576ec00c55441de7, 0xbf1a8ec5fe558518, 0xd77cb17f77515881, 0x8e9852837ee73ec4, 0x8159634ad4f44a6b, 0x2e4eb5533a798c5, 0x9be8c4354d5bc849, 0xf47dc61806496b84, 0x25d0e130295120e0, 0xdbef54095f8139e3, 0x5a724f20862c]), 
-                                      B: Fp751Element([0x3ca30d7623602e30, 0xfb281eddf45f07b7, 0xd2bf62d5901a45bc, 0xc67c9baf86306dd2, 0x4e2bd93093f538ca, 0xcfd92075c25b9cbe, 0xceafe9a3095bcbab, 0x7d928ad380c85414, 0x37c5f38b2afdc095, 0x75325899a7b779f4, 0xf130568249f20fdd, 0x178f264767d1]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x2b71a2a93ad1e10e, 0xf0b9842a92cfb333, 0xae17373615a27f5c, 0x3039239f428330c4, 0xa0c4b735ed7dcf98, 0x6e359771ddf6af6a, 0xe986e4cac4584651, 0x8233a2b622d5518, 0xbfd67bf5f06b818b, 0xdffe38d0f5b966a6, 0xa86b36a3272ee00a, 0x193e2ea4f68f]), 
-                                      B: Fp751Element([0x5a0f396459d9d998, 0x479f42250b1b7dda, 0x4016b57e2a15bf75, 0xc59f915203fa3749, 0xd5f90257399cf8da, 0x1fb2dadfd86dcef4, 0x600f20e6429021dc, 0x17e347d380c57581, 0xc1b0d5fa8fe3e440, 0xbcf035330ac20e8, 0x50c2eb5f6a4f03e6, 0x86b7c4571]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(P-Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x4aafa9f378f7b5ff, 0x1172a683aa8eee0, 0xea518d8cbec2c1de, 0xe191bcbb63674557, 0x97bc19637b259011, 0xdbeae5c9f4a2e454, 0x78f64d1b72a42f95, 0xe71cb4ea7e181e54, 0xe4169d4c48543994, 0x6198c2286a98730f, 0xd21d675bbab1afa5, 0x2e7269fce391]), 
-                                      B: Fp751Element([0x23355783ce1d0450, 0x683164cf4ce3d93f, 0xae6d1c4d25970fd8, 0x7807007fb80b48cf, 0xa005a62ec2bbb8a2, 0x6b5649bd016004cb, 0xbb1a13fa1330176b, 0xbf38e51087660461, 0xe577fddc5dd7b930, 0x5f38116f56947cd3, 0x3124f30b98c36fde, 0x4ca9b6e6db37]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-    ];
-    #[cfg(target_arch = "x86")]
     const THREE_POINT_LADDER_INPUTS: [ProjectivePoint; 3] = [
         // x(P)
         ProjectivePoint{
@@ -959,12 +893,6 @@ mod test {
         let j = CURVE.j_invariant();
         // Computed using Sage:
         // j = 3674553797500778604587777859668542828244523188705960771798425843588160903687122861541242595678107095655647237100722594066610650373491179241544334443939077738732728884873568393760629500307797547379838602108296735640313894560419*i + 3127495302417548295242630557836520229396092255080675419212556702820583041296798857582303163183558315662015469648040494128968509467224910895884358424271180055990446576645240058960358037224785786494172548090318531038910933793845
-        #[cfg(target_arch = "x86_64")]
-        let known_j = ExtensionFieldElement{
-            A: Fp751Element([0xc7a8921c1fb23993, 0xa20aea321327620b, 0xf1caa17ed9676fa8, 0x61b780e6b1a04037, 0x47784af4c24acc7a, 0x83926e2e300b9adf, 0xcd891d56fae5b66, 0x49b66985beb733bc, 0xd4bcd2a473d518f, 0xe242239991abe224, 0xa8af5b20f98672f8, 0x139e4d4e4d98]),
-            B: Fp751Element([0xb5b52a21f81f359, 0x715e3a865db6d920, 0x9bac2f9d8911978b, 0xef14acd8ac4c1e3d, 0xe81aacd90cfb09c8, 0xaf898288de4a09d9, 0xb85a7fb88c5c4601, 0x2c37c3f1dd303387, 0x7ad3277fe332367c, 0xd4cbee7f25a8e6f8, 0x36eacbe979eaeffa, 0x59eb5a13ac33]),
-        };
-        #[cfg(target_arch = "x86")]
         let known_j = ExtensionFieldElement{
             A: Fp751Element([0x1fb23993, 0xc7a8921c, 0x1327620b, 0xa20aea32, 0xd9676fa8, 0xf1caa17e, 0xb1a04037, 0x61b780e6, 0xc24acc7a, 0x47784af4, 0x300b9adf, 0x83926e2e, 0x6fae5b66, 0xcd891d5, 0xbeb733bc, 0x49b66985, 0x473d518f, 0xd4bcd2a, 0x91abe224, 0xe2422399, 0xf98672f8, 0xa8af5b20, 0x4d4e4d98, 0x139e]),
             B: Fp751Element([0x1f81f359, 0xb5b52a2, 0x5db6d920, 0x715e3a86, 0x8911978b, 0x9bac2f9d, 0xac4c1e3d, 0xef14acd8, 0xcfb09c8, 0xe81aacd9, 0xde4a09d9, 0xaf898288, 0x8c5c4601, 0xb85a7fb8, 0xdd303387, 0x2c37c3f1, 0xe332367c, 0x7ad3277f, 0x25a8e6f8, 0xd4cbee7f, 0x79eaeffa, 0x36eacbe9, 0x5a13ac33, 0x59eb]),
@@ -1026,29 +954,13 @@ mod test {
     #[test]
     fn recover_curve_params() {
         // Created using old public key generation code that output the a value:
-        #[cfg(target_arch = "x86_64")]
-        let a = ExtensionFieldElement{ A: Fp751Element([0x9331d9c5aaf59ea4, 0xb32b702be4046931, 0xcebb333912ed4d34, 0x5628ce37cd29c7a2, 0xbeac5ed48b7f58e, 0x1fb9d3e281d65b07, 0x9c0cfacc1e195662, 0xae4bce0f6b70f7d9, 0x59e4e63d43fe71a0, 0xef7ce57560cc8615, 0xe44a8fb7901e74e8, 0x69d13c8366d1]), 
-                                       B: Fp751Element([0xf6da1070279ab966, 0xa78fb0ce7268c762, 0x19b40f044a57abfa, 0x7ac8ee6160c0c233, 0x93d4993442947072, 0x757d2b3fa4e44860, 0x73a920f8c4d5257, 0x2031f1b054734037, 0xdefaa1d2406555cd, 0x26f9c70e1496be3d, 0x5b3f335a0a4d0976, 0x13628b2e9c59]) };
-        #[cfg(target_arch = "x86")]
-        let a = ExtensionFieldElement{ A: Fp751Element([0xaaf59ea4, 0x9331d9c5, 0xe4046931, 0xb32b702b, 0x12ed4d34, 0xcebb3339, 0xcd29c7a2, 0x5628ce37, 0x48b7f58e, 0xbeac5ed, 0x81d65b07, 0x1fb9d3e2, 0x1e195662, 0x9c0cfacc, 0x6b70f7d9, 0xae4bce0f, 0x43fe71a0, 0x59e4e63d, 0x60cc8615, 0xef7ce575, 0x901e74e8, 0xe44a8fb7, 0x3c8366d1, 0x69d1]), 
+        let a = ExtensionFieldElement{ A: Fp751Element([0xaaf59ea4, 0x9331d9c5, 0xe4046931, 0xb32b702b, 0x12ed4d34, 0xcebb3339, 0xcd29c7a2, 0x5628ce37, 0x48b7f58e, 0xbeac5ed, 0x81d65b07, 0x1fb9d3e2, 0x1e195662, 0x9c0cfacc, 0x6b70f7d9, 0xae4bce0f, 0x43fe71a0, 0x59e4e63d, 0x60cc8615, 0xef7ce575, 0x901e74e8, 0xe44a8fb7, 0x3c8366d1, 0x69d1]),
                                        B: Fp751Element([0x279ab966, 0xf6da1070, 0x7268c762, 0xa78fb0ce, 0x4a57abfa, 0x19b40f04, 0x60c0c233, 0x7ac8ee61, 0x42947072, 0x93d49934, 0xa4e44860, 0x757d2b3f, 0x8c4d5257, 0x73a920f, 0x54734037, 0x2031f1b0, 0x406555cd, 0xdefaa1d2, 0x1496be3d, 0x26f9c70e, 0xa4d0976, 0x5b3f335a, 0x8b2e9c59, 0x1362]) };
-        #[cfg(target_arch = "x86_64")]
-        let affine_xP = ExtensionFieldElement{ A: Fp751Element([0xea6b2d1e2aebb250, 0x35d0b205dc4f6386, 0xb198e93cb1830b8d, 0x3b5b456b496ddcc6, 0x5be3f0d41132c260, 0xce5f188807516a00, 0x54f3e7469ea8866d, 0x33809ef47f36286, 0x6fa45f83eabe1edb, 0x1b3391ae5d19fd86, 0x1e66daf48584af3f, 0xb430c14aaa87]), 
-                                               B: Fp751Element([0x97b41ebc61dcb2ad, 0x80ead31cb932f641, 0x40a940099948b642, 0x2a22fd16cdc7fe84, 0xaabf35b17579667f, 0x76c1d0139feb4032, 0x71467e1e7b1949be, 0x678ca8dadd0d6d81, 0x14445daea9064c66, 0x92d161eab4fa4691, 0x8dfbb01b6b238d36, 0x2e3718434e4e]) };
-        #[cfg(target_arch = "x86")]
-        let affine_xP = ExtensionFieldElement{ A: Fp751Element([0x2aebb250, 0xea6b2d1e, 0xdc4f6386, 0x35d0b205, 0xb1830b8d, 0xb198e93c, 0x496ddcc6, 0x3b5b456b, 0x1132c260, 0x5be3f0d4, 0x7516a00, 0xce5f1888, 0x9ea8866d, 0x54f3e746, 0x47f36286, 0x33809ef, 0xeabe1edb, 0x6fa45f83, 0x5d19fd86, 0x1b3391ae, 0x8584af3f, 0x1e66daf4, 0xc14aaa87, 0xb430]), 
+        let affine_xP = ExtensionFieldElement{ A: Fp751Element([0x2aebb250, 0xea6b2d1e, 0xdc4f6386, 0x35d0b205, 0xb1830b8d, 0xb198e93c, 0x496ddcc6, 0x3b5b456b, 0x1132c260, 0x5be3f0d4, 0x7516a00, 0xce5f1888, 0x9ea8866d, 0x54f3e746, 0x47f36286, 0x33809ef, 0xeabe1edb, 0x6fa45f83, 0x5d19fd86, 0x1b3391ae, 0x8584af3f, 0x1e66daf4, 0xc14aaa87, 0xb430]),
                                                B: Fp751Element([0x61dcb2ad, 0x97b41ebc, 0xb932f641, 0x80ead31c, 0x9948b642, 0x40a94009, 0xcdc7fe84, 0x2a22fd16, 0x7579667f, 0xaabf35b1, 0x9feb4032, 0x76c1d013, 0x7b1949be, 0x71467e1e, 0xdd0d6d81, 0x678ca8da, 0xa9064c66, 0x14445dae, 0xb4fa4691, 0x92d161ea, 0x6b238d36, 0x8dfbb01b, 0x18434e4e, 0x2e37]) };
-        #[cfg(target_arch = "x86_64")]
-        let affine_xQ = ExtensionFieldElement{ A: Fp751Element([0xb055cf0ca1943439, 0xa9ff5de2fa6c69ed, 0x4f2761f934e5730a, 0x61a1dcaa1f94aa4b, 0xce3c8fadfd058543, 0xeac432aaa6701b8e, 0x8491d523093aea8b, 0xba273f9bd92b9b7f, 0xd8f59fd34439bb5a, 0xdc0350261c1fe600, 0x99375ab1eb151311, 0x14d175bbdbc5]), 
-                                               B: Fp751Element([0xffb0ef8c2111a107, 0x55ceca3825991829, 0xdbf8a1ccc075d34b, 0xb8e9187bd85d8494, 0x670aa2d5c34a03b0, 0xef9fe2ed2b064953, 0xc911f5311d645aee, 0xf4411f409e410507, 0x934a0a852d03e1a8, 0xe6274e67ae1ad544, 0x9f4bc563c69a87bc, 0x6f316019681e]) };
-        #[cfg(target_arch = "x86")]
-        let affine_xQ = ExtensionFieldElement{ A: Fp751Element([0xa1943439, 0xb055cf0c, 0xfa6c69ed, 0xa9ff5de2, 0x34e5730a, 0x4f2761f9, 0x1f94aa4b, 0x61a1dcaa, 0xfd058543, 0xce3c8fad, 0xa6701b8e, 0xeac432aa, 0x93aea8b, 0x8491d523, 0xd92b9b7f, 0xba273f9b, 0x4439bb5a, 0xd8f59fd3, 0x1c1fe600, 0xdc035026, 0xeb151311, 0x99375ab1, 0x75bbdbc5, 0x14d1]), 
+        let affine_xQ = ExtensionFieldElement{ A: Fp751Element([0xa1943439, 0xb055cf0c, 0xfa6c69ed, 0xa9ff5de2, 0x34e5730a, 0x4f2761f9, 0x1f94aa4b, 0x61a1dcaa, 0xfd058543, 0xce3c8fad, 0xa6701b8e, 0xeac432aa, 0x93aea8b, 0x8491d523, 0xd92b9b7f, 0xba273f9b, 0x4439bb5a, 0xd8f59fd3, 0x1c1fe600, 0xdc035026, 0xeb151311, 0x99375ab1, 0x75bbdbc5, 0x14d1]),
                                                B: Fp751Element([0x2111a107, 0xffb0ef8c, 0x25991829, 0x55ceca38, 0xc075d34b, 0xdbf8a1cc, 0xd85d8494, 0xb8e9187b, 0xc34a03b0, 0x670aa2d5, 0x2b064953, 0xef9fe2ed, 0x1d645aee, 0xc911f531, 0x9e410507, 0xf4411f40, 0x2d03e1a8, 0x934a0a85, 0xae1ad544, 0xe6274e67, 0xc69a87bc, 0x9f4bc563, 0x6019681e, 0x6f31]) };
-        #[cfg(target_arch = "x86_64")]
-        let affine_xQmP = ExtensionFieldElement{ A: Fp751Element([0x6ffb44306a153779, 0xc0ffef21f2f918f3, 0x196c46d35d77f778, 0x4a73f80452edcfe6, 0x9b00836bce61c67f, 0x387879418d84219e, 0x20700cf9fc1ec5d1, 0x1dfe2356ec64155e, 0xf8b9e33038256b1c, 0xd2aaf2e14bada0f0, 0xb33b226e79a4e313, 0x6be576fad4e5]), 
-                                                 B: Fp751Element([0x7db5dbc88e00de34, 0x75cc8cb9f8b6e11e, 0x8c8001c04ebc52ac, 0x67ef6c981a0b5a94, 0xc3654fbe73230738, 0xc6a46ee82983ceca, 0xed1aa61a27ef49f0, 0x17fe5a13b0858fe0, 0x9ae0ca945a4c6b3c, 0x234104a218ad8878, 0xa619627166104394, 0x556a01ff2e7e]) };
-        #[cfg(target_arch = "x86")]
-        let affine_xQmP = ExtensionFieldElement{ A: Fp751Element([0x6a153779, 0x6ffb4430, 0xf2f918f3, 0xc0ffef21, 0x5d77f778, 0x196c46d3, 0x52edcfe6, 0x4a73f804, 0xce61c67f, 0x9b00836b, 0x8d84219e, 0x38787941, 0xfc1ec5d1, 0x20700cf9, 0xec64155e, 0x1dfe2356, 0x38256b1c, 0xf8b9e330, 0x4bada0f0, 0xd2aaf2e1, 0x79a4e313, 0xb33b226e, 0x76fad4e5, 0x6be5]), 
+        let affine_xQmP = ExtensionFieldElement{ A: Fp751Element([0x6a153779, 0x6ffb4430, 0xf2f918f3, 0xc0ffef21, 0x5d77f778, 0x196c46d3, 0x52edcfe6, 0x4a73f804, 0xce61c67f, 0x9b00836b, 0x8d84219e, 0x38787941, 0xfc1ec5d1, 0x20700cf9, 0xec64155e, 0x1dfe2356, 0x38256b1c, 0xf8b9e330, 0x4bada0f0, 0xd2aaf2e1, 0x79a4e313, 0xb33b226e, 0x76fad4e5, 0x6be5]),
                                                  B: Fp751Element([0x8e00de34, 0x7db5dbc8, 0xf8b6e11e, 0x75cc8cb9, 0x4ebc52ac, 0x8c8001c0, 0x1a0b5a94, 0x67ef6c98, 0x73230738, 0xc3654fbe, 0x2983ceca, 0xc6a46ee8, 0x27ef49f0, 0xed1aa61a, 0xb0858fe0, 0x17fe5a13, 0x5a4c6b3c, 0x9ae0ca94, 0x18ad8878, 0x234104a2, 0x66104394, 0xa6196271, 0x1ff2e7e, 0x556a]) };
 
         let curve_params = ProjectiveCurveParameters::recover_curve_parameters(&affine_xP, &affine_xQ, &affine_xQmP);
@@ -1061,11 +973,7 @@ mod test {
     fn three_point_ladder_versus_sage() {
         let xR = ProjectivePoint::three_point_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &M_SCALAR_BYTES[..]);
         let affine_xR = xR.to_affine();
-        #[cfg(target_arch = "x86_64")]
-        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x729465ba800d4fd5, 0x9398015b59e514a1, 0x1a59dd6be76c748e, 0x1a7db94eb28dd55c, 0x444686e680b1b8ec, 0xcc3d4ace2a2454ff, 0x51d3dab4ec95a419, 0xc3b0f33594acac6a, 0x9598a74e7fd44f8a, 0x4fbf8c638f1c2e37, 0x844e347033052f51, 0x6cd6de3eafcf]), 
-                                                    B: Fp751Element([0x85da145412d73430, 0xd83c0e3b66eb3232, 0xd08ff2d453ec1369, 0xa64aaacfdb395b13, 0xe9cba211a20e806e, 0xa4f80b175d937cfc, 0x556ce5c64b1f7937, 0xb59b39ea2b3fdf7a, 0xc2526b869a4196b3, 0x8dad90bca9371750, 0xdfb4a30c9d9147a2, 0x346d2130629b]) };
-        #[cfg(target_arch = "x86")]
-        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x800d4fd5, 0x729465ba, 0x59e514a1, 0x9398015b, 0xe76c748e, 0x1a59dd6b, 0xb28dd55c, 0x1a7db94e, 0x80b1b8ec, 0x444686e6, 0x2a2454ff, 0xcc3d4ace, 0xec95a419, 0x51d3dab4, 0x94acac6a, 0xc3b0f335, 0x7fd44f8a, 0x9598a74e, 0x8f1c2e37, 0x4fbf8c63, 0x33052f51, 0x844e3470, 0xde3eafcf, 0x6cd6]), 
+        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x800d4fd5, 0x729465ba, 0x59e514a1, 0x9398015b, 0xe76c748e, 0x1a59dd6b, 0xb28dd55c, 0x1a7db94e, 0x80b1b8ec, 0x444686e6, 0x2a2454ff, 0xcc3d4ace, 0xec95a419, 0x51d3dab4, 0x94acac6a, 0xc3b0f335, 0x7fd44f8a, 0x9598a74e, 0x8f1c2e37, 0x4fbf8c63, 0x33052f51, 0x844e3470, 0xde3eafcf, 0x6cd6]),
                                                     B: Fp751Element([0x12d73430, 0x85da1454, 0x66eb3232, 0xd83c0e3b, 0x53ec1369, 0xd08ff2d4, 0xdb395b13, 0xa64aaacf, 0xa20e806e, 0xe9cba211, 0x5d937cfc, 0xa4f80b17, 0x4b1f7937, 0x556ce5c6, 0x2b3fdf7a, 0xb59b39ea, 0x9a4196b3, 0xc2526b86, 0xa9371750, 0x8dad90bc, 0x9d9147a2, 0xdfb4a30c, 0x2130629b, 0x346d]) };
         
         assert!(affine_xR.vartime_eq(&sage_affine_xR), "\nExpected\n{:?}\nfound\n{:?}", sage_affine_xR, affine_xR);
@@ -1075,11 +983,7 @@ mod test {
     fn right_to_left_ladder_versus_sage() {
         let xR = ProjectivePoint::right_to_left_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &M_SCALAR_BYTES[..]);
         let affine_xR = xR.to_affine();
-        #[cfg(target_arch = "x86_64")]
-        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x729465ba800d4fd5, 0x9398015b59e514a1, 0x1a59dd6be76c748e, 0x1a7db94eb28dd55c, 0x444686e680b1b8ec, 0xcc3d4ace2a2454ff, 0x51d3dab4ec95a419, 0xc3b0f33594acac6a, 0x9598a74e7fd44f8a, 0x4fbf8c638f1c2e37, 0x844e347033052f51, 0x6cd6de3eafcf]), 
-                                                    B: Fp751Element([0x85da145412d73430, 0xd83c0e3b66eb3232, 0xd08ff2d453ec1369, 0xa64aaacfdb395b13, 0xe9cba211a20e806e, 0xa4f80b175d937cfc, 0x556ce5c64b1f7937, 0xb59b39ea2b3fdf7a, 0xc2526b869a4196b3, 0x8dad90bca9371750, 0xdfb4a30c9d9147a2, 0x346d2130629b]) };
-        #[cfg(target_arch = "x86")]
-        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x800d4fd5, 0x729465ba, 0x59e514a1, 0x9398015b, 0xe76c748e, 0x1a59dd6b, 0xb28dd55c, 0x1a7db94e, 0x80b1b8ec, 0x444686e6, 0x2a2454ff, 0xcc3d4ace, 0xec95a419, 0x51d3dab4, 0x94acac6a, 0xc3b0f335, 0x7fd44f8a, 0x9598a74e, 0x8f1c2e37, 0x4fbf8c63, 0x33052f51, 0x844e3470, 0xde3eafcf, 0x6cd6]), 
+        let sage_affine_xR = ExtensionFieldElement{ A: Fp751Element([0x800d4fd5, 0x729465ba, 0x59e514a1, 0x9398015b, 0xe76c748e, 0x1a59dd6b, 0xb28dd55c, 0x1a7db94e, 0x80b1b8ec, 0x444686e6, 0x2a2454ff, 0xcc3d4ace, 0xec95a419, 0x51d3dab4, 0x94acac6a, 0xc3b0f335, 0x7fd44f8a, 0x9598a74e, 0x8f1c2e37, 0x4fbf8c63, 0x33052f51, 0x844e3470, 0xde3eafcf, 0x6cd6]),
                                                     B: Fp751Element([0x12d73430, 0x85da1454, 0x66eb3232, 0xd83c0e3b, 0x53ec1369, 0xd08ff2d4, 0xdb395b13, 0xa64aaacf, 0xa20e806e, 0xe9cba211, 0x5d937cfc, 0xa4f80b17, 0x4b1f7937, 0x556ce5c6, 0x2b3fdf7a, 0xb59b39ea, 0x9a4196b3, 0xc2526b86, 0xa9371750, 0x8dad90bc, 0x9d9147a2, 0xdfb4a30c, 0x2130629b, 0x346d]) };
         
         assert!(affine_xR.vartime_eq(&sage_affine_xR), "\nExpected\n{:?}\nfound\n{:?}", sage_affine_xR, affine_xR);
@@ -1102,37 +1006,19 @@ mod test {
     #[test]
     fn scalar_mul_prime_field_and_coordinate_recovery_versus_sage_generated_torsion_points() {
         // x((11,...)) = 11
-        #[cfg(target_arch = "x86_64")]
-        let x11 = ProjectivePrimeFieldPoint{
-            X: PrimeFieldElement{ A: Fp751Element([0x192a73, 0x0, 0x0, 0x0, 0x0, 0xe6f0000000000000, 0x19024ab93916c5c3, 0x1dcd18cf68876318, 0x7d8c830e0c47ba23, 0x3588ea6a9388299a, 0x8259082aa8e3256c, 0x33533f160446]) },
-            Z: PrimeFieldElement::one(),
-        };
-        #[cfg(target_arch = "x86")]
         let x11 = ProjectivePrimeFieldPoint{
             X: PrimeFieldElement{ A: Fp751Element([0x192a73, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xe6f00000, 0x3916c5c3, 0x19024ab9, 0x68876318, 0x1dcd18cf, 0xc47ba23, 0x7d8c830e, 0x9388299a, 0x3588ea6a, 0xa8e3256c, 0x8259082a, 0x3f160446, 0x3353]) },
             Z: PrimeFieldElement::one(),
         };
         // y((11,...)) = oddsqrt(11^3 + 11)
-        #[cfg(target_arch = "x86_64")]
-        let y11 = PrimeFieldElement{ A: Fp751Element([0xd38a264df57f3c8a, 0x9c0450d25042dcdf, 0xaf1ab7be7bbed0b6, 0xa307981c42b29630, 0x845a7e79e0fa2ecb, 0x7ef77ef732108f55, 0x97b5836751081f0d, 0x59e3d115f5275ff4, 0x9a02736282284916, 0xec39f71196540e99, 0xf8b521b28dcc965a, 0x6af0b9d7f54c]) };
-        #[cfg(target_arch = "x86")]
         let y11 = PrimeFieldElement{ A: Fp751Element([0xf57f3c8a, 0xd38a264d, 0x5042dcdf, 0x9c0450d2, 0x7bbed0b6, 0xaf1ab7be, 0x42b29630, 0xa307981c, 0xe0fa2ecb, 0x845a7e79, 0x32108f55, 0x7ef77ef7, 0x51081f0d, 0x97b58367, 0xf5275ff4, 0x59e3d115, 0x82284916, 0x9a027362, 0x96540e99, 0xec39f711, 0x8dcc965a, 0xf8b521b2, 0xb9d7f54c, 0x6af0]) };
      
         // x((6,...)) = 6
-        #[cfg(target_arch = "x86_64")]
-        let x6 =  ProjectivePrimeFieldPoint{
-            X: PrimeFieldElement{ A: Fp751Element([0xdba10, 0x0, 0x0, 0x0, 0x0, 0x3500000000000000, 0x3714fe4eb8399915, 0xc3a2584753eb43f4, 0xa3151d605c520428, 0xc116cf5232c7c978, 0x49a84d4b8efaf6aa, 0x305731e97514]) },
-            Z: PrimeFieldElement::one(),
-        };
-        #[cfg(target_arch = "x86")]
         let x6 =  ProjectivePrimeFieldPoint{
             X: PrimeFieldElement{ A: Fp751Element([0xdba10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x35000000, 0xb8399915, 0x3714fe4e, 0x53eb43f4, 0xc3a25847, 0x5c520428, 0xa3151d60, 0x32c7c978, 0xc116cf52, 0x8efaf6aa, 0x49a84d4b, 0x31e97514, 0x3057]) },
             Z: PrimeFieldElement::one(),
         };
         // y((6,...)) = oddsqrt(6^3 + 6)
-        #[cfg(target_arch = "x86_64")]
-        let y6 = PrimeFieldElement{ A: Fp751Element([0xe4786c67ba55ff3c, 0x6ffa02bcc2a148e0, 0xe1c5d019df326e2a, 0x232148910f712e87, 0x6ade324bee99c196, 0x4372f82c6bb821f3, 0x91a374a15d391ec4, 0x6e98998b110b7c75, 0x2e093f44d4eeb574, 0x33cdd14668840958, 0xb017cea89e353067, 0x6f907085d4b7]) };
-        #[cfg(target_arch = "x86")]
         let y6 = PrimeFieldElement{ A: Fp751Element([0xba55ff3c, 0xe4786c67, 0xc2a148e0, 0x6ffa02bc, 0xdf326e2a, 0xe1c5d019, 0xf712e87, 0x23214891, 0xee99c196, 0x6ade324b, 0x6bb821f3, 0x4372f82c, 0x5d391ec4, 0x91a374a1, 0x110b7c75, 0x6e98998b, 0xd4eeb574, 0x2e093f44, 0x68840958, 0x33cdd146, 0x9e353067, 0xb017cea8, 0x7085d4b7, 0x6f90]) };
         // Little-endian bytes of 3^239
         let three_239_bytes: [u8; 48] = [235, 142, 138, 135, 159, 84, 104, 201, 62, 110, 199, 124, 63, 161, 177, 89, 169, 109, 135, 190, 110, 125, 134, 233, 132, 128, 116, 37, 203, 69, 80, 43, 86, 104, 198, 173, 123, 249, 9, 41, 225, 192, 113, 31, 84, 93, 254, 6];
@@ -1140,9 +1026,6 @@ mod test {
         let two_372_bytes: [u8; 47] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16];
 
         // E_0 : y^2 = x^3 + x has a = 0, so (a+2)/4 = 1/2
-        #[cfg(target_arch = "x86_64")]
-        let aPlus2Over4 = PrimeFieldElement{ A: Fp751Element([0x124d6, 0x0, 0x0, 0x0, 0x0, 0xb8e0000000000000, 0x9c8a2434c0aa7287, 0xa206996ca9a378a3, 0x6876280d41a41b52, 0xe903b49f175ce04f, 0xf8511860666d227, 0x4ea07cff6e7f]) };
-        #[cfg(target_arch = "x86")]
         let aPlus2Over4 = PrimeFieldElement{ A: Fp751Element([0x124d6, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xb8e00000, 0xc0aa7287, 0x9c8a2434, 0xa9a378a3, 0xa206996c, 0x41a41b52, 0x6876280d, 0x175ce04f, 0xe903b49f, 0x666d227, 0xf851186, 0x7cff6e7f, 0x4ea0]) };
         // Compute x(P_A) = x([3^239](11,...)) and x([3^239 + 1](11,...))
         let (xPA, xPAplus11) = x11.scalar_mul_prime_field(&aPlus2Over4, &three_239_bytes[..]);
@@ -1171,138 +1054,4 @@ mod test {
         assert!(AFFINE_Y_PB.vartime_eq(&Y_B), "Recovered y(P_B) incorrectly: found\n{:?}\nexpected{:?}\n", Y_B, AFFINE_Y_PB);
         assert!(AFFINE_X_PB.vartime_eq(&X_B), "Recovered x(P_B) incorrectly: found\n{:?}\nexpected{:?}\n", X_B, AFFINE_X_PB);
    }
-}
-
-#[cfg(all(test, feature = "bench"))]
-mod bench {
-    use super::*;
-    use test::Bencher;
-
-    // A = 4385300808024233870220415655826946795549183378139271271040522089756750951667981765872679172832050962894122367066234419550072004266298327417513857609747116903999863022476533671840646615759860564818837299058134292387429068536219*i + 1408083354499944307008104531475821995920666351413327060806684084512082259107262519686546161682384352696826343970108773343853651664489352092568012759783386151707999371397181344707721407830640876552312524779901115054295865393760
-    #[cfg(target_arch = "x86_64")]
-    const CURVE_A: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x8319eb18ca2c435e, 0x3a93beae72cd0267, 0x5e465e1f72fd5a84, 0x8617fa4150aa7272, 0x887da24799d62a13, 0xb079b31b3c7667fe, 0xc4661b150fa14f2e, 0xd4d2b2967bc6efd6, 0x854215a8b7239003, 0x61c5302ccba656c2, 0xf93194a27d6f97a2, 0x1ed9532bca75]),
-                                                                  B: Fp751Element([0xb6f541040e8c7db6, 0x99403e7365342e15, 0x457e9cee7c29cced, 0x8ece72dc073b1d67, 0x6e73cef17ad28d28, 0x7aed836ca317472, 0x89e1de9454263b54, 0x745329277aa0071b, 0xf623dfc73bc86b9b, 0xb8e3c1d8a9245882, 0x6ad0b3d317770bec, 0x5b406e8d502b]) };
-    #[cfg(target_arch = "x86")]
-    const CURVE_A: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xca2c435e, 0x8319eb18, 0x72cd0267, 0x3a93beae, 0x72fd5a84, 0x5e465e1f, 0x50aa7272, 0x8617fa41, 0x99d62a13, 0x887da247, 0x3c7667fe, 0xb079b31b, 0x0fa14f2e, 0xc4661b15, 0x7bc6efd6, 0xd4d2b296, 0xb7239003, 0x854215a8, 0xcba656c2, 0x61c5302c, 0x7d6f97a2, 0xf93194a2, 0x532bca75, 0x1ed9]),
-                                                                  B: Fp751Element([0x0e8c7db6, 0xb6f54104, 0x65342e15, 0x99403e73, 0x7c29cced, 0x457e9cee, 0x073b1d67, 0x8ece72dc, 0x7ad28d28, 0x6e73cef1, 0xca317472, 0x7aed836, 0x54263b54, 0x89e1de94, 0x7aa0071b, 0x74532927, 0x3bc86b9b, 0xf623dfc7, 0xa9245882, 0xb8e3c1d8, 0x17770bec, 0x6ad0b3d3, 0x6e8d502b, 0x5b40]) };
-    // C = 933177602672972392833143808100058748100491911694554386487433154761658932801917030685312352302083870852688835968069519091048283111836766101703759957146191882367397129269726925521881467635358356591977198680477382414690421049768*i + 9088894745865170214288643088620446862479558967886622582768682946704447519087179261631044546285104919696820250567182021319063155067584445633834024992188567423889559216759336548208016316396859149888322907914724065641454773776307
-    #[cfg(target_arch = "x86_64")]
-    const CURVE_C: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0x4fb2358bbf723107, 0x3a791521ac79e240, 0x283e24ef7c4c922f, 0xc89baa1205e33cc, 0x3031be81cff6fee1, 0xaf7a494a2f6a95c4, 0x248d251eaac83a1d, 0xc122fca1e2550c88, 0xbc0451b11b6cfd3d, 0x9c0a114ab046222c, 0x43b957b32f21f6ea, 0x5b9c87fa61de]),
-                                                                  B: Fp751Element([0xacf142afaac15ec6, 0xfd1322a504a071d5, 0x56bb205e10f6c5c6, 0xe204d2849a97b9bd, 0x40b0122202fe7f2e, 0xecf72c6fafacf2cb, 0x45dfc681f869f60a, 0x11814c9aff4af66c, 0x9278b0c4eea54fe7, 0x9a633d5baf7f2e2e, 0x69a329e6f1a05112, 0x1d874ace23e4]) };
-    #[cfg(target_arch = "x86")]
-    const CURVE_C: ExtensionFieldElement = ExtensionFieldElement{ A: Fp751Element([0xbf723107, 0x4fb2358b, 0xac79e240, 0x3a791521, 0x7c4c922f, 0x283e24ef, 0x205e33cc, 0xc89baa1, 0xcff6fee1, 0x3031be81, 0x2f6a95c4, 0xaf7a494a, 0xaac83a1d, 0x248d251e, 0xe2550c88, 0xc122fca1, 0x1b6cfd3d, 0xbc0451b1, 0xb046222c, 0x9c0a114a, 0x2f21f6ea, 0x43b957b3, 0x87fa61de, 0x5b9c]),
-                                                                  B: Fp751Element([0xaac15ec6, 0xacf142af, 0x04a071d5, 0xfd1322a5, 0x10f6c5c6, 0x56bb205e, 0x9a97b9bd, 0xe204d284, 0x02fe7f2e, 0x40b01222, 0xafacf2cb, 0xecf72c6f, 0xf869f60a, 0x45dfc681, 0xff4af66c, 0x11814c9a, 0xeea54fe7, 0x9278b0c4, 0xaf7f2e2e, 0x9a633d5b, 0xf1a05112, 0x69a329e6, 0x4ace23e4, 0x1d87]) };
-    
-    const CURVE: ProjectiveCurveParameters = ProjectiveCurveParameters{ A: CURVE_A, C: CURVE_C };
-
-    // Since function calls in constants and statics are limited to constant functions in Rust, we define it here and assign to other consts when needed.
-    #[cfg(target_arch = "x86_64")]
-    const EXTENSION_FIELD_ELEMENT_ONE: ExtensionFieldElement = ExtensionFieldElement {
-            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x8310000000000000, 0x5527b1e4375c6c66, 0x697797bf3f4f24d0, 0xc89db7b2ac5c4e2e, 0x4ca4b439d2076956, 0x10f7926c7512c7e9, 0x2d5b24bce5e2]),
-            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-    };
-    #[cfg(target_arch = "x86")]
-    const EXTENSION_FIELD_ELEMENT_ONE: ExtensionFieldElement = ExtensionFieldElement{
-            A: Fp751Element([0x249ad, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x83100000, 0x375c6c66, 0x5527b1e4, 0x3f4f24d0, 0x697797bf, 0xac5c4e2e, 0xc89db7b2, 0xd2076956, 0x4ca4b439, 0x7512c7e9, 0x10f7926c, 0x24bce5e2, 0x2d5b]),
-            B: Fp751Element([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]),
-    };
-
-    #[cfg(target_arch = "x86_64")]
-    const THREE_POINT_LADDER_INPUTS: [ProjectivePoint; 3] = [
-        // x(P)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0xe8d05f30aac47247, 0x576ec00c55441de7, 0xbf1a8ec5fe558518, 0xd77cb17f77515881, 0x8e9852837ee73ec4, 0x8159634ad4f44a6b, 0x2e4eb5533a798c5, 0x9be8c4354d5bc849, 0xf47dc61806496b84, 0x25d0e130295120e0, 0xdbef54095f8139e3, 0x5a724f20862c]), 
-                                      B: Fp751Element([0x3ca30d7623602e30, 0xfb281eddf45f07b7, 0xd2bf62d5901a45bc, 0xc67c9baf86306dd2, 0x4e2bd93093f538ca, 0xcfd92075c25b9cbe, 0xceafe9a3095bcbab, 0x7d928ad380c85414, 0x37c5f38b2afdc095, 0x75325899a7b779f4, 0xf130568249f20fdd, 0x178f264767d1]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x2b71a2a93ad1e10e, 0xf0b9842a92cfb333, 0xae17373615a27f5c, 0x3039239f428330c4, 0xa0c4b735ed7dcf98, 0x6e359771ddf6af6a, 0xe986e4cac4584651, 0x8233a2b622d5518, 0xbfd67bf5f06b818b, 0xdffe38d0f5b966a6, 0xa86b36a3272ee00a, 0x193e2ea4f68f]), 
-                                      B: Fp751Element([0x5a0f396459d9d998, 0x479f42250b1b7dda, 0x4016b57e2a15bf75, 0xc59f915203fa3749, 0xd5f90257399cf8da, 0x1fb2dadfd86dcef4, 0x600f20e6429021dc, 0x17e347d380c57581, 0xc1b0d5fa8fe3e440, 0xbcf035330ac20e8, 0x50c2eb5f6a4f03e6, 0x86b7c4571]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(P-Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x4aafa9f378f7b5ff, 0x1172a683aa8eee0, 0xea518d8cbec2c1de, 0xe191bcbb63674557, 0x97bc19637b259011, 0xdbeae5c9f4a2e454, 0x78f64d1b72a42f95, 0xe71cb4ea7e181e54, 0xe4169d4c48543994, 0x6198c2286a98730f, 0xd21d675bbab1afa5, 0x2e7269fce391]), 
-                                      B: Fp751Element([0x23355783ce1d0450, 0x683164cf4ce3d93f, 0xae6d1c4d25970fd8, 0x7807007fb80b48cf, 0xa005a62ec2bbb8a2, 0x6b5649bd016004cb, 0xbb1a13fa1330176b, 0xbf38e51087660461, 0xe577fddc5dd7b930, 0x5f38116f56947cd3, 0x3124f30b98c36fde, 0x4ca9b6e6db37]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-    ];
-    #[cfg(target_arch = "x86")]
-    const THREE_POINT_LADDER_INPUTS: [ProjectivePoint; 3] = [
-        // x(P)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0xaac47247, 0xe8d05f30, 0x55441de7, 0x576ec00c, 0xfe558518, 0xbf1a8ec5, 0x77515881, 0xd77cb17f, 0x7ee73ec4, 0x8e985283, 0xd4f44a6b, 0x8159634a, 0x33a798c5, 0x2e4eb55, 0x4d5bc849, 0x9be8c435, 0x6496b84, 0xf47dc618, 0x295120e0, 0x25d0e130, 0x5f8139e3, 0xdbef5409, 0x4f20862c, 0x5a72]), 
-                                      B: Fp751Element([0x23602e30, 0x3ca30d76, 0xf45f07b7, 0xfb281edd, 0x901a45bc, 0xd2bf62d5, 0x86306dd2, 0xc67c9baf, 0x93f538ca, 0x4e2bd930, 0xc25b9cbe, 0xcfd92075, 0x95bcbab, 0xceafe9a3, 0x80c85414, 0x7d928ad3, 0x2afdc095, 0x37c5f38b, 0xa7b779f4, 0x75325899, 0x49f20fdd, 0xf1305682, 0x264767d1, 0x178f]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x3ad1e10e, 0x2b71a2a9, 0x92cfb333, 0xf0b9842a, 0x15a27f5c, 0xae173736, 0x428330c4, 0x3039239f, 0xed7dcf98, 0xa0c4b735, 0xddf6af6a, 0x6e359771, 0xc4584651, 0xe986e4ca, 0x622d5518, 0x8233a2b, 0xf06b818b, 0xbfd67bf5, 0xf5b966a6, 0xdffe38d0, 0x272ee00a, 0xa86b36a3, 0x2ea4f68f, 0x193e]), 
-                                      B: Fp751Element([0x59d9d998, 0x5a0f3964, 0xb1b7dda, 0x479f4225, 0x2a15bf75, 0x4016b57e, 0x3fa3749, 0xc59f9152, 0x399cf8da, 0xd5f90257, 0xd86dcef4, 0x1fb2dadf, 0x429021dc, 0x600f20e6, 0x80c57581, 0x17e347d3, 0x8fe3e440, 0xc1b0d5fa, 0x30ac20e8, 0xbcf0353, 0x6a4f03e6, 0x50c2eb5f, 0x6b7c4571, 0x8]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-        // x(P-Q)
-        ProjectivePoint{
-            X: ExtensionFieldElement{ A: Fp751Element([0x78f7b5ff, 0x4aafa9f3, 0x3aa8eee0, 0x1172a68, 0xbec2c1de, 0xea518d8c, 0x63674557, 0xe191bcbb, 0x7b259011, 0x97bc1963, 0xf4a2e454, 0xdbeae5c9, 0x72a42f95, 0x78f64d1b, 0x7e181e54, 0xe71cb4ea, 0x48543994, 0xe4169d4c, 0x6a98730f, 0x6198c228, 0xbab1afa5, 0xd21d675b, 0x69fce391, 0x2e72]), 
-                                      B: Fp751Element([0xce1d0450, 0x23355783, 0x4ce3d93f, 0x683164cf, 0x25970fd8, 0xae6d1c4d, 0xb80b48cf, 0x7807007f, 0xc2bbb8a2, 0xa005a62e, 0x16004cb, 0x6b5649bd, 0x1330176b, 0xbb1a13fa, 0x87660461, 0xbf38e510, 0x5dd7b930, 0xe577fddc, 0x56947cd3, 0x5f38116f, 0x98c36fde, 0x3124f30b, 0xb6e6db37, 0x4ca9]) },
-            Z: EXTENSION_FIELD_ELEMENT_ONE,
-        },
-    ];
-
-    #[bench]
-    fn point_addition(b: &mut Bencher) {
-        let xP = ProjectivePoint{ X: CURVE_A, Z: CURVE_C };
-        let mut xP2 = ProjectivePoint::new();
-        let cached_params = CURVE.cached_params();
-        xP2 = xP.double(&cached_params);
-
-        b.iter(|| xP2.add(&xP, &xP));
-    }
-
-    #[bench]
-    fn point_double(b: &mut Bencher) {
-        let xP = ProjectivePoint{ X: CURVE_A, Z: CURVE_C };
-        let cached_params = CURVE.cached_params();
-
-        b.iter(|| xP.double(&cached_params));
-    }
-
-    #[bench]
-    fn point_triple(b: &mut Bencher) {
-        let xP = ProjectivePoint{ X: CURVE_A, Z: CURVE_C };
-        let cached_params = CURVE.cached_triple_params();
-
-        b.iter(|| xP.triple(&cached_params));
-    }
-
-    #[bench]
-    fn scalar_mul_379bit_scalar(b: &mut Bencher) {
-        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
-        
-        b.iter(|| THREE_POINT_LADDER_INPUTS[0].scalar_mul(&CURVE, &m_scalar_bytes[..]));
-    }
-
-    #[bench]
-    fn scalar_prime_field_mul_379bit_scalar(b: &mut Bencher) {
-        let xR = ProjectivePrimeFieldPoint::new();
-        let a24 = PrimeFieldElement::zero();
-        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
-        
-        b.iter(|| xR.scalar_mul_prime_field(&a24, &m_scalar_bytes[..]));
-    }
-
-    #[bench]
-    fn three_point_ladder_379bit_scalar(b: &mut Bencher) {
-        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
-        
-        b.iter(|| ProjectivePoint::three_point_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
-    }
-
-    #[bench]
-    fn right_to_left_ladder_379bit_scalar(b: &mut Bencher) {
-        let m_scalar_bytes: [u8; 48] = [84, 222, 146, 63, 85, 18, 173, 162, 167, 38, 10, 8, 143, 176, 93, 228, 247, 128, 50, 128, 205, 42, 15, 137, 119, 67, 43, 3, 61, 91, 237, 24, 235, 12, 53, 96, 186, 164, 232, 223, 197, 224, 64, 109, 137, 63, 246, 4];
-        
-        b.iter(|| ProjectivePoint::right_to_left_ladder(&THREE_POINT_LADDER_INPUTS[0], &THREE_POINT_LADDER_INPUTS[1], &THREE_POINT_LADDER_INPUTS[2], &CURVE, &m_scalar_bytes[..]));
-    }
 }
