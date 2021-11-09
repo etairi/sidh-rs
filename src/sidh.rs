@@ -17,8 +17,12 @@ use heapless::Vec;
 use std::fmt::Debug;
 use std::ops::Neg;
 
+#[cfg(test)]
 #[allow(unused_imports)]
 use rand::{thread_rng, RngCore, CryptoRng};
+
+#[cfg(not(test))]
+use rand_core::{RngCore, CryptoRng};
 
 #[cfg(test)]
 use quickcheck::{Arbitrary, Gen, QuickCheck};

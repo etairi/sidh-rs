@@ -8,7 +8,12 @@
 
 extern crate subtle;
 extern crate heapless;
+
+#[cfg(test)]
 extern crate rand;
+
+#[cfg(not(test))]
+extern crate rand_core;
 
 #[cfg(test)]
 extern crate quickcheck;
