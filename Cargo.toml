@@ -1,6 +1,6 @@
 [package]
 name = "sidh"
-version = "0.2.3"
+version = "0.2.3-zerotier"
 authors = ["Erkan Tairi <erkan.tairi@gmail.com>"]
 readme = "README.md"
 license = "MIT"
@@ -14,42 +14,12 @@ exclude = [
     ".gitignore",
     ".travis.yml",
 ]
-build = "build.rs"
 
-[package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", "katex-header.html"]
+[dependencies]
+heapless = "^0"
+subtle = "^2"
+rand_core = "0.5.0"
 
-[badges]
-travis-ci = { repository = "etairi/sidh-rs", branch = "master" }
-
-[profile.bench]
-debug = true
-
-[build-dependencies]
-cc = "^1.0.71"
-rand = "^0.8.0"
-subtle = "^2.4.1"
-
-[dependencies.quickcheck]
-version = "^1.0"
-
-[dependencies.heapless]
-version = "^0.7.7"
-
-[dependencies.rand]
-version = "^0.8.0"
-default-features = false
-
-[dependencies.rand_core]
-version = "^0.6"
-default-features = false
-
-[dependencies.subtle]
-version = "^2.4.1"
-default-features = false
-
-[features]
-nightly = ["subtle/nightly"]
-default = ["std"]
-std = ["rand/std", "subtle/std", "rand_core/std"]
-bench = []
+[dev-dependencies]
+rand = "^0"
+quickcheck = "^1"
